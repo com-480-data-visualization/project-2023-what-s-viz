@@ -1,8 +1,8 @@
-import React from 'react';
+import React, {useState} from 'react';
 import BarChart from './components/BarChart';
 import './App.css';
 
-const data = [
+var ogData = [
   {year: 1980, efficiency: 24.3, sales: 8949000},
   {year: 1985, efficiency: 27.6, sales: 10979000},
   {year: 1990, efficiency: 28, sales: 9303000},
@@ -36,10 +36,18 @@ const data = [
 ]
 
 function App() {
+  const [data, setData] = useState(ogData);
+
+  const handleClick = (d) => {
+    console.log("Clicked on ", d);
+    data.pop();
+    setData([...data])
+  }
+
   return (
     <div className="App">
       <header className="App-header">
-        <BarChart data={data} />
+        <BarChart data={data} handleClick={handleClick} />
       </header>
     </div>
   );

@@ -2,7 +2,8 @@ import { useD3 } from '../hooks/useD3';
 import React from 'react';
 import * as d3 from 'd3';
 
-function BarChart({ data }) {
+function BarChart({ data, handleClick }) {
+  
   const ref = useD3(
     (svg) => {
       const height = 500;
@@ -61,7 +62,10 @@ function BarChart({ data }) {
         .attr("x", (d) => x(d.year))
         .attr("width", x.bandwidth())
         .attr("y", (d) => y1(d.sales))
-        .attr("height", (d) => y1(0) - y1(d.sales));
+        .attr("height", (d) => y1(0) - y1(d.sales))
+        .on("click", d => {
+          handleClick(d); // passed React method to handle click
+        });
     },
     [data.length]
   );
@@ -72,8 +76,8 @@ function BarChart({ data }) {
       style={{
         height: 500,
         width: "100%",
-        marginRight: "0px",
-        marginLeft: "0px",
+        marginRight: "15px",
+        marginLeft: "15px",
       }}
     >
       <g className="plot-area" />
