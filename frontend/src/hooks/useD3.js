@@ -6,6 +6,7 @@ export const useD3 = (renderChartFn, dependencies) => {
     const ref = React.useRef();
 
     React.useEffect(() => {
+        console.log('useD3 rendered');
         renderChartFn(d3.select(ref.current));
         return () => {};
       }, [renderChartFn, dependencies]);
