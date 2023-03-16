@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
-import BarComponent from '../components/BarComponent';
+import ScatterComponent from '../components/ScatterComponent';
 import { useFetch } from '../hooks/useFetch';
 
 var ogData = [
@@ -37,12 +37,12 @@ var ogData = [
 ]
 
 //const weatherUrl = "https://api.weatherbit.io/v2.0/forecast/daily?city=Lausanne&days=7&key=de7baa6dfedd4ee8b140662b5298b160"
-const weatherUrl = "http://localhost:8000/testData.json"
+//const weatherUrl = "http://localhost:8000/testData.json"
 
 function Home() {
 	const [city, setCity] = useState('Lausanne');
 
-	const url = city && `http://localhost:8000/testData.json?query=${city}`;
+	const url = city && `https://api.weatherbit.io/v2.0/forecast/daily?city=${city}&days=7&key=de7baa6dfedd4ee8b140662b5298b160`;
 
 	const { status, data, error } = useFetch(url);
 
@@ -83,8 +83,8 @@ function Home() {
   }
 
   return (
-    <div class="container fill">
-      <h3>Example</h3>
+    <div className="container fill">
+      <p>Search for a place and get it's temperature of the last 7 days plotted:</p>
       <form className="Form" onSubmit={handleSubmit}>
 				<input
 					type="text"
@@ -95,16 +95,15 @@ function Home() {
 				/>
 				<button> Search </button>
 			</form>
-      <p>Click on a bar to remove one from the chart.</p>
-      <div class="container fill">
+      <div className="container fill">
         {status === 'idle' && (
 					<div> Let's get started by searching for weather from a place! </div>
 				)}
 				{status === 'error' && <div>{error}</div>}
 				{status === 'fetching' && <div className="loading">Loading.</div>}
-				{status === 'fetched' && console.log(weatherbitToTemperatures(data)) && (
+				{status === 'fetched' && (
 					<>
-            <BarComponent ogData={weatherbitToTemperatures(data)}/>
+            <ScatterComponent ogData={weatherbitToTemperatures(data)} />
 					</>
 				)}
       </div>

@@ -1,7 +1,7 @@
 import React, {useLayoutEffect, useRef, useState, useEffect} from 'react';
-import BarChart from './BarChart';
+import ScatterChart from './ScatterChart';
 
-function BarComponent({ ogData }) {
+function ScatterComponent({ ogData }) {
   // Handle resizing of the chart
   const ref = useRef(null);
   const [width, setWidth] = useState(500);
@@ -25,9 +25,6 @@ function BarComponent({ ogData }) {
     };
   }, []);
   
-  // Handle data for the chart
-  const [data, setData] = useState(ogData);
-  
   const handleClick = (d) => {
     console.log("Clicked on ", d);
     //data.pop();
@@ -35,10 +32,10 @@ function BarComponent({ ogData }) {
   }
 
   return (
-      <div ref={ref} className="container fill">
-        <BarChart data={data} handleClick={handleClick} width={width} height={height} />
+      <div ref={ref}>
+        <ScatterChart data={ogData} handleClick={handleClick} width={width} height={height} />
       </div>
   );
 }
 
-export default BarComponent;
+export default ScatterComponent;
