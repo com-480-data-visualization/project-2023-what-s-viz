@@ -5,6 +5,7 @@ import * as d3 from 'd3';
 function ScatterChart({ data, handleClick, width, height }) {
   const ref = useD3(
     (svg) => {
+      // TODO still called twice
       const max_y = d3.max(data, (d) => d.y)
       const min_y = d3.min(data, (d) => d.y)
 
@@ -30,7 +31,7 @@ function ScatterChart({ data, handleClick, width, height }) {
       var circle = svg.selectAll("circle")
         .data(data);
 
-      circle.exit().remove();
+      //circle.exit().remove();
 
       circle.enter().append("circle")
           .attr("r", 2)
@@ -42,8 +43,6 @@ function ScatterChart({ data, handleClick, width, height }) {
         //  handleClick(d); // passed React method to handle click
         //});
       
-      const fmt = d3.format(".1f")
-
       const yAxis = (g) =>
         g.attr("transform", `translate(-10,0)`)
           .style("font", "6px times")
@@ -68,13 +67,15 @@ function ScatterChart({ data, handleClick, width, height }) {
           .call(
             d3
               .axisBottom(x_scale)
-              .tickFormat(d => (d % 1) == 0 ? x_names(d) : '')
+              .tickFormat(d => (d % 1) === 0 ? x_names(d) : '')
               .tickSizeOuter(0)
               .tickSizeInner(0))
           .call((g) => g.select(".domain").remove())
           .style("font", "6px times")
 
       svg.select(".x-axis").call(xAxis);
+
+      console.log('ScatterChart rendered');
     },
     [data.length, width, height]
   );

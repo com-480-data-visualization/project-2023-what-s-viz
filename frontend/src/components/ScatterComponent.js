@@ -1,7 +1,7 @@
 import React, {useLayoutEffect, useRef, useState, useEffect} from 'react';
 import ScatterChart from './ScatterChart';
 
-function ScatterComponent({ ogData }) {
+function ScatterComponent({ data }) {
   // Handle resizing of the chart
   const ref = useRef(null);
   const [width, setWidth] = useState(500);
@@ -33,7 +33,7 @@ function ScatterComponent({ ogData }) {
 
   return (
       <div ref={ref}>
-        <ScatterChart data={ogData} handleClick={handleClick} width={width} height={height} />
+        <ScatterChart data={data} handleClick={handleClick} width={width} height={height} />
       </div>
   );
 }
