@@ -1,22 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 function TryWasm() {
   
   const [res, setRes] = useState("not Inited");
-
-  new Promise<string>((resolve, reject) => {
-    setTimeout(() => {
-      reject("Didn't init in time");
-    }, 1000);
-
-    resolve(window.initServer("testInput from JS"))
-  }).then( res => setRes(res) )
-    .catch( err => setRes(err) );
+  
+  useEffect(()=>{
+    new Promise<void>((resolve, reject) => {
+      setTimeout(() => {
+        reject("Didn't hand over in time");
+      }, 1000);
+  
+      console.log("Inited go wasm and gave handle")
+      resolve(window.handSetData(setRes))
+    }).catch( err => console.log(err) );
+  
+  }, []); //only run once
+  
+  // updated by Go WebAssembly
+  console.log("Component updated with new state: " + res)
 
   return (
     <div className="container fill">
-      <p>Tring WASM, i.e. we get data after we init it:</p>
-      <p>Inited Server response:</p>
+      <p>Tring WASM, response state (changed by Go WebAssembly):</p>
       <p>{res}</p>
     </div>
   );
