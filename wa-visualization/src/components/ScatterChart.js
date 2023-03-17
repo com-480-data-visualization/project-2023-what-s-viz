@@ -75,7 +75,7 @@ function ScatterChart({ data, handleClick, width, height }) {
 
       svg.select(".x-axis").call(xAxis);
 
-      console.log('ScatterChart rendered');
+      console.log('ScatterChart rendered with data.length: ', data.length);
     },
     [data.length, width, height]
   );

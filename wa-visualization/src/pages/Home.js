@@ -1,4 +1,3 @@
-import React from 'react';
 import { useState } from 'react';
 import ScatterComponent from '../components/ScatterComponent';
 import { useFetch } from '../hooks/useFetch';
