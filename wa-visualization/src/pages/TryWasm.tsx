@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 
 function TryWasm() {
-  
+
+  // Then init the go code
   const [res, setRes] = useState("not Inited");
   
   useEffect(()=>{
@@ -21,7 +22,7 @@ function TryWasm() {
 
   return (
     <div className="container fill">
-      <p>Tring WASM, response state (changed by Go WebAssembly):</p>
+      <p>Trying WASM, response state (changed by Go WebAssembly):</p>
       <p>{res}</p>
     </div>
   );

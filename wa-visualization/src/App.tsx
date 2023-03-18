@@ -4,8 +4,13 @@ import Home from './pages/Home';
 import TryWasm from './pages/TryWasm';
 import About from './pages/About';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import initSqlJs from './sql-wasm-debug.js';
 
 function App() {
+  const SQL = initSqlJs({
+    locateFile: new URL('./sql-wasm-debug.wasm', import.meta.url)
+  });
+
   return (
     <div className='App'>
       <Navigation />

@@ -1,9 +1,12 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"syscall/js"
 	"time"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 // Streaming is possible: https://withblue.ink/2020/10/03/go-webassembly-http-requests-and-promises.html
@@ -19,6 +22,7 @@ func HandSetData() js.Func {
 
 		// run all of the code that needs that stream to JS
 		go CreateData(setDataFun)
+		//go WaitAndTest(setDataFun)
 
 		// Send the setData function to the channel
 		setDataFun <- setData
@@ -26,6 +30,35 @@ func HandSetData() js.Func {
 		// We don't return anything
 		return nil
 	})
+}
+
+func WaitAndTest(setDataFun <-chan js.Value) {
+	// Get the setData function from the channel
+	setData := <-setDataFun
+
+	// Wait a second
+	time.Sleep(time.Second)
+
+	setData.Invoke("Starting SQLite3 DB in memroy")
+	db, err := sql.Open("sqlite3", ":memory:")
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer db.Close()
+
+	setData.Invoke("SQLite3 DB in memroy created")
+	var version string
+	err = db.QueryRow("SELECT SQLITE_VERSION()").Scan(&version)
+
+	setData.Invoke("query done")
+
+	if err != nil {
+		panic(err)
+	}
+
+	setData.Invoke("Current version: " + version)
 }
 
 func CreateData(setDataFun <-chan js.Value) {
