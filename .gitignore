@@ -152,3 +152,4 @@ dist
 
 # Go workspace file
 go.work
+backEnd/meowTest/examplestore.db
