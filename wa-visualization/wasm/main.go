@@ -6,8 +6,62 @@ import (
 	"syscall/js"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3"
+	"go.mau.fi/whatsmeow"
+	"go.mau.fi/whatsmeow/store/sqlstore"
+	waLog "go.mau.fi/whatsmeow/util/log"
+
+	sqljs "wasm/sqljs"
 )
+
+func StartMeow(SQLobj <-chan js.Value) {
+	sqljs.init()
+	dbLog := waLog.Stdout("Database", "DEBUG", true)
+	// Make sure you add appropriate DB connector imports, e.g. github.com/mattn/go-sqlite3 for SQLite
+	//container, err := sqlstore.New("sqljs", "file:examplestore.db?_foreign_keys=on", dbLog)
+	SQL := <-SQLobj
+	sqlDB := sqljs.OpenSQL(SQL)
+
+	container := sqlstore.NewWithDB(sqlDB, "sqlite3", dbLog)
+
+	err := container.Upgrade()
+	if err != nil {
+		panic(err)
+	}
+
+	// If you want multiple sessions, remember their JIDs and use .GetDevice(jid) or .GetAllDevices() instead.
+	deviceStore, err := container.GetFirstDevice()
+	if err != nil {
+		panic(err)
+	}
+	clientLog := waLog.Stdout("Client", "DEBUG", true)
+	client := whatsmeow.NewClient(deviceStore, clientLog)
+
+	// print the client
+	fmt.Println(client)
+}
+
+func HandSQL() js.Func {
+	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		// Get the setData function from the JS side
+		// args[0] is a js.Value, so we need to get a string out of it
+		SQLobj := args[0]
+
+		// Trying a stream update of top level
+		SQLobjChan := make(chan js.Value, 1)
+
+		// run all of the code that needs that stream to JS
+		go StartMeow(SQLobjChan)
+
+		// Print that we received the object
+		fmt.Println("Received the SQL object")
+
+		// Send the setData function to the channel
+		SQLobjChan <- SQLobj
+
+		// We don't return anything
+		return nil
+	})
+}
 
 // Streaming is possible: https://withblue.ink/2020/10/03/go-webassembly-http-requests-and-promises.html
 
@@ -91,6 +145,7 @@ func main() {
 	js.Global().Set("initServer", InitServer())
 
 	js.Global().Set("handSetData", HandSetData())
+	js.Global().Set("handSQL", HandSQL())
 
 	// Trick to keep the program running
 	<-ch
