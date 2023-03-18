@@ -14,16 +14,25 @@ import (
 )
 
 func StartMeow(SQLobj <-chan js.Value) {
-	sqljs.init()
 	dbLog := waLog.Stdout("Database", "DEBUG", true)
 	// Make sure you add appropriate DB connector imports, e.g. github.com/mattn/go-sqlite3 for SQLite
 	//container, err := sqlstore.New("sqljs", "file:examplestore.db?_foreign_keys=on", dbLog)
-	SQL := <-SQLobj
-	sqlDB := sqljs.OpenSQL(SQL)
+
+	//SQL := <-SQLobj
+	// Find way to give this SQL to the sqljs driver
+
+	driver := &sqljs.SQLJSDriver{}
+	sql.Register("sqljs-reader", driver)
+	sqlDB, err := sql.Open("sqljs-reader", "")
+
+	if err != nil {
+		panic(err)
+	}
+	//sqlDB, err := sql.Open("sqljs", ":memory:")
 
 	container := sqlstore.NewWithDB(sqlDB, "sqlite3", dbLog)
 
-	err := container.Upgrade()
+	err = container.Upgrade()
 	if err != nil {
 		panic(err)
 	}
