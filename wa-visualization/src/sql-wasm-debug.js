@@ -1,3 +1,4 @@
+/* eslint-disable */  // --> Shut OFF eslint for this file
 
 // We are modularizing this manually because the current modularize setting in Emscripten has some issues:
 // https://github.com/kripken/emscripten/issues/5820

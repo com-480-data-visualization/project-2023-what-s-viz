@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 
 function TryWasm() {
-
   // Then init the go code
   const [res, setRes] = useState("not Inited");
   

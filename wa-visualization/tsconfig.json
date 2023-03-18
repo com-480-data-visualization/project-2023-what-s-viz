@@ -21,7 +21,6 @@
     "jsx": "react-jsx"
   },
   "include": [
-    "src",
-    "/node_modules/sql.js/dist/"
+    "src"
   ]
 }
