@@ -7,6 +7,7 @@ package bindings
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 
 	"syscall/js"
@@ -20,16 +21,20 @@ type Statement struct {
 	js.Value
 }
 
+type Transaction struct {
+	js.Value
+}
+
+// This function takes a string and a js.Value and console.logs it
+func ConsoleLog(s string, v js.Value) {
+	js.Global().Get("console").Call("log", s, v)
+}
+
 // New returns a new database by creating a new one in memory
 //
 // See http://lovasoa.github.io/sql.js/documentation/class/Database.html#constructor-dynamic
 func New() *Database {
 	return &Database{js.Global().Get("SQL").Get("Database").New()}
-}
-
-// New returns a new database by creating a new one in memory using the passed SQL.js instance
-func NewFromSQL(SQL js.Value) *Database {
-	return &Database{SQL.Get("Database").New()}
 }
 
 // OpenReader opens an existing database, referenced by the passed io.Reader
@@ -61,6 +66,7 @@ func captureError(fn func()) (e error) {
 //
 // See http://kripken.github.io/sql.js/documentation/class/Database.html#run-dynamic
 func (d *Database) Run(query string) (e error) {
+	fmt.Println("Run: ", query)
 	return captureError(func() {
 		d.Call("run", query)
 	})
@@ -70,6 +76,7 @@ func (d *Database) Run(query string) (e error) {
 //
 // See http://kripken.github.io/sql.js/documentation/class/Database.html#run-dynamic
 func (d *Database) RunParams(query string, params []interface{}) (e error) {
+	fmt.Println("Run params: ", query, ", params: ", params)
 	return captureError(func() {
 		d.Call("run", query, params)
 	})
@@ -89,6 +96,7 @@ func (d *Database) Export() io.Reader {
 //
 // See http://kripken.github.io/sql.js/documentation/class/Database.html#close-dynamic
 func (d *Database) Close() (e error) {
+	fmt.Println("Close")
 	return captureError(func() {
 		d.Call("close")
 	})
@@ -98,6 +106,7 @@ func (d *Database) prepare(query string, params interface{}) (*Statement, error)
 	var s js.Value
 	err := captureError(func() {
 		s = d.Call("prepare", query, params)
+		fmt.Println("Prepare: ", query, ", params: ", params)
 	})
 	return &Statement{s}, err
 }
@@ -130,7 +139,15 @@ func (d *Database) PrepareNamedParams(query string, params map[string]interface{
 //
 // See http://kripken.github.io/sql.js/documentation/class/Database.html#getRowsModified-dynamic
 func (d *Database) GetRowsModified() int64 {
-	return int64(d.Call("getRowsModified").Int())
+	var res js.Value
+	err := captureError(func() {
+		res = d.Call("getRowsModified")
+	})
+	if err != nil {
+		fmt.Println("Error get rows modified: ", err)
+		return -1
+	}
+	return int64(res.Int())
 }
 
 type Result struct {
@@ -149,11 +166,13 @@ type Result struct {
 //
 // See http://kripken.github.io/sql.js/documentation/class/Database.html#exec-dynamic
 func (d *Database) Exec(query string) (r []Result, e error) {
+	fmt.Println("Exec: ", query)
 	var result js.Value
 	e = captureError(func() {
 		result = d.Call("exec", query)
 	})
 	if e != nil {
+		fmt.Println("Exec: ", query, ", e: ", e)
 		return
 	}
 	r = make([]Result, result.Length())
@@ -174,7 +193,37 @@ func (d *Database) Exec(query string) (r []Result, e error) {
 			}
 		}
 	}
+	fmt.Println("Exec: ", query, ", result: ", r)
 	return r, nil
+}
+
+func (d *Database) Begin() (t *Transaction, e error) {
+	// Open a transaction
+	//db.exec("BEGIN TRANSACTION;");
+	err := captureError(func() {
+		d.Call("exec", "BEGIN TRANSACTION;")
+	})
+	return &Transaction{d.Value}, err
+}
+
+func (t *Transaction) Commit() (e error) {
+	// return unimplemented error
+	// Commit
+	//db.exec("COMMIT;");
+	err := captureError(func() {
+		t.Call("exec", "COMMIT;")
+	})
+	return err
+}
+
+func (t *Transaction) Rollback() (e error) {
+	// return unimplemented error
+	// Rollback
+	//db.exec("ROLLBACK;");
+	err := captureError(func() {
+		t.Call("exec", "ROLLBACK;")
+	})
+	return err
 }
 
 // Step executes the statement if necessary, and fetches the next line of the result which
@@ -185,10 +234,12 @@ func (s *Statement) Step() (ok bool, e error) {
 	err := captureError(func() {
 		ok = s.Call("step").Bool()
 	})
+	fmt.Println("Step: ", ok, ", err: ", err)
 	return ok, err
 }
 
 func (s *Statement) get(params interface{}) (r []interface{}, e error) {
+	fmt.Println("Get: ", params)
 	err := captureError(func() {
 		results := s.Call("get", params)
 		r = make([]interface{}, results.Length())
@@ -225,6 +276,7 @@ func (s *Statement) GetNamedParams(params map[string]interface{}) (r []interface
 // See http://kripken.github.io/sql.js/documentation/class/Statement.html#getColumnNames-dynamic
 func (s *Statement) GetColumnNames() (c []string, e error) {
 	cols := s.Call("getColumnNames")
+	ConsoleLog("GetColumnNames: ", cols)
 	c = make([]string, cols.Length())
 	for i := 0; i < cols.Length(); i++ {
 		c[i] = cols.Index(i).String()
@@ -233,6 +285,7 @@ func (s *Statement) GetColumnNames() (c []string, e error) {
 }
 
 func (s *Statement) bind(params interface{}) (e error) {
+	fmt.Println("Bind: ", params)
 	var tf bool
 	err := captureError(func() {
 		tf = s.Call("bind", params).Bool()
@@ -265,6 +318,7 @@ func (s *Statement) BindNamed(params map[string]interface{}) (e error) {
 //
 // See http://kripken.github.io/sql.js/documentation/class/Statement.html#reset-dynamic
 func (s *Statement) Reset() {
+	ConsoleLog("Resetting statement: ", s.Value)
 	s.Call("reset")
 }
 
@@ -272,6 +326,7 @@ func (s *Statement) Reset() {
 //
 // See http://kripken.github.io/sql.js/documentation/class/Statement.html#freemem-dynamic
 func (s *Statement) Freemem() {
+	ConsoleLog("Freemem statement: ", s.Value)
 	s.Call("freemem")
 }
 
@@ -279,14 +334,23 @@ func (s *Statement) Freemem() {
 //
 // See http://kripken.github.io/sql.js/documentation/class/Statement.html#free-dynamic
 func (s *Statement) Free() bool {
-	return s.Call("free").Bool()
+	var res js.Value
+	err := captureError(func() {
+		res = s.Call("free")
+	})
+	if err != nil {
+		fmt.Println("Error free:", err)
+		return false
+	}
+	return res.Bool()
 }
 
 func (s *Statement) getAsMap(params interface{}) (m map[string]interface{}, e error) {
 	err := captureError(func() {
 		o := s.Call("getAsObject", params)
 		m = make(map[string]interface{}, o.Length())
-		panic("getAsMap not implemented; need keys of: " + o.String())
+		ConsoleLog("getAsMap not implemented; need keys of: ", o)
+		panic("getAsMap")
 		//for _, key := range js.Keys(o) {
 		//	m[key] = o.Get(key)
 		//}
@@ -321,6 +385,7 @@ func (s *Statement) GetAsMapNamedParams(params map[string]interface{}) (m map[st
 }
 
 func (s *Statement) run(params interface{}) (e error) {
+	fmt.Println("Run with params ", params)
 	return captureError(func() {
 		s.Call("run", params)
 	})

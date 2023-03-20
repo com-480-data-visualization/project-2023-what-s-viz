@@ -14,7 +14,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"syscall/js"
 
 	"database/sql"
 	"database/sql/driver"
@@ -42,11 +41,6 @@ func AddReader(name string, reader io.Reader) error {
 	}
 	readers[name] = reader
 	return nil
-}
-
-func (d *SQLJSDriver) OpenSQL(SQL js.Value) (driver.Conn, error) {
-	var db = bindings.NewFromSQL(SQL)
-	return &SQLJSConn{db}, nil
 }
 
 // Open will a new database instance. By default, it will create a new database
@@ -86,9 +80,15 @@ func (c *SQLJSConn) Prepare(query string) (driver.Stmt, error) {
 	return &SQLJSStmt{s, c.Database}, err
 }
 
+type SQLJSTx struct {
+	*bindings.Transaction
+}
+
 // Begin a transaction -- not supported (will always return an error)
 func (c *SQLJSConn) Begin() (driver.Tx, error) {
-	return nil, errors.New("Transactions not supported")
+	//return nil, errors.New("Transactions not supported")
+	t, err := c.Database.Begin()
+	return &SQLJSTx{t}, err
 }
 
 // Close the database and free memory.

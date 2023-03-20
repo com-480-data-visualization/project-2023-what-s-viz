@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"syscall/js"
@@ -8,30 +9,31 @@ import (
 
 	"go.mau.fi/whatsmeow"
 	"go.mau.fi/whatsmeow/store/sqlstore"
+	"go.mau.fi/whatsmeow/types/events"
 	waLog "go.mau.fi/whatsmeow/util/log"
 
-	sqljs "wasm/sqljs"
+	_ "wasm/sqljs"
 )
 
-func StartMeow(SQLobj <-chan js.Value) {
+func eventHandler(evt interface{}) {
+	switch v := evt.(type) {
+	case *events.Message:
+		fmt.Println("Received a message!", v.Message.GetConversation())
+	}
+}
+
+func StartMeow() {
 	dbLog := waLog.Stdout("Database", "DEBUG", true)
 	// Make sure you add appropriate DB connector imports, e.g. github.com/mattn/go-sqlite3 for SQLite
 	//container, err := sqlstore.New("sqljs", "file:examplestore.db?_foreign_keys=on", dbLog)
 
-	//SQL := <-SQLobj
-	// Find way to give this SQL to the sqljs driver
-
-	driver := &sqljs.SQLJSDriver{}
-	sql.Register("sqljs-reader", driver)
-	sqlDB, err := sql.Open("sqljs-reader", "")
-
+	sqlDB, err := sql.Open("sqljs", "")
 	if err != nil {
 		panic(err)
 	}
-	//sqlDB, err := sql.Open("sqljs", ":memory:")
 
+	// Try to make whatsmewo work with the sqljs driver
 	container := sqlstore.NewWithDB(sqlDB, "sqlite3", dbLog)
-
 	err = container.Upgrade()
 	if err != nil {
 		panic(err)
@@ -44,28 +46,44 @@ func StartMeow(SQLobj <-chan js.Value) {
 	}
 	clientLog := waLog.Stdout("Client", "DEBUG", true)
 	client := whatsmeow.NewClient(deviceStore, clientLog)
+	client.AddEventHandler(eventHandler)
 
-	// print the client
-	fmt.Println(client)
+	if client.Store.ID == nil {
+		// No ID stored, new login
+		qrChan, _ := client.GetQRChannel(context.Background())
+		err = client.Connect()
+		if err != nil {
+			panic(err)
+		}
+		for evt := range qrChan {
+			if evt.Event == "code" {
+				// Render the QR code here
+				// e.g. qrterminal.GenerateHalfBlock(evt.Code, qrterminal.L, os.Stdout)
+				// or just manually `echo 2@... | qrencode -t ansiutf8` in a terminal
+				fmt.Println("QR code:", evt.Code)
+			} else {
+				fmt.Println("Login event:", evt.Event)
+			}
+		}
+	} else {
+		// Already logged in, just connect
+		err = client.Connect()
+		if err != nil {
+			panic(err)
+		}
+	}
 }
 
-func HandSQL() js.Func {
+func LoadSQL() js.Func {
 	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		// Get the setData function from the JS side
 		// args[0] is a js.Value, so we need to get a string out of it
-		SQLobj := args[0]
-
-		// Trying a stream update of top level
-		SQLobjChan := make(chan js.Value, 1)
 
 		// run all of the code that needs that stream to JS
-		go StartMeow(SQLobjChan)
+		go StartMeow()
 
 		// Print that we received the object
-		fmt.Println("Received the SQL object")
-
-		// Send the setData function to the channel
-		SQLobjChan <- SQLobj
+		fmt.Println("Received the start signal")
 
 		// We don't return anything
 		return nil
@@ -84,8 +102,8 @@ func HandSetData() js.Func {
 		setDataFun := make(chan js.Value, 1)
 
 		// run all of the code that needs that stream to JS
-		go CreateData(setDataFun)
-		//go WaitAndTest(setDataFun)
+		//go CreateData(setDataFun)
+		go WaitAndTest(setDataFun)
 
 		// Send the setData function to the channel
 		setDataFun <- setData
@@ -154,7 +172,7 @@ func main() {
 	js.Global().Set("initServer", InitServer())
 
 	js.Global().Set("handSetData", HandSetData())
-	js.Global().Set("handSQL", HandSQL())
+	js.Global().Set("loadSQL", LoadSQL())
 
 	// Trick to keep the program running
 	<-ch

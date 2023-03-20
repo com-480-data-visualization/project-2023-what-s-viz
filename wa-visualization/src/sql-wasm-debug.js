@@ -773,7 +773,7 @@ Module["onRuntimeInitialized"] = function onRuntimeInitialized() {
         res = sqlite3_finalize(this.stmt) === SQLITE_OK;
         delete this.db.statements[this.stmt];
         this.stmt = NULL;
-        return res;
+        return true;
     };
 
     /**

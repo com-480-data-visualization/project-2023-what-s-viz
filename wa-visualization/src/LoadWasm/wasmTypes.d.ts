@@ -3,7 +3,7 @@ declare global {
     Go: any;
     initServer: (s: string)=>string
     handSetData: (setData:any) => void
-    handSQL: (SQL:any) => void
+    loadSQL: () => void
   }
 }
 
