@@ -4,6 +4,7 @@ declare global {
     initServer: (s: string)=>string
     handSetData: (setData:any) => void
     loadSQL: () => void
+    loginUser: () => void
   }
 }
 

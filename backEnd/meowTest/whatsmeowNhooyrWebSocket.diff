@@ -1,0 +1,212 @@
+diff --git a/socket/constants.go b/socket/constants.go
+index 8b8b690..88119a5 100644
+--- a/socket/constants.go
++++ b/socket/constants.go
+@@ -13,7 +13,7 @@ package socket
+ import (
+ 	"errors"
+ 
+-	"go.mau.fi/whatsmeow/binary/token"
++	"meowTest/whatsmeow/binary/token"
+ )
+ 
+ const (
+diff --git a/socket/framesocket.go b/socket/framesocket.go
+index 2d7e4ad..9f3d41f 100644
+--- a/socket/framesocket.go
++++ b/socket/framesocket.go
+@@ -8,6 +8,7 @@ package socket
+ 
+ import (
+ 	"context"
++	"encoding/binary"
+ 	"errors"
+ 	"fmt"
+ 	"net/http"
+@@ -15,9 +16,31 @@ import (
+ 	"sync"
+ 	"time"
+ 
+-	"github.com/gorilla/websocket"
++	"nhooyr.io/websocket"
+ 
+-	waLog "go.mau.fi/whatsmeow/util/log"
++	waLog "meowTest/whatsmeow/util/log"
++)
++
++const (
++	// TextMessage denotes a text data message. The text message payload is
++	// interpreted as UTF-8 encoded text data.
++	TextMessage = 1
++
++	// BinaryMessage denotes a binary data message.
++	BinaryMessage = 2
++
++	// CloseMessage denotes a close control message. The optional message
++	// payload contains a numeric code and text. Use the FormatCloseMessage
++	// function to format a close message payload.
++	CloseMessage = 8
++
++	// PingMessage denotes a ping control message. The optional message payload
++	// is UTF-8 encoded text.
++	PingMessage = 9
++
++	// PongMessage denotes a pong control message. The optional message payload
++	// is UTF-8 encoded text.
++	PongMessage = 10
+ )
+ 
+ type Proxy = func(*http.Request) (*url.URL, error)
+@@ -61,7 +84,20 @@ func (fs *FrameSocket) Context() context.Context {
+ 	return fs.ctx
+ }
+ 
+-func (fs *FrameSocket) Close(code int) {
++func FormatCloseMessage(closeCode websocket.StatusCode, text string) []byte {
++	if closeCode == websocket.StatusNoStatusRcvd {
++		// Return empty message because it's illegal to send
++		// CloseNoStatusReceived. Return non-nil value in case application
++		// checks for nil.
++		return []byte{}
++	}
++	buf := make([]byte, 2+len(text))
++	binary.BigEndian.PutUint16(buf, uint16(closeCode))
++	copy(buf[2:], text)
++	return buf
++}
++
++func (fs *FrameSocket) Close(code websocket.StatusCode) {
+ 	fs.lock.Lock()
+ 	defer fs.lock.Unlock()
+ 
+@@ -70,15 +106,15 @@ func (fs *FrameSocket) Close(code int) {
+ 	}
+ 
+ 	if code > 0 {
+-		message := websocket.FormatCloseMessage(code, "")
+-		err := fs.conn.WriteControl(websocket.CloseMessage, message, time.Now().Add(time.Second))
++		message := FormatCloseMessage(code, "")
++		err := fs.conn.Write(context.Background(), CloseMessage, message) //, time.Now().Add(time.Second))
+ 		if err != nil {
+ 			fs.log.Warnf("Error sending close message: %v", err)
+ 		}
+ 	}
+ 
+ 	fs.cancel()
+-	err := fs.conn.Close()
++	err := fs.conn.Close(websocket.StatusNormalClosure, "")
+ 	if err != nil {
+ 		fs.log.Errorf("Error closing websocket: %v", err)
+ 	}
+@@ -98,13 +134,17 @@ func (fs *FrameSocket) Connect() error {
+ 		return ErrSocketAlreadyOpen
+ 	}
+ 	ctx, cancel := context.WithCancel(context.Background())
+-	dialer := websocket.Dialer{
+-		Proxy: fs.Proxy,
+-	}
++	//dialer := websocket.Dialer{
++	//	Proxy: fs.Proxy,
++	//}
++	// TODO do I need the proxy??
+ 
+-	headers := http.Header{"Origin": []string{Origin}}
+ 	fs.log.Debugf("Dialing %s", URL)
+-	conn, _, err := dialer.Dial(URL, headers)
++	//conn, _, err := dialer.Dial(URL, headers)
++	options := &websocket.DialOptions{
++		HTTPHeader: http.Header{"Origin": []string{Origin}},
++	}
++	conn, _, err := websocket.Dial(ctx, URL, options)
+ 	if err != nil {
+ 		cancel()
+ 		return fmt.Errorf("couldn't dial whatsapp web websocket: %w", err)
+@@ -112,14 +152,14 @@ func (fs *FrameSocket) Connect() error {
+ 
+ 	fs.ctx, fs.cancel = ctx, cancel
+ 	fs.conn = conn
+-	conn.SetCloseHandler(func(code int, text string) error {
++	/*conn.SetCloseHandler(func(code int, text string) error {
+ 		fs.log.Debugf("Server closed websocket with status %d/%s", code, text)
+ 		cancel()
+ 		// from default CloseHandler
+-		message := websocket.FormatCloseMessage(code, "")
+-		_ = conn.WriteControl(websocket.CloseMessage, message, time.Now().Add(time.Second))
++		message := FormatCloseMessage(code, "")
++		_ = conn.Write(context.Background(), CloseMessage, message) //, time.Now().Add(time.Second))
+ 		return nil
+-	})
++	})*/
+ 
+ 	go fs.readPump(conn, ctx)
+ 	return nil
+@@ -154,13 +194,14 @@ func (fs *FrameSocket) SendFrame(data []byte) error {
+ 	// Copy actual frame data
+ 	copy(wholeFrame[headerLength+FrameLengthSize:], data)
+ 
+-	if fs.WriteTimeout > 0 {
++	// TODO removed
++	/*if fs.WriteTimeout > 0 {
+ 		err := conn.SetWriteDeadline(time.Now().Add(fs.WriteTimeout))
+ 		if err != nil {
+ 			fs.log.Warnf("Failed to set write deadline: %v", err)
+ 		}
+-	}
+-	return conn.WriteMessage(websocket.BinaryMessage, wholeFrame)
++	}*/
++	return conn.Write(context.Background(), BinaryMessage, wholeFrame)
+ }
+ 
+ func (fs *FrameSocket) frameComplete() {
+@@ -220,14 +261,14 @@ func (fs *FrameSocket) readPump(conn *websocket.Conn, ctx context.Context) {
+ 		go fs.Close(0)
+ 	}()
+ 	for {
+-		msgType, data, err := conn.ReadMessage()
++		msgType, data, err := conn.Read(context.Background())
+ 		if err != nil {
+ 			// Ignore the error if the context has been closed
+ 			if !errors.Is(ctx.Err(), context.Canceled) {
+ 				fs.log.Errorf("Error reading from websocket: %v", err)
+ 			}
+ 			return
+-		} else if msgType != websocket.BinaryMessage {
++		} else if msgType != BinaryMessage {
+ 			fs.log.Warnf("Got unexpected websocket message type %d", msgType)
+ 			continue
+ 		}
+diff --git a/socket/noisehandshake.go b/socket/noisehandshake.go
+index 3add470..5ec83cc 100644
+--- a/socket/noisehandshake.go
++++ b/socket/noisehandshake.go
+@@ -16,7 +16,7 @@ import (
+ 	"golang.org/x/crypto/curve25519"
+ 	"golang.org/x/crypto/hkdf"
+ 
+-	"go.mau.fi/whatsmeow/util/gcmutil"
++	"meowTest/whatsmeow/util/gcmutil"
+ )
+ 
+ type NoiseHandshake struct {
+diff --git a/socket/noisesocket.go b/socket/noisesocket.go
+index 85973d7..806edeb 100644
+--- a/socket/noisesocket.go
++++ b/socket/noisesocket.go
+@@ -13,7 +13,7 @@ import (
+ 	"sync"
+ 	"sync/atomic"
+ 
+-	"github.com/gorilla/websocket"
++	"nhooyr.io/websocket"
+ )
+ 
+ type NoiseSocket struct {
+@@ -79,7 +79,7 @@ func (ns *NoiseSocket) Stop(disconnect bool) {
+ 		close(ns.stopConsumer)
+ 		ns.fs.OnDisconnect = nil
+ 		if disconnect {
+-			ns.fs.Close(websocket.CloseNormalClosure)
++			ns.fs.Close(websocket.StatusNormalClosure)
+ 		}
+ 	}
+ }

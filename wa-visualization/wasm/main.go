@@ -7,10 +7,10 @@ import (
 	"syscall/js"
 	"time"
 
-	"go.mau.fi/whatsmeow"
-	"go.mau.fi/whatsmeow/store/sqlstore"
-	"go.mau.fi/whatsmeow/types/events"
-	waLog "go.mau.fi/whatsmeow/util/log"
+	"wasm/whatsmeow"
+	"wasm/whatsmeow/store/sqlstore"
+	"wasm/whatsmeow/types/events"
+	waLog "wasm/whatsmeow/util/log"
 
 	_ "wasm/sqljs"
 )
@@ -22,7 +22,7 @@ func eventHandler(evt interface{}) {
 	}
 }
 
-func StartMeow() {
+func StartMeow(clientChannel chan *whatsmeow.Client) {
 	dbLog := waLog.Stdout("Database", "DEBUG", true)
 	// Make sure you add appropriate DB connector imports, e.g. github.com/mattn/go-sqlite3 for SQLite
 	//container, err := sqlstore.New("sqljs", "file:examplestore.db?_foreign_keys=on", dbLog)
@@ -33,7 +33,7 @@ func StartMeow() {
 	}
 
 	// Try to make whatsmewo work with the sqljs driver
-	container := sqlstore.NewWithDB(sqlDB, "sqlite3", dbLog)
+	container := sqlstore.NewWithDB(sqlDB, "sqlite", dbLog)
 	err = container.Upgrade()
 	if err != nil {
 		panic(err)
@@ -48,39 +48,51 @@ func StartMeow() {
 	client := whatsmeow.NewClient(deviceStore, clientLog)
 	client.AddEventHandler(eventHandler)
 
-	if client.Store.ID == nil {
-		// No ID stored, new login
-		qrChan, _ := client.GetQRChannel(context.Background())
-		err = client.Connect()
-		if err != nil {
-			panic(err)
-		}
-		for evt := range qrChan {
-			if evt.Event == "code" {
-				// Render the QR code here
-				// e.g. qrterminal.GenerateHalfBlock(evt.Code, qrterminal.L, os.Stdout)
-				// or just manually `echo 2@... | qrencode -t ansiutf8` in a terminal
-				fmt.Println("QR code:", evt.Code)
-			} else {
-				fmt.Println("Login event:", evt.Event)
-			}
-		}
-	} else {
-		// Already logged in, just connect
-		err = client.Connect()
-		if err != nil {
-			panic(err)
-		}
-	}
+	clientChannel <- client
 }
 
-func LoadSQL() js.Func {
+func LoginUser(clientChannel <-chan *whatsmeow.Client) js.Func {
+	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		go func() {
+			client := <-clientChannel
+			if client.Store.ID == nil {
+				// No ID stored, new login
+				qrChan, _ := client.GetQRChannel(context.Background())
+				err := client.Connect()
+				if err != nil {
+					panic(err)
+				}
+				for evt := range qrChan {
+					if evt.Event == "code" {
+						// Render the QR code here
+						// e.g. qrterminal.GenerateHalfBlock(evt.Code, qrterminal.L, os.Stdout)
+						// or just manually `echo 2@... | qrencode -t ansiutf8` in a terminal
+						fmt.Println("echo ", evt.Code, " | qrencode -t ansiutf8")
+					} else {
+						fmt.Println("Login event:", evt.Event)
+					}
+				}
+			} else {
+				// Already logged in, just connect
+				// should never happen
+				panic("Called login with already logged in client")
+				err := client.Connect()
+				if err != nil {
+					panic(err)
+				}
+			}
+		}()
+		return nil
+	})
+}
+
+func LoadSQL(clientChannel chan *whatsmeow.Client) js.Func {
 	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		// Get the setData function from the JS side
 		// args[0] is a js.Value, so we need to get a string out of it
 
 		// run all of the code that needs that stream to JS
-		go StartMeow()
+		go StartMeow(clientChannel)
 
 		// Print that we received the object
 		fmt.Println("Received the start signal")
@@ -172,7 +184,12 @@ func main() {
 	js.Global().Set("initServer", InitServer())
 
 	js.Global().Set("handSetData", HandSetData())
-	js.Global().Set("loadSQL", LoadSQL())
+
+	clientChannel := make(chan *whatsmeow.Client)
+
+	// For the handover
+	js.Global().Set("loadSQL", LoadSQL(clientChannel))
+	js.Global().Set("loginUser", LoginUser(clientChannel))
 
 	// Trick to keep the program running
 	<-ch

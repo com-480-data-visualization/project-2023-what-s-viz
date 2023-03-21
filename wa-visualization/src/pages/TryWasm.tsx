@@ -12,7 +12,7 @@ function TryWasm() {
       }, 1000);
   
       console.log("Inited go wasm and gave handle")
-      resolve(window.handSetData(setRes))
+      //resolve(window.handSetData(setRes))
     }).catch( err => console.log(err) );
   }, []); //only run once
   

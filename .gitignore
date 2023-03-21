@@ -153,3 +153,4 @@ dist
 # Go workspace file
 go.work
 backEnd/meowTest/examplestore.db
+wa-visualization/wasm/exampleDevice.txt

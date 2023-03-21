@@ -41,6 +41,7 @@ declare global {
     interface Window {
         SQL:any;
         circType: any;
+        WAdb: any;
     }
 }
 

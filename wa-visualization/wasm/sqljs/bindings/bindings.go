@@ -34,7 +34,10 @@ func ConsoleLog(s string, v js.Value) {
 //
 // See http://lovasoa.github.io/sql.js/documentation/class/Database.html#constructor-dynamic
 func New() *Database {
-	return &Database{js.Global().Get("SQL").Get("Database").New()}
+	db := js.Global().Get("SQL").Get("Database").New()
+	js.Global().Set("WAdb", db)
+	ConsoleLog("WA db is: ", db)
+	return &Database{db}
 }
 
 // OpenReader opens an existing database, referenced by the passed io.Reader
@@ -55,6 +58,8 @@ func captureError(fn func()) (e error) {
 				e = r.(*js.Error)
 			case error:
 				e = r.(error)
+			default:
+				fmt.Println("Unknown error type: ", r)
 			}
 		}
 	}()
@@ -201,7 +206,8 @@ func (d *Database) Begin() (t *Transaction, e error) {
 	// Open a transaction
 	//db.exec("BEGIN TRANSACTION;");
 	err := captureError(func() {
-		d.Call("exec", "BEGIN TRANSACTION;")
+		res := d.Call("exec", "BEGIN TRANSACTION;")
+		ConsoleLog("Begin: ", res)
 	})
 	return &Transaction{d.Value}, err
 }
@@ -211,7 +217,8 @@ func (t *Transaction) Commit() (e error) {
 	// Commit
 	//db.exec("COMMIT;");
 	err := captureError(func() {
-		t.Call("exec", "COMMIT;")
+		res := t.Call("exec", "COMMIT;")
+		ConsoleLog("Commit: ", res)
 	})
 	return err
 }
@@ -221,7 +228,8 @@ func (t *Transaction) Rollback() (e error) {
 	// Rollback
 	//db.exec("ROLLBACK;");
 	err := captureError(func() {
-		t.Call("exec", "ROLLBACK;")
+		res := t.Call("exec", "ROLLBACK;")
+		ConsoleLog("Rollback: ", res)
 	})
 	return err
 }
@@ -231,6 +239,7 @@ func (t *Transaction) Rollback() (e error) {
 //
 // See http://kripken.github.io/sql.js/documentation/class/Statement.html#step-dynamic
 func (s *Statement) Step() (ok bool, e error) {
+	ConsoleLog("Step: ", s.Value)
 	err := captureError(func() {
 		ok = s.Call("step").Bool()
 	})
@@ -285,16 +294,16 @@ func (s *Statement) GetColumnNames() (c []string, e error) {
 }
 
 func (s *Statement) bind(params interface{}) (e error) {
-	fmt.Println("Bind: ", params)
 	var tf bool
 	err := captureError(func() {
 		tf = s.Call("bind", params).Bool()
 	})
+	fmt.Println("Bind: ", params, " res: ", tf, ", err: ", err)
 	if err != nil {
 		return err
 	}
 	if !tf {
-		return errors.New("Unknown error binding parameters")
+		return errors.New("unknown error binding parameters")
 	}
 	return nil
 }
@@ -386,8 +395,10 @@ func (s *Statement) GetAsMapNamedParams(params map[string]interface{}) (m map[st
 
 func (s *Statement) run(params interface{}) (e error) {
 	fmt.Println("Run with params ", params)
+	ConsoleLog("Run s: ", s.Value)
 	return captureError(func() {
-		s.Call("run", params)
+		res := s.Call("run", params)
+		ConsoleLog("Run result: ", res)
 	})
 }
 
