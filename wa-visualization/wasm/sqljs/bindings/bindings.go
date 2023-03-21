@@ -34,9 +34,19 @@ func ConsoleLog(s string, v js.Value) {
 //
 // See http://lovasoa.github.io/sql.js/documentation/class/Database.html#constructor-dynamic
 func New() *Database {
-	db := js.Global().Get("SQL").Get("Database").New()
-	js.Global().Set("WAdb", db)
-	ConsoleLog("WA db is: ", db)
+	var db js.Value
+	// First load the js global sqljs DB and check if it is defined
+	db = js.Global().Get("WAdb")
+	if db.IsUndefined() {
+		// If not, we create it
+		SQL := js.Global().Get("SQL")
+		db = SQL.Get("Database").New()
+		js.Global().Set("WAdb", db)
+		ConsoleLog("WA db is: ", db)
+	} else {
+		db = js.Global().Get("WAdb")
+		ConsoleLog("Loaded old WAdb to: ", db)
+	}
 	return &Database{db}
 }
 
@@ -178,7 +188,7 @@ func (d *Database) Exec(query string) (r []Result, e error) {
 	})
 	if e != nil {
 		fmt.Println("Exec: ", query, ", e: ", e)
-		return
+		return nil, e
 	}
 	r = make([]Result, result.Length())
 	for i := 0; i < result.Length(); i++ {
@@ -193,8 +203,7 @@ func (d *Database) Exec(query string) (r []Result, e error) {
 			vals := rows.Index(j)
 			r[i].Values[j] = make([]interface{}, vals.Length())
 			for k := 0; k < vals.Length(); k++ {
-				r[i].Values[j][k] = vals.Index(k)
-				//js.CopyBytesToGo(r[i].Values[j][k], vals.Index(k))
+				r[i].Values[j][k] = backConvert(vals.Index(k))
 			}
 		}
 	}
@@ -247,15 +256,95 @@ func (s *Statement) Step() (ok bool, e error) {
 	return ok, err
 }
 
+func convertParamsAny(params interface{}) interface{} {
+	switch par := params.(type) {
+	case []uint8:
+		anyL := make([]any, len(par))
+		for i, v := range par {
+			// we need this conversion for js.ValueOf to work
+			anyL[i] = any(v)
+		}
+		return anyL
+	case []interface{}:
+		anyL := make([]any, len(par))
+		for i, v := range par {
+			anyL[i] = convertParamsAny(v)
+		}
+		return anyL
+	case map[string]interface{}:
+		anyM := make(map[string]any)
+		for k, v := range params.(map[string]interface{}) {
+			anyM[k] = convertParamsAny(v)
+		}
+		return anyM
+	default:
+		return params
+	}
+}
+
+func backConvert(x js.Value) interface{} {
+	switch x.Type() {
+	case js.TypeString:
+		return x.String()
+	case js.TypeNull:
+		return nil
+	case js.TypeBoolean:
+		return x.Bool()
+	case js.TypeNumber:
+		return x.Int()
+	case js.TypeObject:
+		ConsoleLog("backConvert object: ", x)
+
+		// check if it is a typed array with bytes_per_element and then create it
+		if x.Get("BYTES_PER_ELEMENT").Type() == js.TypeNumber {
+			// TypedArray
+			switch x.Get("BYTES_PER_ELEMENT").Int() {
+			case 1:
+				// Uint8Array
+				// build a []uint8 from the x and return it
+				var ret []uint8
+				for i := 0; i < x.Length(); i++ {
+					ret = append(ret, uint8(x.Index(i).Int()))
+				}
+				return ret
+			case 2:
+				// Uint16Array
+				var ret []uint16
+				for i := 0; i < x.Length(); i++ {
+					ret = append(ret, uint16(x.Index(i).Int()))
+				}
+				return ret
+			case 4:
+				// Uint32Array
+				var ret []uint32
+				for i := 0; i < x.Length(); i++ {
+					ret = append(ret, uint32(x.Index(i).Int()))
+				}
+				return ret
+			default:
+				panic("bad type object typed array: " + x.Type().String() + " not implemented")
+			}
+		} else {
+			// not a typed array
+			panic("bad type object: " + x.Type().String() + " not implemented")
+		}
+
+	default:
+		panic("bad type: " + x.Type().String())
+	}
+}
+
 func (s *Statement) get(params interface{}) (r []interface{}, e error) {
-	fmt.Println("Get: ", params)
+	params = convertParamsAny(params)
+	fmt.Println("Get params: ", params)
 	err := captureError(func() {
 		results := s.Call("get", params)
 		r = make([]interface{}, results.Length())
 		for i := 0; i < results.Length(); i++ {
-			r[i] = results.Index(i)
+			r[i] = backConvert(results.Index(i))
 		}
 	})
+	fmt.Println("Get r: ", r, ", err: ", err)
 	return r, err
 }
 
@@ -295,6 +384,8 @@ func (s *Statement) GetColumnNames() (c []string, e error) {
 
 func (s *Statement) bind(params interface{}) (e error) {
 	var tf bool
+	params = convertParamsAny(params)
+	fmt.Println("Start bind with: ", params)
 	err := captureError(func() {
 		tf = s.Call("bind", params).Bool()
 	})
@@ -393,8 +484,17 @@ func (s *Statement) GetAsMapNamedParams(params map[string]interface{}) (m map[st
 	return s.getAsMap(params)
 }
 
+// Testing function to see types
+func PrintParams(params []interface{}) {
+	for _, ch := range params {
+		fmt.Printf("Type %T\n", ch)
+		fmt.Printf("Value %v\n", ch)
+	}
+}
+
 func (s *Statement) run(params interface{}) (e error) {
-	fmt.Println("Run with params ", params)
+	params = convertParamsAny(params)
+	fmt.Println("Run with params", params)
 	ConsoleLog("Run s: ", s.Value)
 	return captureError(func() {
 		res := s.Call("run", params)
