@@ -84,7 +84,6 @@ type SQLJSTx struct {
 	*bindings.Transaction
 }
 
-// Begin a transaction -- not supported (will always return an error)
 func (c *SQLJSConn) Begin() (driver.Tx, error) {
 	//return nil, errors.New("Transactions not supported")
 	t, err := c.Database.Begin()
@@ -104,7 +103,7 @@ type SQLJSStmt struct {
 
 // Close the statement handler.
 func (s *SQLJSStmt) Close() error {
-	if s.Free() {
+	if s.Statement.Free() {
 		return nil
 	}
 	return errors.New("Error freeing statement memory")
@@ -112,12 +111,14 @@ func (s *SQLJSStmt) Close() error {
 
 // NumInput is unsupported. It will always return -1.
 func (s *SQLJSStmt) NumInput() int {
+	// TODO check if needed
+	//panic("NumInput not implemented")
 	return -1
 }
 
 // Exec executes a query that does not return any rows.
 func (s *SQLJSStmt) Exec(args []driver.Value) (r driver.Result, e error) {
-	err := s.RunParams(valuesToInterface(args))
+	err := s.Statement.RunParams(valuesToInterface(args))
 	return &SQLJSResult{
 		s.db.GetRowsModified(),
 	}, err
@@ -133,7 +134,6 @@ func (SQLJSResult) LastInsertId() (int64, error) {
 	return 0, errors.New("LastInsertId not available")
 }
 
-// RowsAffected is not supported. It will always return an error.
 func (s *SQLJSResult) RowsAffected() (int64, error) {
 	return s.rowsAffected, nil
 }
@@ -148,7 +148,7 @@ func valuesToInterface(args []driver.Value) []interface{} {
 
 // Query executes a query that may return rows, such as a SELECT.
 func (s *SQLJSStmt) Query(args []driver.Value) (r driver.Rows, e error) {
-	if err := s.Bind(valuesToInterface(args)); err != nil {
+	if err := s.Statement.Bind(valuesToInterface(args)); err != nil {
 		return nil, err
 	}
 	return &SQLJSRows{s.Statement, nil, []string{}, nil}, nil
@@ -169,7 +169,7 @@ type prevStep struct {
 
 func (r *SQLJSRows) step() (bool, error) {
 	if r.prevStep == nil {
-		ok, err := r.Step()
+		ok, err := r.Statement.Step()
 		r.prevStep = &prevStep{ok, err}
 	}
 	return r.prevStep.ok, r.prevStep.err
@@ -177,7 +177,7 @@ func (r *SQLJSRows) step() (bool, error) {
 
 // Close closes the Rows iterator.
 func (r *SQLJSRows) Close() error {
-	r.Reset()
+	r.Statement.Reset()
 	return nil
 }
 
@@ -185,14 +185,7 @@ func (r *SQLJSRows) setColumns() {
 	if len(r.cols) > 0 {
 		return
 	}
-	if ok, err := r.step(); err != nil {
-		r.err = err
-		return
-	} else if !ok {
-		r.err = errors.New("cannot read column names; nothing to fetch")
-		return
-	}
-	cols, err := r.GetColumnNames()
+	cols, err := r.Statement.GetColumnNames()
 	r.cols = cols
 	r.err = err
 }
@@ -218,7 +211,7 @@ func (r *SQLJSRows) Next(dest []driver.Value) error {
 	if !ok {
 		return io.EOF
 	}
-	result, err := r.Get()
+	result, err := r.Statement.Get()
 	if err != nil {
 		return err
 	}

@@ -2,16 +2,23 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"meowTest/whatsmeow"
+	"meowTest/whatsmeow/store/sqlstore"
+	"meowTest/whatsmeow/types/events"
+	waLog "meowTest/whatsmeow/util/log"
+
 	_ "github.com/mattn/go-sqlite3"
-	"go.mau.fi/whatsmeow"
-	"go.mau.fi/whatsmeow/store/sqlstore"
-	"go.mau.fi/whatsmeow/types/events"
-	waLog "go.mau.fi/whatsmeow/util/log"
+
+	sqldblogger "github.com/simukti/sqldb-logger"
+	logrusadapter "github.com/simukti/sqldb-logger/logadapter/logrusadapter"
+	logrus "github.com/sirupsen/logrus"
+	"github.com/snowzach/rotatefilehook"
 )
 
 func eventHandler(evt interface{}) {
@@ -22,9 +29,41 @@ func eventHandler(evt interface{}) {
 }
 
 func main() {
+	// Set the log level for sql to "DEBUG" to see the SQL queries
+	logger := logrus.New()
+	logger.Level = logrus.DebugLevel           // miminum level
+	logger.Formatter = &logrus.TextFormatter{} // logrus automatically add time field
+	rotateFileHook, err := rotatefilehook.NewRotateFileHook(rotatefilehook.RotateFileConfig{
+		Filename:   "console.log",
+		MaxSize:    50, // megabytes
+		MaxBackups: 3,  // amouts
+		MaxAge:     28, //days
+		Level:      logrus.DebugLevel,
+		Formatter:  &logrus.JSONFormatter{},
+	})
+	if err != nil {
+		logrus.Fatalf("Failed to initialize file rotate hook: %v", err)
+	}
+	logger.AddHook(rotateFileHook)
+
+	dsn := ":memory:?_foreign_keys=on"
+	sqlDB, err := sql.Open("sqlite3", dsn)
+	if err != nil {
+		panic(err)
+	}
+
+	sqlDB = sqldblogger.OpenDriver(dsn, sqlDB.Driver(), logrusadapter.New(logger) /*, using_default_options*/) // db is STILL *sql.DB
+
 	dbLog := waLog.Stdout("Database", "DEBUG", true)
 	// Make sure you add appropriate DB connector imports, e.g. github.com/mattn/go-sqlite3 for SQLite
-	container, err := sqlstore.New("sqlite3", "file:examplestore.db?_foreign_keys=on", dbLog)
+	//	container, err := sqlstore.New("sqlite3", dsn, dbLog)
+
+	container := sqlstore.NewWithDB(sqlDB, "sqlite3", dbLog)
+	err = container.Upgrade()
+	if err != nil {
+		panic(err)
+	}
+
 	if err != nil {
 		panic(err)
 	}
@@ -49,7 +88,7 @@ func main() {
 				// Render the QR code here
 				// e.g. qrterminal.GenerateHalfBlock(evt.Code, qrterminal.L, os.Stdout)
 				// or just manually `echo 2@... | qrencode -t ansiutf8` in a terminal
-				fmt.Println("QR code:", evt.Code)
+				fmt.Println("echo", evt.Code, "| qrencode -t ansiutf8")
 			} else {
 				fmt.Println("Login event:", evt.Event)
 			}
@@ -66,6 +105,6 @@ func main() {
 	c := make(chan os.Signal)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	<-c
-
+	client.Logout()
 	client.Disconnect()
 }

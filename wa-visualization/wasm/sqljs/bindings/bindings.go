@@ -293,8 +293,6 @@ func backConvert(x js.Value) interface{} {
 	case js.TypeNumber:
 		return x.Int()
 	case js.TypeObject:
-		ConsoleLog("backConvert object: ", x)
-
 		// check if it is a typed array with bytes_per_element and then create it
 		if x.Get("BYTES_PER_ELEMENT").Type() == js.TypeNumber {
 			// TypedArray
@@ -322,14 +320,17 @@ func backConvert(x js.Value) interface{} {
 				}
 				return ret
 			default:
+				ConsoleLog("backConvert object: ", x)
 				panic("bad type object typed array: " + x.Type().String() + " not implemented")
 			}
 		} else {
 			// not a typed array
+			ConsoleLog("backConvert object: ", x)
 			panic("bad type object: " + x.Type().String() + " not implemented")
 		}
 
 	default:
+		ConsoleLog("backConvert object: ", x)
 		panic("bad type: " + x.Type().String())
 	}
 }
@@ -373,13 +374,15 @@ func (s *Statement) GetNamedParams(params map[string]interface{}) (r []interface
 //
 // See http://kripken.github.io/sql.js/documentation/class/Statement.html#getColumnNames-dynamic
 func (s *Statement) GetColumnNames() (c []string, e error) {
-	cols := s.Call("getColumnNames")
-	ConsoleLog("GetColumnNames: ", cols)
-	c = make([]string, cols.Length())
-	for i := 0; i < cols.Length(); i++ {
-		c[i] = cols.Index(i).String()
-	}
-	return c, nil
+	err := captureError(func() {
+		cols := s.Call("getColumnNames")
+		ConsoleLog("GetColumnNames: ", cols)
+		c = make([]string, cols.Length())
+		for i := 0; i < cols.Length(); i++ {
+			c[i] = cols.Index(i).String()
+		}
+	})
+	return c, err
 }
 
 func (s *Statement) bind(params interface{}) (e error) {
