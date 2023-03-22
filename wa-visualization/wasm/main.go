@@ -4,26 +4,115 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 	"syscall/js"
 	"time"
 
 	"wasm/whatsmeow"
+	"wasm/whatsmeow/store"
 	"wasm/whatsmeow/store/sqlstore"
+	"wasm/whatsmeow/types"
 	"wasm/whatsmeow/types/events"
 	waLog "wasm/whatsmeow/util/log"
+
+	waproto "wasm/whatsmeow/binary/proto"
+
+	"google.golang.org/protobuf/proto"
 
 	_ "wasm/sqljs"
 )
 
-func eventHandler(evt interface{}) {
-	switch v := evt.(type) {
+var client *whatsmeow.Client
+var totalSyncedConversations int
+
+func printMessage(evt *events.Message) {
+	metaParts := []string{fmt.Sprintf("pushname: %s", evt.Info.PushName), fmt.Sprintf("timestamp: %s", evt.Info.Timestamp)}
+	if evt.Info.Type != "" {
+		metaParts = append(metaParts, fmt.Sprintf("type: %s", evt.Info.Type))
+	}
+	if evt.Info.Category != "" {
+		metaParts = append(metaParts, fmt.Sprintf("category: %s", evt.Info.Category))
+	}
+	if evt.IsViewOnce {
+		metaParts = append(metaParts, "viewonce")
+	}
+	if evt.IsViewOnce {
+		metaParts = append(metaParts, "ephemeral")
+	}
+	if evt.IsViewOnceV2 {
+		metaParts = append(metaParts, "ephemeral (v2)")
+	}
+	if evt.IsDocumentWithCaption {
+		metaParts = append(metaParts, "document with caption")
+	}
+	if evt.IsEdit {
+		metaParts = append(metaParts, "edit")
+	}
+
+	fmt.Printf("Received message %s from %s (%s): %+v metaParameters: \n", evt.Info.ID, evt.Info.SourceString(), strings.Join(metaParts, ", "), evt.Message)
+	fmt.Println()
+}
+
+func eventHandler(rawEvt interface{}) {
+	switch evt := rawEvt.(type) {
 	case *events.Message:
-		fmt.Println("Received a message!", v.Message.GetConversation())
+		printMessage(evt)
+
+		// TODO show user info n stuff
+		//userInfo, err := client.GetUserInfo(client.ID)
+		//if err != nil {
+		//	fmt.Println("Error getting user info:", err)
+		//}
+		//fmt.Println(userInfo)
+
+	case *events.HistorySync:
+		// The chat JID can be found in the Conversation data:
+		conversations := evt.Data.GetConversations()
+		for _, conv := range conversations {
+			chatJID, err := types.ParseJID(conv.GetId())
+			if err != nil {
+				fmt.Println("Error parsing conversation JID:", err)
+			} else {
+				for _, historyMsg := range conv.GetMessages() {
+					evt, err := client.ParseWebMessage(chatJID, historyMsg.GetMessage())
+					if err != nil {
+						fmt.Println("Error parsing message:", err)
+						continue
+					}
+					eventHandler(evt)
+				}
+			}
+		}
+		totalSyncedConversations += len(conversations)
+		fmt.Println("Synced total", totalSyncedConversations, "conversations")
+
+	case *events.Receipt:
+		// print the receipt information
+		fmt.Println("Receipt at %v for %v", evt.Timestamp, evt.MessageIDs)
+
+	case *events.Connected:
+		// print the connection information
+		fmt.Println("Connected to WhatsApp")
+	case *events.Disconnected:
+		// print the disconnection information
+		fmt.Println("Disconnected from WhatsApp")
+	case *events.LoggedOut:
+		// print the disconnection information
+		fmt.Println("Logged out from WhatsApp")
+	case *events.QR:
+		// print the QR code every 30 seconds
+		fmt.Println("QR code:", evt.Codes)
+	case *events.PairSuccess:
+		// print the pairing information
+		fmt.Println("Pairing successful")
+	case *events.PairError:
+		// print the pairing error
+		fmt.Println("Pairing error")
 	}
 }
 
 func StartMeow(clientChannel chan *whatsmeow.Client) {
-	dbLog := waLog.Stdout("Database", "DEBUG", true)
+	dbLog := waLog.Stdout("Database", "INFO", true)
 	// Make sure you add appropriate DB connector imports, e.g. github.com/mattn/go-sqlite3 for SQLite
 	//container, err := sqlstore.New("sqljs", "file:examplestore.db?_foreign_keys=on", dbLog)
 
@@ -32,20 +121,36 @@ func StartMeow(clientChannel chan *whatsmeow.Client) {
 		panic(err)
 	}
 
-	// Try to make whatsmewo work with the sqljs driver
+	// Lets modify the protoBuf store properties to get more history
+	store.DeviceProps.RequireFullSync = proto.Bool(true)
+	// For info about these check: https://github.com/mautrix/whatsapp/blob/6df2ff725999ff82d0f3b171b44d748533bf34ee/example-config.yaml#L141
+	config := &waproto.DeviceProps_HistorySyncConfig{
+		FullSyncDaysLimit:   proto.Uint32(365 * 15), // supposedly only really 3 years worth of data can be gotten
+		FullSyncSizeMbLimit: proto.Uint32(50),
+		StorageQuotaMb:      proto.Uint32(5000),
+	}
+	store.DeviceProps.HistorySyncConfig = config
+
+	// Use the sqljs driver for whatsmeow
 	container := sqlstore.NewWithDB(sqlDB, "sqlite", dbLog)
 	err = container.Upgrade()
 	if err != nil {
 		panic(err)
 	}
 
+	// Check if the limits are still there
+	fmt.Println("GetFullSyncDaysLimit: ", store.DeviceProps.HistorySyncConfig.GetFullSyncDaysLimit())
+	fmt.Println("GetFullSyncSizeMbLimit: ", store.DeviceProps.HistorySyncConfig.GetFullSyncSizeMbLimit())
+	fmt.Println("GetStorageQuotaMb: ", store.DeviceProps.HistorySyncConfig.GetStorageQuotaMb())
+
 	// If you want multiple sessions, remember their JIDs and use .GetDevice(jid) or .GetAllDevices() instead.
 	deviceStore, err := container.GetFirstDevice()
+
 	if err != nil {
 		panic(err)
 	}
-	clientLog := waLog.Stdout("Client", "DEBUG", true)
-	client := whatsmeow.NewClient(deviceStore, clientLog)
+	clientLog := waLog.Stdout("Client", "INFO", true)
+	client = whatsmeow.NewClient(deviceStore, clientLog)
 	client.AddEventHandler(eventHandler)
 
 	clientChannel <- client

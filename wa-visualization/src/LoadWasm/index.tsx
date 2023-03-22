@@ -10,32 +10,6 @@ async function loadWasm(): Promise<void> {
   goWasm.run(result.instance);
 }
 
-function TestSQL(SQL: any) {
-  const db = new SQL.Database();
-  console.log("SQL loaded")
-  console.log(db)
-
-  // Execute a single SQL string that contains multiple statements
-  let sqlstr = "CREATE TABLE hello (a int, b char); \
-  INSERT INTO hello VALUES (0, 'hello'); \
-  INSERT INTO hello VALUES (1, 'world');";
-  db.run(sqlstr); // Run the query without returning anything
-
-  // Prepare an sql statement
-  const stmt = db.prepare("SELECT * FROM hello WHERE a=:aval AND b=:bval");
-  console.log(stmt)
-
-  // Bind values to the parameters and fetch the results of the query
-  const result = stmt.getAsObject({':aval' : 1, ':bval' : 'world'});
-  console.log(result); // Will print {a:1, b:'world'}
-
-  // Bind other values
-  stmt.bind([0, 'hello']);
-  while (stmt.step()) console.log(stmt.get()); // Will print [0, 'hello']
-  // free the memory used by the statement
-  console.log("Free ret: " + stmt.free());
-}
-
 // We need SQL to be global, otherwise the js.Global() in Go won't find it
 declare global {
     interface Window {
@@ -76,6 +50,8 @@ export const LoadWasm: React.FC<React.PropsWithChildren<{}>> = (props) => {
 
           // Tell go to load the DB
           window.loadSQL()
+
+          
           
           // We are done loading
           setIsLoading(false);

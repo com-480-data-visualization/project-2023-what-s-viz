@@ -42,10 +42,8 @@ func New() *Database {
 		SQL := js.Global().Get("SQL")
 		db = SQL.Get("Database").New()
 		js.Global().Set("WAdb", db)
-		ConsoleLog("WA db is: ", db)
 	} else {
 		db = js.Global().Get("WAdb")
-		ConsoleLog("Loaded old WAdb to: ", db)
 	}
 	return &Database{db}
 }
@@ -81,7 +79,6 @@ func captureError(fn func()) (e error) {
 //
 // See http://kripken.github.io/sql.js/documentation/class/Database.html#run-dynamic
 func (d *Database) Run(query string) (e error) {
-	fmt.Println("Run: ", query)
 	return captureError(func() {
 		d.Call("run", query)
 	})
@@ -91,7 +88,6 @@ func (d *Database) Run(query string) (e error) {
 //
 // See http://kripken.github.io/sql.js/documentation/class/Database.html#run-dynamic
 func (d *Database) RunParams(query string, params []interface{}) (e error) {
-	fmt.Println("Run params: ", query, ", params: ", params)
 	return captureError(func() {
 		d.Call("run", query, params)
 	})
@@ -111,7 +107,6 @@ func (d *Database) Export() io.Reader {
 //
 // See http://kripken.github.io/sql.js/documentation/class/Database.html#close-dynamic
 func (d *Database) Close() (e error) {
-	fmt.Println("Close")
 	return captureError(func() {
 		d.Call("close")
 	})
@@ -121,7 +116,6 @@ func (d *Database) prepare(query string, params interface{}) (*Statement, error)
 	var s js.Value
 	err := captureError(func() {
 		s = d.Call("prepare", query, params)
-		fmt.Println("Prepare: ", query, ", params: ", params)
 	})
 	return &Statement{s}, err
 }
@@ -181,7 +175,6 @@ type Result struct {
 //
 // See http://kripken.github.io/sql.js/documentation/class/Database.html#exec-dynamic
 func (d *Database) Exec(query string) (r []Result, e error) {
-	fmt.Println("Exec: ", query)
 	var result js.Value
 	e = captureError(func() {
 		result = d.Call("exec", query)
@@ -207,7 +200,6 @@ func (d *Database) Exec(query string) (r []Result, e error) {
 			}
 		}
 	}
-	fmt.Println("Exec: ", query, ", result: ", r)
 	return r, nil
 }
 
@@ -215,8 +207,7 @@ func (d *Database) Begin() (t *Transaction, e error) {
 	// Open a transaction
 	//db.exec("BEGIN TRANSACTION;");
 	err := captureError(func() {
-		res := d.Call("exec", "BEGIN TRANSACTION;")
-		ConsoleLog("Begin: ", res)
+		d.Call("exec", "BEGIN TRANSACTION;")
 	})
 	return &Transaction{d.Value}, err
 }
@@ -226,8 +217,7 @@ func (t *Transaction) Commit() (e error) {
 	// Commit
 	//db.exec("COMMIT;");
 	err := captureError(func() {
-		res := t.Call("exec", "COMMIT;")
-		ConsoleLog("Commit: ", res)
+		t.Call("exec", "COMMIT;")
 	})
 	return err
 }
@@ -237,8 +227,7 @@ func (t *Transaction) Rollback() (e error) {
 	// Rollback
 	//db.exec("ROLLBACK;");
 	err := captureError(func() {
-		res := t.Call("exec", "ROLLBACK;")
-		ConsoleLog("Rollback: ", res)
+		t.Call("exec", "ROLLBACK;")
 	})
 	return err
 }
@@ -248,11 +237,9 @@ func (t *Transaction) Rollback() (e error) {
 //
 // See http://kripken.github.io/sql.js/documentation/class/Statement.html#step-dynamic
 func (s *Statement) Step() (ok bool, e error) {
-	ConsoleLog("Step: ", s.Value)
 	err := captureError(func() {
 		ok = s.Call("step").Bool()
 	})
-	fmt.Println("Step: ", ok, ", err: ", err)
 	return ok, err
 }
 
@@ -337,7 +324,6 @@ func backConvert(x js.Value) interface{} {
 
 func (s *Statement) get(params interface{}) (r []interface{}, e error) {
 	params = convertParamsAny(params)
-	fmt.Println("Get params: ", params)
 	err := captureError(func() {
 		results := s.Call("get", params)
 		r = make([]interface{}, results.Length())
@@ -345,7 +331,6 @@ func (s *Statement) get(params interface{}) (r []interface{}, e error) {
 			r[i] = backConvert(results.Index(i))
 		}
 	})
-	fmt.Println("Get r: ", r, ", err: ", err)
 	return r, err
 }
 
@@ -376,7 +361,6 @@ func (s *Statement) GetNamedParams(params map[string]interface{}) (r []interface
 func (s *Statement) GetColumnNames() (c []string, e error) {
 	err := captureError(func() {
 		cols := s.Call("getColumnNames")
-		ConsoleLog("GetColumnNames: ", cols)
 		c = make([]string, cols.Length())
 		for i := 0; i < cols.Length(); i++ {
 			c[i] = cols.Index(i).String()
@@ -388,11 +372,9 @@ func (s *Statement) GetColumnNames() (c []string, e error) {
 func (s *Statement) bind(params interface{}) (e error) {
 	var tf bool
 	params = convertParamsAny(params)
-	fmt.Println("Start bind with: ", params)
 	err := captureError(func() {
 		tf = s.Call("bind", params).Bool()
 	})
-	fmt.Println("Bind: ", params, " res: ", tf, ", err: ", err)
 	if err != nil {
 		return err
 	}
@@ -421,7 +403,6 @@ func (s *Statement) BindNamed(params map[string]interface{}) (e error) {
 //
 // See http://kripken.github.io/sql.js/documentation/class/Statement.html#reset-dynamic
 func (s *Statement) Reset() {
-	ConsoleLog("Resetting statement: ", s.Value)
 	s.Call("reset")
 }
 
@@ -429,7 +410,6 @@ func (s *Statement) Reset() {
 //
 // See http://kripken.github.io/sql.js/documentation/class/Statement.html#freemem-dynamic
 func (s *Statement) Freemem() {
-	ConsoleLog("Freemem statement: ", s.Value)
 	s.Call("freemem")
 }
 
@@ -452,7 +432,6 @@ func (s *Statement) getAsMap(params interface{}) (m map[string]interface{}, e er
 	err := captureError(func() {
 		o := s.Call("getAsObject", params)
 		m = make(map[string]interface{}, o.Length())
-		ConsoleLog("getAsMap not implemented; need keys of: ", o)
 		panic("getAsMap")
 		//for _, key := range js.Keys(o) {
 		//	m[key] = o.Get(key)
@@ -487,21 +466,10 @@ func (s *Statement) GetAsMapNamedParams(params map[string]interface{}) (m map[st
 	return s.getAsMap(params)
 }
 
-// Testing function to see types
-func PrintParams(params []interface{}) {
-	for _, ch := range params {
-		fmt.Printf("Type %T\n", ch)
-		fmt.Printf("Value %v\n", ch)
-	}
-}
-
 func (s *Statement) run(params interface{}) (e error) {
 	params = convertParamsAny(params)
-	fmt.Println("Run with params", params)
-	ConsoleLog("Run s: ", s.Value)
 	return captureError(func() {
-		res := s.Call("run", params)
-		ConsoleLog("Run result: ", res)
+		s.Call("run", params)
 	})
 }
 
