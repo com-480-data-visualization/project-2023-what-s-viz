@@ -1,5 +1,5 @@
 diff --git a/appstate.go b/appstate.go
-index 0ba5133..8f05837 100644
+index 0ba5133..6f9dab5 100644
 --- a/appstate.go
 +++ b/appstate.go
 @@ -13,12 +13,12 @@ import (
@@ -12,17 +12,17 @@ index 0ba5133..8f05837 100644
 -	"go.mau.fi/whatsmeow/store"
 -	"go.mau.fi/whatsmeow/types"
 -	"go.mau.fi/whatsmeow/types/events"
-+	"meowTest/whatsmeow/appstate"
-+	waBinary "meowTest/whatsmeow/binary"
-+	waProto "meowTest/whatsmeow/binary/proto"
-+	"meowTest/whatsmeow/store"
-+	"meowTest/whatsmeow/types"
-+	"meowTest/whatsmeow/types/events"
++	"wasm/whatsmeow/appstate"
++	waBinary "wasm/whatsmeow/binary"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/store"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
  )
  
  // FetchAppState fetches updates to the given type of app state. If fullSync is true, the current
 diff --git a/appstate/decode.go b/appstate/decode.go
-index 5c89547..c1fe084 100644
+index 5c89547..da7aade 100644
 --- a/appstate/decode.go
 +++ b/appstate/decode.go
 @@ -14,10 +14,10 @@ import (
@@ -33,15 +33,15 @@ index 5c89547..c1fe084 100644
 -	waProto "go.mau.fi/whatsmeow/binary/proto"
 -	"go.mau.fi/whatsmeow/store"
 -	"go.mau.fi/whatsmeow/util/cbcutil"
-+	waBinary "meowTest/whatsmeow/binary"
-+	waProto "meowTest/whatsmeow/binary/proto"
-+	"meowTest/whatsmeow/store"
-+	"meowTest/whatsmeow/util/cbcutil"
++	waBinary "wasm/whatsmeow/binary"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/store"
++	"wasm/whatsmeow/util/cbcutil"
  )
  
  // PatchList represents a decoded response to getting app state patches from the WhatsApp servers.
 diff --git a/appstate/hash.go b/appstate/hash.go
-index bb17eea..ec07568 100644
+index bb17eea..1a8099c 100644
 --- a/appstate/hash.go
 +++ b/appstate/hash.go
 @@ -14,8 +14,8 @@ import (
@@ -50,13 +50,13 @@ index bb17eea..ec07568 100644
  
 -	"go.mau.fi/whatsmeow/appstate/lthash"
 -	waProto "go.mau.fi/whatsmeow/binary/proto"
-+	"meowTest/whatsmeow/appstate/lthash"
-+	waProto "meowTest/whatsmeow/binary/proto"
++	"wasm/whatsmeow/appstate/lthash"
++	waProto "wasm/whatsmeow/binary/proto"
  )
  
  type Mutation struct {
 diff --git a/appstate/keys.go b/appstate/keys.go
-index ec19dc2..328fe46 100644
+index ec19dc2..b7e3eb0 100644
 --- a/appstate/keys.go
 +++ b/appstate/keys.go
 @@ -11,9 +11,9 @@ import (
@@ -66,14 +66,14 @@ index ec19dc2..328fe46 100644
 -	"go.mau.fi/whatsmeow/store"
 -	"go.mau.fi/whatsmeow/util/hkdfutil"
 -	waLog "go.mau.fi/whatsmeow/util/log"
-+	"meowTest/whatsmeow/store"
-+	"meowTest/whatsmeow/util/hkdfutil"
-+	waLog "meowTest/whatsmeow/util/log"
++	"wasm/whatsmeow/store"
++	"wasm/whatsmeow/util/hkdfutil"
++	waLog "wasm/whatsmeow/util/log"
  )
  
  // WAPatchName represents a type of app state patch.
 diff --git a/appstate/lthash/lthash.go b/appstate/lthash/lthash.go
-index 8d3045d..631462d 100644
+index 8d3045d..014b08c 100644
 --- a/appstate/lthash/lthash.go
 +++ b/appstate/lthash/lthash.go
 @@ -13,7 +13,7 @@ package lthash
@@ -81,12 +81,12 @@ index 8d3045d..631462d 100644
  	"encoding/binary"
  
 -	"go.mau.fi/whatsmeow/util/hkdfutil"
-+	"meowTest/whatsmeow/util/hkdfutil"
++	"wasm/whatsmeow/util/hkdfutil"
  )
  
  type LTHash struct {
 diff --git a/binary/attrs.go b/binary/attrs.go
-index d7d43f0..f0f7037 100644
+index d7d43f0..dddd381 100644
 --- a/binary/attrs.go
 +++ b/binary/attrs.go
 @@ -11,7 +11,7 @@ import (
@@ -94,12 +94,12 @@ index d7d43f0..f0f7037 100644
  	"time"
  
 -	"go.mau.fi/whatsmeow/types"
-+	"meowTest/whatsmeow/types"
++	"wasm/whatsmeow/types"
  )
  
  // AttrUtility is a helper struct for reading multiple XML attributes and checking for errors afterwards.
 diff --git a/binary/decoder.go b/binary/decoder.go
-index f13f9b4..f10da8d 100644
+index f13f9b4..5f58714 100644
 --- a/binary/decoder.go
 +++ b/binary/decoder.go
 @@ -5,8 +5,8 @@ import (
@@ -108,13 +108,13 @@ index f13f9b4..f10da8d 100644
  
 -	"go.mau.fi/whatsmeow/binary/token"
 -	"go.mau.fi/whatsmeow/types"
-+	"meowTest/whatsmeow/binary/token"
-+	"meowTest/whatsmeow/types"
++	"wasm/whatsmeow/binary/token"
++	"wasm/whatsmeow/types"
  )
  
  type binaryDecoder struct {
 diff --git a/binary/encoder.go b/binary/encoder.go
-index 7def56b..4866e71 100644
+index 7def56b..dd570a0 100644
 --- a/binary/encoder.go
 +++ b/binary/encoder.go
 @@ -5,8 +5,8 @@ import (
@@ -123,13 +123,13 @@ index 7def56b..4866e71 100644
  
 -	"go.mau.fi/whatsmeow/binary/token"
 -	"go.mau.fi/whatsmeow/types"
-+	"meowTest/whatsmeow/binary/token"
-+	"meowTest/whatsmeow/types"
++	"wasm/whatsmeow/binary/token"
++	"wasm/whatsmeow/types"
  )
  
  type binaryEncoder struct {
 diff --git a/broadcast.go b/broadcast.go
-index d3bbf8e..be78465 100644
+index d3bbf8e..1e8916d 100644
 --- a/broadcast.go
 +++ b/broadcast.go
 @@ -10,8 +10,8 @@ import (
@@ -138,13 +138,13 @@ index d3bbf8e..be78465 100644
  
 -	waBinary "go.mau.fi/whatsmeow/binary"
 -	"go.mau.fi/whatsmeow/types"
-+	waBinary "meowTest/whatsmeow/binary"
-+	"meowTest/whatsmeow/types"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/types"
  )
  
  func (cli *Client) getBroadcastListParticipants(jid types.JID) ([]types.JID, error) {
 diff --git a/call.go b/call.go
-index f4de9bd..6a4dacb 100644
+index f4de9bd..73427db 100644
 --- a/call.go
 +++ b/call.go
 @@ -7,9 +7,9 @@
@@ -154,17 +154,17 @@ index f4de9bd..6a4dacb 100644
 -	waBinary "go.mau.fi/whatsmeow/binary"
 -	"go.mau.fi/whatsmeow/types"
 -	"go.mau.fi/whatsmeow/types/events"
-+	waBinary "meowTest/whatsmeow/binary"
-+	"meowTest/whatsmeow/types"
-+	"meowTest/whatsmeow/types/events"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
  )
  
  func (cli *Client) handleCallEvent(node *waBinary.Node) {
 diff --git a/client.go b/client.go
-index 8658119..6e85128 100644
+index 8658119..b35bf07 100644
 --- a/client.go
 +++ b/client.go
-@@ -20,15 +20,16 @@ import (
+@@ -20,15 +20,15 @@ import (
  	"sync/atomic"
  	"time"
  
@@ -177,40 +177,40 @@ index 8658119..6e85128 100644
 -	"go.mau.fi/whatsmeow/types/events"
 -	"go.mau.fi/whatsmeow/util/keys"
 -	waLog "go.mau.fi/whatsmeow/util/log"
-+	"meowTest/whatsmeow/socket"
-+
-+	"meowTest/whatsmeow/appstate"
-+	waBinary "meowTest/whatsmeow/binary"
-+	waProto "meowTest/whatsmeow/binary/proto"
-+	"meowTest/whatsmeow/store"
-+	"meowTest/whatsmeow/types"
-+	"meowTest/whatsmeow/types/events"
-+	"meowTest/whatsmeow/util/keys"
-+	waLog "meowTest/whatsmeow/util/log"
++	"wasm/whatsmeow/appstate"
++	waBinary "wasm/whatsmeow/binary"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/socket"
++	"wasm/whatsmeow/store"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
++	"wasm/whatsmeow/util/keys"
++	waLog "wasm/whatsmeow/util/log"
  )
  
  // EventHandler is a function that can handle events from WhatsApp.
 diff --git a/client_test.go b/client_test.go
-index d407ffe..9af4635 100644
+index d407ffe..093e5a9 100644
 --- a/client_test.go
 +++ b/client_test.go
-@@ -13,10 +13,10 @@ import (
+@@ -12,11 +12,11 @@ import (
+ 	"os"
  	"os/signal"
  	"syscall"
++	"wasm/whatsmeow"
  
 -	"go.mau.fi/whatsmeow"
 -	"go.mau.fi/whatsmeow/store/sqlstore"
 -	"go.mau.fi/whatsmeow/types/events"
 -	waLog "go.mau.fi/whatsmeow/util/log"
-+	"meowTest/whatsmeow"
-+	"meowTest/whatsmeow/store/sqlstore"
-+	"meowTest/whatsmeow/types/events"
-+	waLog "meowTest/whatsmeow/util/log"
++	"wasm/whatsmeow/store/sqlstore"
++	"wasm/whatsmeow/types/events"
++	waLog "wasm/whatsmeow/util/log"
  )
  
  func eventHandler(evt interface{}) {
 diff --git a/connectionevents.go b/connectionevents.go
-index 3a6d9e2..1fb3077 100644
+index 3a6d9e2..90a61c8 100644
 --- a/connectionevents.go
 +++ b/connectionevents.go
 @@ -10,9 +10,9 @@ import (
@@ -220,17 +220,17 @@ index 3a6d9e2..1fb3077 100644
 -	waBinary "go.mau.fi/whatsmeow/binary"
 -	"go.mau.fi/whatsmeow/types"
 -	"go.mau.fi/whatsmeow/types/events"
-+	waBinary "meowTest/whatsmeow/binary"
-+	"meowTest/whatsmeow/types"
-+	"meowTest/whatsmeow/types/events"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
  )
  
  func (cli *Client) handleStreamError(node *waBinary.Node) {
 diff --git a/download.go b/download.go
-index e9bedd4..9452c61 100644
+index e9bedd4..4171068 100644
 --- a/download.go
 +++ b/download.go
-@@ -18,10 +18,11 @@ import (
+@@ -18,10 +18,10 @@ import (
  	"google.golang.org/protobuf/proto"
  	"google.golang.org/protobuf/reflect/protoreflect"
  
@@ -238,16 +238,15 @@ index e9bedd4..9452c61 100644
 -	"go.mau.fi/whatsmeow/socket"
 -	"go.mau.fi/whatsmeow/util/cbcutil"
 -	"go.mau.fi/whatsmeow/util/hkdfutil"
-+	"meowTest/whatsmeow/socket"
-+
-+	waProto "meowTest/whatsmeow/binary/proto"
-+	"meowTest/whatsmeow/util/cbcutil"
-+	"meowTest/whatsmeow/util/hkdfutil"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/socket"
++	"wasm/whatsmeow/util/cbcutil"
++	"wasm/whatsmeow/util/hkdfutil"
  )
  
  // MediaType represents a type of uploaded file on WhatsApp.
 diff --git a/errors.go b/errors.go
-index 62227f3..fe66dd3 100644
+index 62227f3..24324b0 100644
 --- a/errors.go
 +++ b/errors.go
 @@ -10,7 +10,7 @@ import (
@@ -255,7 +254,7 @@ index 62227f3..fe66dd3 100644
  	"fmt"
  
 -	waBinary "go.mau.fi/whatsmeow/binary"
-+	waBinary "meowTest/whatsmeow/binary"
++	waBinary "wasm/whatsmeow/binary"
  )
  
  // Miscellaneous errors
@@ -300,7 +299,7 @@ index 68047e1..0000000
 -google.golang.org/protobuf v1.28.1 h1:d0NfwRgPtno5B1Wa6L2DAG+KivqkdutMf1UhdNx175w=
 -google.golang.org/protobuf v1.28.1/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
 diff --git a/group.go b/group.go
-index c771b5a..45506ee 100644
+index c771b5a..d3564dd 100644
 --- a/group.go
 +++ b/group.go
 @@ -12,9 +12,9 @@ import (
@@ -310,32 +309,31 @@ index c771b5a..45506ee 100644
 -	waBinary "go.mau.fi/whatsmeow/binary"
 -	"go.mau.fi/whatsmeow/types"
 -	"go.mau.fi/whatsmeow/types/events"
-+	waBinary "meowTest/whatsmeow/binary"
-+	"meowTest/whatsmeow/types"
-+	"meowTest/whatsmeow/types/events"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
  )
  
  const InviteLinkPrefix = "https://chat.whatsapp.com/"
 diff --git a/handshake.go b/handshake.go
-index dbfe9d9..0f65517 100644
+index dbfe9d9..2b52b0d 100644
 --- a/handshake.go
 +++ b/handshake.go
-@@ -13,9 +13,10 @@ import (
+@@ -13,9 +13,9 @@ import (
  
  	"google.golang.org/protobuf/proto"
  
 -	waProto "go.mau.fi/whatsmeow/binary/proto"
 -	"go.mau.fi/whatsmeow/socket"
 -	"go.mau.fi/whatsmeow/util/keys"
-+	"meowTest/whatsmeow/socket"
-+
-+	waProto "meowTest/whatsmeow/binary/proto"
-+	"meowTest/whatsmeow/util/keys"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/socket"
++	"wasm/whatsmeow/util/keys"
  )
  
  const NoiseHandshakeResponseTimeout = 20 * time.Second
 diff --git a/internals.go b/internals.go
-index f71e71e..d035973 100644
+index f71e71e..d006288 100644
 --- a/internals.go
 +++ b/internals.go
 @@ -9,7 +9,7 @@ package whatsmeow
@@ -343,12 +341,12 @@ index f71e71e..d035973 100644
  	"context"
  
 -	waBinary "go.mau.fi/whatsmeow/binary"
-+	waBinary "meowTest/whatsmeow/binary"
++	waBinary "wasm/whatsmeow/binary"
  )
  
  type DangerousInternalClient struct {
 diff --git a/keepalive.go b/keepalive.go
-index d5e4028..005cfcd 100644
+index d5e4028..fba225f 100644
 --- a/keepalive.go
 +++ b/keepalive.go
 @@ -11,9 +11,9 @@ import (
@@ -358,17 +356,23 @@ index d5e4028..005cfcd 100644
 -	waBinary "go.mau.fi/whatsmeow/binary"
 -	"go.mau.fi/whatsmeow/types"
 -	"go.mau.fi/whatsmeow/types/events"
-+	waBinary "meowTest/whatsmeow/binary"
-+	"meowTest/whatsmeow/types"
-+	"meowTest/whatsmeow/types/events"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
  )
  
  var (
 diff --git a/mdtest/main.go b/mdtest/main.go
-index 0e75791..418c3be 100644
+index 0e75791..3699347 100644
 --- a/mdtest/main.go
 +++ b/mdtest/main.go
-@@ -28,15 +28,15 @@ import (
+@@ -23,20 +23,20 @@ import (
+ 	"sync/atomic"
+ 	"syscall"
+ 	"time"
++	"wasm/whatsmeow"
+ 
+ 	_ "github.com/mattn/go-sqlite3"
  	"github.com/mdp/qrterminal/v3"
  	"google.golang.org/protobuf/proto"
  
@@ -381,20 +385,19 @@ index 0e75791..418c3be 100644
 -	"go.mau.fi/whatsmeow/types"
 -	"go.mau.fi/whatsmeow/types/events"
 -	waLog "go.mau.fi/whatsmeow/util/log"
-+	"meowTest/whatsmeow"
-+	"meowTest/whatsmeow/appstate"
-+	waBinary "meowTest/whatsmeow/binary"
-+	waProto "meowTest/whatsmeow/binary/proto"
-+	"meowTest/whatsmeow/store"
-+	"meowTest/whatsmeow/store/sqlstore"
-+	"meowTest/whatsmeow/types"
-+	"meowTest/whatsmeow/types/events"
-+	waLog "meowTest/whatsmeow/util/log"
++	"wasm/whatsmeow/appstate"
++	waBinary "wasm/whatsmeow/binary"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/store"
++	"wasm/whatsmeow/store/sqlstore"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
++	waLog "wasm/whatsmeow/util/log"
  )
  
  var cli *whatsmeow.Client
 diff --git a/mediaconn.go b/mediaconn.go
-index 2e83303..7beb7db 100644
+index 2e83303..716222b 100644
 --- a/mediaconn.go
 +++ b/mediaconn.go
 @@ -10,8 +10,8 @@ import (
@@ -403,13 +406,13 @@ index 2e83303..7beb7db 100644
  
 -	waBinary "go.mau.fi/whatsmeow/binary"
 -	"go.mau.fi/whatsmeow/types"
-+	waBinary "meowTest/whatsmeow/binary"
-+	"meowTest/whatsmeow/types"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/types"
  )
  
  //type MediaConnIP struct {
 diff --git a/mediaretry.go b/mediaretry.go
-index 167df5f..ff01249 100644
+index 167df5f..0909d03 100644
 --- a/mediaretry.go
 +++ b/mediaretry.go
 @@ -12,12 +12,12 @@ import (
@@ -422,27 +425,20 @@ index 167df5f..ff01249 100644
 -	"go.mau.fi/whatsmeow/types/events"
 -	"go.mau.fi/whatsmeow/util/gcmutil"
 -	"go.mau.fi/whatsmeow/util/hkdfutil"
-+	waBinary "meowTest/whatsmeow/binary"
-+	waProto "meowTest/whatsmeow/binary/proto"
-+	"meowTest/whatsmeow/types"
-+	"meowTest/whatsmeow/types/events"
-+	"meowTest/whatsmeow/util/gcmutil"
-+	"meowTest/whatsmeow/util/hkdfutil"
++	waBinary "wasm/whatsmeow/binary"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
++	"wasm/whatsmeow/util/gcmutil"
++	"wasm/whatsmeow/util/hkdfutil"
  )
  
  func getMediaRetryKey(mediaKey []byte) (cipherKey []byte) {
 diff --git a/message.go b/message.go
-index 97cb006..5e938c2 100644
+index 97cb006..6ff696a 100644
 --- a/message.go
 +++ b/message.go
-@@ -19,18 +19,19 @@ import (
- 	"time"
- 
- 	"go.mau.fi/libsignal/signalerror"
-+
- 	"google.golang.org/protobuf/proto"
- 
- 	"go.mau.fi/libsignal/groups"
+@@ -25,12 +25,12 @@ import (
  	"go.mau.fi/libsignal/protocol"
  	"go.mau.fi/libsignal/session"
  
@@ -452,17 +448,17 @@ index 97cb006..5e938c2 100644
 -	"go.mau.fi/whatsmeow/store"
 -	"go.mau.fi/whatsmeow/types"
 -	"go.mau.fi/whatsmeow/types/events"
-+	"meowTest/whatsmeow/appstate"
-+	waBinary "meowTest/whatsmeow/binary"
-+	waProto "meowTest/whatsmeow/binary/proto"
-+	"meowTest/whatsmeow/store"
-+	"meowTest/whatsmeow/types"
-+	"meowTest/whatsmeow/types/events"
++	"wasm/whatsmeow/appstate"
++	waBinary "wasm/whatsmeow/binary"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/store"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
  )
  
  var pbSerializer = store.SignalProtobufSerializer
 diff --git a/msgsecret.go b/msgsecret.go
-index a4cbb17..26b1684 100644
+index a4cbb17..fc15078 100644
 --- a/msgsecret.go
 +++ b/msgsecret.go
 @@ -14,11 +14,11 @@ import (
@@ -474,16 +470,16 @@ index a4cbb17..26b1684 100644
 -	"go.mau.fi/whatsmeow/types/events"
 -	"go.mau.fi/whatsmeow/util/gcmutil"
 -	"go.mau.fi/whatsmeow/util/hkdfutil"
-+	waProto "meowTest/whatsmeow/binary/proto"
-+	"meowTest/whatsmeow/types"
-+	"meowTest/whatsmeow/types/events"
-+	"meowTest/whatsmeow/util/gcmutil"
-+	"meowTest/whatsmeow/util/hkdfutil"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
++	"wasm/whatsmeow/util/gcmutil"
++	"wasm/whatsmeow/util/hkdfutil"
  )
  
  type MsgSecretType string
 diff --git a/notification.go b/notification.go
-index 567722b..d6f1a56 100644
+index 567722b..45264f1 100644
 --- a/notification.go
 +++ b/notification.go
 @@ -9,11 +9,11 @@ package whatsmeow
@@ -495,23 +491,20 @@ index 567722b..d6f1a56 100644
 -	"go.mau.fi/whatsmeow/store"
 -	"go.mau.fi/whatsmeow/types"
 -	"go.mau.fi/whatsmeow/types/events"
-+	"meowTest/whatsmeow/appstate"
-+	waBinary "meowTest/whatsmeow/binary"
-+	"meowTest/whatsmeow/store"
-+	"meowTest/whatsmeow/types"
-+	"meowTest/whatsmeow/types/events"
++	"wasm/whatsmeow/appstate"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/store"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
  )
  
  func (cli *Client) handleEncryptNotification(node *waBinary.Node) {
 diff --git a/pair.go b/pair.go
-index 573b038..1539ddf 100644
+index 573b038..3a96068 100644
 --- a/pair.go
 +++ b/pair.go
-@@ -15,13 +15,14 @@ import (
- 	"strings"
- 
+@@ -17,11 +17,11 @@ import (
  	"go.mau.fi/libsignal/ecc"
-+
  	"google.golang.org/protobuf/proto"
  
 -	waBinary "go.mau.fi/whatsmeow/binary"
@@ -519,16 +512,16 @@ index 573b038..1539ddf 100644
 -	"go.mau.fi/whatsmeow/types"
 -	"go.mau.fi/whatsmeow/types/events"
 -	"go.mau.fi/whatsmeow/util/keys"
-+	waBinary "meowTest/whatsmeow/binary"
-+	waProto "meowTest/whatsmeow/binary/proto"
-+	"meowTest/whatsmeow/types"
-+	"meowTest/whatsmeow/types/events"
-+	"meowTest/whatsmeow/util/keys"
++	waBinary "wasm/whatsmeow/binary"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
++	"wasm/whatsmeow/util/keys"
  )
  
  func (cli *Client) handleIQ(node *waBinary.Node) {
 diff --git a/prekeys.go b/prekeys.go
-index c0ece2e..42bb844 100644
+index c0ece2e..bef5039 100644
 --- a/prekeys.go
 +++ b/prekeys.go
 @@ -17,9 +17,9 @@ import (
@@ -538,14 +531,14 @@ index c0ece2e..42bb844 100644
 -	waBinary "go.mau.fi/whatsmeow/binary"
 -	"go.mau.fi/whatsmeow/types"
 -	"go.mau.fi/whatsmeow/util/keys"
-+	waBinary "meowTest/whatsmeow/binary"
-+	"meowTest/whatsmeow/types"
-+	"meowTest/whatsmeow/util/keys"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/util/keys"
  )
  
  const (
 diff --git a/presence.go b/presence.go
-index 0ce94a7..0817e72 100644
+index 0ce94a7..19ee47c 100644
 --- a/presence.go
 +++ b/presence.go
 @@ -10,9 +10,9 @@ import (
@@ -555,14 +548,14 @@ index 0ce94a7..0817e72 100644
 -	waBinary "go.mau.fi/whatsmeow/binary"
 -	"go.mau.fi/whatsmeow/types"
 -	"go.mau.fi/whatsmeow/types/events"
-+	waBinary "meowTest/whatsmeow/binary"
-+	"meowTest/whatsmeow/types"
-+	"meowTest/whatsmeow/types/events"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
  )
  
  func (cli *Client) handleChatState(node *waBinary.Node) {
 diff --git a/privacysettings.go b/privacysettings.go
-index 3aca72d..1f34faa 100644
+index 3aca72d..8f43f66 100644
 --- a/privacysettings.go
 +++ b/privacysettings.go
 @@ -7,9 +7,9 @@
@@ -572,14 +565,14 @@ index 3aca72d..1f34faa 100644
 -	waBinary "go.mau.fi/whatsmeow/binary"
 -	"go.mau.fi/whatsmeow/types"
 -	"go.mau.fi/whatsmeow/types/events"
-+	waBinary "meowTest/whatsmeow/binary"
-+	"meowTest/whatsmeow/types"
-+	"meowTest/whatsmeow/types/events"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
  )
  
  // TryFetchPrivacySettings will fetch the user's privacy settings, either from the in-memory cache or from the server.
 diff --git a/qrchan.go b/qrchan.go
-index 5401ac0..84e0743 100644
+index 5401ac0..57f774c 100644
 --- a/qrchan.go
 +++ b/qrchan.go
 @@ -12,8 +12,8 @@ import (
@@ -588,13 +581,13 @@ index 5401ac0..84e0743 100644
  
 -	"go.mau.fi/whatsmeow/types/events"
 -	waLog "go.mau.fi/whatsmeow/util/log"
-+	"meowTest/whatsmeow/types/events"
-+	waLog "meowTest/whatsmeow/util/log"
++	"wasm/whatsmeow/types/events"
++	waLog "wasm/whatsmeow/util/log"
  )
  
  type QRChannelItem struct {
 diff --git a/receipt.go b/receipt.go
-index 7e02c0a..1796bc2 100644
+index 7e02c0a..950b2b8 100644
 --- a/receipt.go
 +++ b/receipt.go
 @@ -11,9 +11,9 @@ import (
@@ -604,14 +597,14 @@ index 7e02c0a..1796bc2 100644
 -	waBinary "go.mau.fi/whatsmeow/binary"
 -	"go.mau.fi/whatsmeow/types"
 -	"go.mau.fi/whatsmeow/types/events"
-+	waBinary "meowTest/whatsmeow/binary"
-+	"meowTest/whatsmeow/types"
-+	"meowTest/whatsmeow/types/events"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
  )
  
  func (cli *Client) handleReceipt(node *waBinary.Node) {
 diff --git a/request.go b/request.go
-index 6945fd7..dd450b8 100644
+index 6945fd7..46e43c4 100644
 --- a/request.go
 +++ b/request.go
 @@ -13,8 +13,8 @@ import (
@@ -620,60 +613,49 @@ index 6945fd7..dd450b8 100644
  
 -	waBinary "go.mau.fi/whatsmeow/binary"
 -	"go.mau.fi/whatsmeow/types"
-+	waBinary "meowTest/whatsmeow/binary"
-+	"meowTest/whatsmeow/types"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/types"
  )
  
  func (cli *Client) generateRequestID() string {
 diff --git a/retry.go b/retry.go
-index 95104c8..cfcb3a0 100644
+index 95104c8..d693d34 100644
 --- a/retry.go
 +++ b/retry.go
-@@ -16,12 +16,13 @@ import (
- 	"go.mau.fi/libsignal/groups"
- 	"go.mau.fi/libsignal/keys/prekey"
+@@ -18,10 +18,10 @@ import (
  	"go.mau.fi/libsignal/protocol"
-+
  	"google.golang.org/protobuf/proto"
  
 -	waBinary "go.mau.fi/whatsmeow/binary"
 -	waProto "go.mau.fi/whatsmeow/binary/proto"
 -	"go.mau.fi/whatsmeow/types"
 -	"go.mau.fi/whatsmeow/types/events"
-+	waBinary "meowTest/whatsmeow/binary"
-+	waProto "meowTest/whatsmeow/binary/proto"
-+	"meowTest/whatsmeow/types"
-+	"meowTest/whatsmeow/types/events"
++	waBinary "wasm/whatsmeow/binary"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
  )
  
  // Number of sent messages to cache in memory for handling retry receipts.
 diff --git a/send.go b/send.go
-index 96d888b..78aff2a 100644
+index 96d888b..32db7d1 100644
 --- a/send.go
 +++ b/send.go
-@@ -20,6 +20,7 @@ import (
- 	"time"
- 
- 	"go.mau.fi/libsignal/signalerror"
-+
- 	"google.golang.org/protobuf/proto"
- 
- 	"go.mau.fi/libsignal/groups"
-@@ -27,9 +28,9 @@ import (
+@@ -27,9 +27,9 @@ import (
  	"go.mau.fi/libsignal/protocol"
  	"go.mau.fi/libsignal/session"
  
 -	waBinary "go.mau.fi/whatsmeow/binary"
 -	waProto "go.mau.fi/whatsmeow/binary/proto"
 -	"go.mau.fi/whatsmeow/types"
-+	waBinary "meowTest/whatsmeow/binary"
-+	waProto "meowTest/whatsmeow/binary/proto"
-+	"meowTest/whatsmeow/types"
++	waBinary "wasm/whatsmeow/binary"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/types"
  )
  
  // GenerateMessageID generates a random string that can be used as a message ID on WhatsApp.
 diff --git a/socket/constants.go b/socket/constants.go
-index 8b8b690..88119a5 100644
+index 8b8b690..0248bf2 100644
 --- a/socket/constants.go
 +++ b/socket/constants.go
 @@ -13,7 +13,7 @@ package socket
@@ -681,12 +663,12 @@ index 8b8b690..88119a5 100644
  	"errors"
  
 -	"go.mau.fi/whatsmeow/binary/token"
-+	"meowTest/whatsmeow/binary/token"
++	"wasm/whatsmeow/binary/token"
  )
  
  const (
 diff --git a/socket/framesocket.go b/socket/framesocket.go
-index 2d7e4ad..9f3d41f 100644
+index 2d7e4ad..ae114c7 100644
 --- a/socket/framesocket.go
 +++ b/socket/framesocket.go
 @@ -8,6 +8,7 @@ package socket
@@ -705,7 +687,7 @@ index 2d7e4ad..9f3d41f 100644
 +	"nhooyr.io/websocket"
  
 -	waLog "go.mau.fi/whatsmeow/util/log"
-+	waLog "meowTest/whatsmeow/util/log"
++	waLog "wasm/whatsmeow/util/log"
 +)
 +
 +const (
@@ -772,7 +754,7 @@ index 2d7e4ad..9f3d41f 100644
  	if err != nil {
  		fs.log.Errorf("Error closing websocket: %v", err)
  	}
-@@ -98,13 +134,17 @@ func (fs *FrameSocket) Connect() error {
+@@ -98,28 +134,30 @@ func (fs *FrameSocket) Connect() error {
  		return ErrSocketAlreadyOpen
  	}
  	ctx, cancel := context.WithCancel(context.Background())
@@ -788,14 +770,13 @@ index 2d7e4ad..9f3d41f 100644
  	fs.log.Debugf("Dialing %s", URL)
 -	conn, _, err := dialer.Dial(URL, headers)
 +	//conn, _, err := dialer.Dial(URL, headers)
-+	options := &websocket.DialOptions{
-+		HTTPHeader: http.Header{"Origin": []string{Origin}},
-+	}
-+	conn, _, err := websocket.Dial(ctx, URL, options)
++	//options := &websocket.DialOptions{HTTPHeader: http.Header{"Origin": []string{Origin}}}
++	conn, _, err := websocket.Dial(ctx, URL, nil) //, options)
  	if err != nil {
  		cancel()
- 		return fmt.Errorf("couldn't dial whatsapp web websocket: %w", err)
-@@ -112,14 +152,14 @@ func (fs *FrameSocket) Connect() error {
+-		return fmt.Errorf("couldn't dial whatsapp web websocket: %w", err)
++		return fmt.Errorf("Fresh; couldn't dial whatsapp web websocket: %w", err)
+ 	}
  
  	fs.ctx, fs.cancel = ctx, cancel
  	fs.conn = conn
@@ -814,7 +795,7 @@ index 2d7e4ad..9f3d41f 100644
  
  	go fs.readPump(conn, ctx)
  	return nil
-@@ -154,13 +194,14 @@ func (fs *FrameSocket) SendFrame(data []byte) error {
+@@ -154,13 +192,14 @@ func (fs *FrameSocket) SendFrame(data []byte) error {
  	// Copy actual frame data
  	copy(wholeFrame[headerLength+FrameLengthSize:], data)
  
@@ -832,7 +813,7 @@ index 2d7e4ad..9f3d41f 100644
  }
  
  func (fs *FrameSocket) frameComplete() {
-@@ -220,14 +261,14 @@ func (fs *FrameSocket) readPump(conn *websocket.Conn, ctx context.Context) {
+@@ -220,14 +259,14 @@ func (fs *FrameSocket) readPump(conn *websocket.Conn, ctx context.Context) {
  		go fs.Close(0)
  	}()
  	for {
@@ -850,7 +831,7 @@ index 2d7e4ad..9f3d41f 100644
  			continue
  		}
 diff --git a/socket/noisehandshake.go b/socket/noisehandshake.go
-index 3add470..5ec83cc 100644
+index 3add470..dc05ebe 100644
 --- a/socket/noisehandshake.go
 +++ b/socket/noisehandshake.go
 @@ -16,7 +16,7 @@ import (
@@ -858,7 +839,7 @@ index 3add470..5ec83cc 100644
  	"golang.org/x/crypto/hkdf"
  
 -	"go.mau.fi/whatsmeow/util/gcmutil"
-+	"meowTest/whatsmeow/util/gcmutil"
++	"wasm/whatsmeow/util/gcmutil"
  )
  
  type NoiseHandshake struct {
@@ -885,7 +866,7 @@ index 85973d7..806edeb 100644
  	}
  }
 diff --git a/store/clientpayload.go b/store/clientpayload.go
-index 7107e1d..d27cfc8 100644
+index 7107e1d..abfab87 100644
 --- a/store/clientpayload.go
 +++ b/store/clientpayload.go
 @@ -17,7 +17,7 @@ import (
@@ -893,12 +874,12 @@ index 7107e1d..d27cfc8 100644
  	"go.mau.fi/libsignal/ecc"
  
 -	waProto "go.mau.fi/whatsmeow/binary/proto"
-+	waProto "meowTest/whatsmeow/binary/proto"
++	waProto "wasm/whatsmeow/binary/proto"
  )
  
  // WAVersionContainer is a container for a WhatsApp web version number.
 diff --git a/store/signal.go b/store/signal.go
-index 4c06ed4..f7c54dc 100644
+index 4c06ed4..861ae51 100644
 --- a/store/signal.go
 +++ b/store/signal.go
 @@ -15,7 +15,7 @@ import (
@@ -906,12 +887,12 @@ index 4c06ed4..f7c54dc 100644
  	"go.mau.fi/libsignal/state/store"
  
 -	"go.mau.fi/whatsmeow/util/keys"
-+	"meowTest/whatsmeow/util/keys"
++	"wasm/whatsmeow/util/keys"
  )
  
  var SignalProtobufSerializer = serialize.NewProtoBufSerializer()
 diff --git a/store/sqlstore/container.go b/store/sqlstore/container.go
-index 8f6eacd..899d509 100644
+index 8f6eacd..c503238 100644
 --- a/store/sqlstore/container.go
 +++ b/store/sqlstore/container.go
 @@ -13,11 +13,11 @@ import (
@@ -923,16 +904,16 @@ index 8f6eacd..899d509 100644
 -	"go.mau.fi/whatsmeow/types"
 -	"go.mau.fi/whatsmeow/util/keys"
 -	waLog "go.mau.fi/whatsmeow/util/log"
-+	waProto "meowTest/whatsmeow/binary/proto"
-+	"meowTest/whatsmeow/store"
-+	"meowTest/whatsmeow/types"
-+	"meowTest/whatsmeow/util/keys"
-+	waLog "meowTest/whatsmeow/util/log"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/store"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/util/keys"
++	waLog "wasm/whatsmeow/util/log"
  )
  
  // Container is a wrapper for a SQL database that can contain multiple whatsmeow sessions.
 diff --git a/store/sqlstore/store.go b/store/sqlstore/store.go
-index f9f5a28..2377149 100644
+index f9f5a28..87edb85 100644
 --- a/store/sqlstore/store.go
 +++ b/store/sqlstore/store.go
 @@ -16,9 +16,9 @@ import (
@@ -942,14 +923,14 @@ index f9f5a28..2377149 100644
 -	"go.mau.fi/whatsmeow/store"
 -	"go.mau.fi/whatsmeow/types"
 -	"go.mau.fi/whatsmeow/util/keys"
-+	"meowTest/whatsmeow/store"
-+	"meowTest/whatsmeow/types"
-+	"meowTest/whatsmeow/util/keys"
++	"wasm/whatsmeow/store"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/util/keys"
  )
  
  // ErrInvalidLength is returned by some database getters if the database returned a byte array with an unexpected length.
 diff --git a/store/store.go b/store/store.go
-index 36a6dce..5afc184 100644
+index 36a6dce..a20ec22 100644
 --- a/store/store.go
 +++ b/store/store.go
 @@ -11,10 +11,10 @@ import (
@@ -960,15 +941,15 @@ index 36a6dce..5afc184 100644
 -	"go.mau.fi/whatsmeow/types"
 -	"go.mau.fi/whatsmeow/util/keys"
 -	waLog "go.mau.fi/whatsmeow/util/log"
-+	waProto "meowTest/whatsmeow/binary/proto"
-+	"meowTest/whatsmeow/types"
-+	"meowTest/whatsmeow/util/keys"
-+	waLog "meowTest/whatsmeow/util/log"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/util/keys"
++	waLog "wasm/whatsmeow/util/log"
  )
  
  type IdentityStore interface {
 diff --git a/types/events/appstate.go b/types/events/appstate.go
-index f019264..3f375c5 100644
+index f019264..2ebb9e2 100644
 --- a/types/events/appstate.go
 +++ b/types/events/appstate.go
 @@ -9,9 +9,9 @@ package events
@@ -978,14 +959,14 @@ index f019264..3f375c5 100644
 -	"go.mau.fi/whatsmeow/appstate"
 -	waProto "go.mau.fi/whatsmeow/binary/proto"
 -	"go.mau.fi/whatsmeow/types"
-+	"meowTest/whatsmeow/appstate"
-+	waProto "meowTest/whatsmeow/binary/proto"
-+	"meowTest/whatsmeow/types"
++	"wasm/whatsmeow/appstate"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/types"
  )
  
  // Contact is emitted when an entry in the user's contact list is modified from another device.
 diff --git a/types/events/call.go b/types/events/call.go
-index 3622cb5..3ea107f 100644
+index 3622cb5..769ed72 100644
 --- a/types/events/call.go
 +++ b/types/events/call.go
 @@ -7,8 +7,8 @@
@@ -994,13 +975,13 @@ index 3622cb5..3ea107f 100644
  import (
 -	waBinary "go.mau.fi/whatsmeow/binary"
 -	"go.mau.fi/whatsmeow/types"
-+	waBinary "meowTest/whatsmeow/binary"
-+	"meowTest/whatsmeow/types"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/types"
  )
  
  // CallOffer is emitted when the user receives a call on WhatsApp.
 diff --git a/types/events/events.go b/types/events/events.go
-index 4ec38d2..8c21e21 100644
+index 4ec38d2..dd44d3b 100644
 --- a/types/events/events.go
 +++ b/types/events/events.go
 @@ -11,9 +11,9 @@ import (
@@ -1010,14 +991,14 @@ index 4ec38d2..8c21e21 100644
 -	waBinary "go.mau.fi/whatsmeow/binary"
 -	waProto "go.mau.fi/whatsmeow/binary/proto"
 -	"go.mau.fi/whatsmeow/types"
-+	waBinary "meowTest/whatsmeow/binary"
-+	waProto "meowTest/whatsmeow/binary/proto"
-+	"meowTest/whatsmeow/types"
++	waBinary "wasm/whatsmeow/binary"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/types"
  )
  
  // QR is emitted after connecting when there's no session data in the device store.
 diff --git a/types/user.go b/types/user.go
-index 6daa06b..d19471a 100644
+index 6daa06b..287506a 100644
 --- a/types/user.go
 +++ b/types/user.go
 @@ -9,7 +9,7 @@ package types
@@ -1025,44 +1006,42 @@ index 6daa06b..d19471a 100644
  	"time"
  
 -	waProto "go.mau.fi/whatsmeow/binary/proto"
-+	waProto "meowTest/whatsmeow/binary/proto"
++	waProto "wasm/whatsmeow/binary/proto"
  )
  
  // VerifiedName contains verified WhatsApp business details.
 diff --git a/update.go b/update.go
-index 00e35bf..bc257be 100644
+index 00e35bf..626c305 100644
 --- a/update.go
 +++ b/update.go
-@@ -13,8 +13,9 @@ import (
+@@ -13,8 +13,8 @@ import (
  	"net/http"
  	"net/url"
  
 -	"go.mau.fi/whatsmeow/socket"
 -	"go.mau.fi/whatsmeow/store"
-+	"meowTest/whatsmeow/socket"
-+
-+	"meowTest/whatsmeow/store"
++	"wasm/whatsmeow/socket"
++	"wasm/whatsmeow/store"
  )
  
  // CheckUpdateResponse is the data returned by CheckUpdate.
 diff --git a/upload.go b/upload.go
-index c72025f..1e70ee3 100644
+index c72025f..b706337 100644
 --- a/upload.go
 +++ b/upload.go
-@@ -18,8 +18,9 @@ import (
+@@ -18,8 +18,8 @@ import (
  	"net/http"
  	"net/url"
  
 -	"go.mau.fi/whatsmeow/socket"
 -	"go.mau.fi/whatsmeow/util/cbcutil"
-+	"meowTest/whatsmeow/socket"
-+
-+	"meowTest/whatsmeow/util/cbcutil"
++	"wasm/whatsmeow/socket"
++	"wasm/whatsmeow/util/cbcutil"
  )
  
  // UploadResponse contains the data from the attachment upload, which can be put into a message to send the attachment.
 diff --git a/user.go b/user.go
-index 229dc4b..8be2f48 100644
+index 229dc4b..8637ad9 100644
 --- a/user.go
 +++ b/user.go
 @@ -14,10 +14,10 @@ import (
@@ -1073,22 +1052,25 @@ index 229dc4b..8be2f48 100644
 -	waProto "go.mau.fi/whatsmeow/binary/proto"
 -	"go.mau.fi/whatsmeow/types"
 -	"go.mau.fi/whatsmeow/types/events"
-+	waBinary "meowTest/whatsmeow/binary"
-+	waProto "meowTest/whatsmeow/binary/proto"
-+	"meowTest/whatsmeow/types"
-+	"meowTest/whatsmeow/types/events"
++	waBinary "wasm/whatsmeow/binary"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
  )
  
  const BusinessMessageLinkPrefix = "https://wa.me/message/"
-diff --git a/util/keys/keypair.go b/util/keys/keypair.go
-index 55679ff..103b421 100644
---- a/util/keys/keypair.go
-+++ b/util/keys/keypair.go
-@@ -12,6 +12,7 @@ import (
- 	"fmt"
- 
- 	"go.mau.fi/libsignal/ecc"
-+
- 	"golang.org/x/crypto/curve25519"
- )
- 
+@@ -375,10 +375,12 @@ func (cli *Client) handleHistoricalPushNames(names []*waProto.Pushname) {
+ 			continue
+ 		}
+ 		var changed bool
++		var name string
+ 		if jid, err := types.ParseJID(user.GetId()); err != nil {
+ 			cli.Log.Warnf("Failed to parse user ID '%s' in push name history sync: %v", user.GetId(), err)
+-		} else if changed, _, err = cli.Store.Contacts.PutPushName(jid, user.GetPushname()); err != nil {
+-			cli.Log.Warnf("Failed to store push name of %s from history sync: %v", err)
++		} else if changed, name, err = cli.Store.Contacts.PutPushName(jid, user.GetPushname()); err != nil {
++			cli.Log.Warnf("Failed to store push name of %s from history sync: %v", user.GetPushname(), err)
++			cli.Log.Warnf("Other info changed %v: and name %v", changed, name)
+ 		} else if changed {
+ 			cli.Log.Debugf("Got push name %s for %s in history sync", user.GetPushname(), jid)
+ 		}
