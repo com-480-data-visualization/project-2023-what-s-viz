@@ -1,0 +1,1076 @@
+diff --git a/appstate.go b/appstate.go
+index 0ba5133..6f9dab5 100644
+--- a/appstate.go
++++ b/appstate.go
+@@ -13,12 +13,12 @@ import (
+ 	"fmt"
+ 	"time"
+ 
+-	"go.mau.fi/whatsmeow/appstate"
+-	waBinary "go.mau.fi/whatsmeow/binary"
+-	waProto "go.mau.fi/whatsmeow/binary/proto"
+-	"go.mau.fi/whatsmeow/store"
+-	"go.mau.fi/whatsmeow/types"
+-	"go.mau.fi/whatsmeow/types/events"
++	"wasm/whatsmeow/appstate"
++	waBinary "wasm/whatsmeow/binary"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/store"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
+ )
+ 
+ // FetchAppState fetches updates to the given type of app state. If fullSync is true, the current
+diff --git a/appstate/decode.go b/appstate/decode.go
+index 5c89547..da7aade 100644
+--- a/appstate/decode.go
++++ b/appstate/decode.go
+@@ -14,10 +14,10 @@ import (
+ 
+ 	"google.golang.org/protobuf/proto"
+ 
+-	waBinary "go.mau.fi/whatsmeow/binary"
+-	waProto "go.mau.fi/whatsmeow/binary/proto"
+-	"go.mau.fi/whatsmeow/store"
+-	"go.mau.fi/whatsmeow/util/cbcutil"
++	waBinary "wasm/whatsmeow/binary"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/store"
++	"wasm/whatsmeow/util/cbcutil"
+ )
+ 
+ // PatchList represents a decoded response to getting app state patches from the WhatsApp servers.
+diff --git a/appstate/hash.go b/appstate/hash.go
+index bb17eea..1a8099c 100644
+--- a/appstate/hash.go
++++ b/appstate/hash.go
+@@ -14,8 +14,8 @@ import (
+ 	"fmt"
+ 	"hash"
+ 
+-	"go.mau.fi/whatsmeow/appstate/lthash"
+-	waProto "go.mau.fi/whatsmeow/binary/proto"
++	"wasm/whatsmeow/appstate/lthash"
++	waProto "wasm/whatsmeow/binary/proto"
+ )
+ 
+ type Mutation struct {
+diff --git a/appstate/keys.go b/appstate/keys.go
+index ec19dc2..b7e3eb0 100644
+--- a/appstate/keys.go
++++ b/appstate/keys.go
+@@ -11,9 +11,9 @@ import (
+ 	"encoding/base64"
+ 	"sync"
+ 
+-	"go.mau.fi/whatsmeow/store"
+-	"go.mau.fi/whatsmeow/util/hkdfutil"
+-	waLog "go.mau.fi/whatsmeow/util/log"
++	"wasm/whatsmeow/store"
++	"wasm/whatsmeow/util/hkdfutil"
++	waLog "wasm/whatsmeow/util/log"
+ )
+ 
+ // WAPatchName represents a type of app state patch.
+diff --git a/appstate/lthash/lthash.go b/appstate/lthash/lthash.go
+index 8d3045d..014b08c 100644
+--- a/appstate/lthash/lthash.go
++++ b/appstate/lthash/lthash.go
+@@ -13,7 +13,7 @@ package lthash
+ import (
+ 	"encoding/binary"
+ 
+-	"go.mau.fi/whatsmeow/util/hkdfutil"
++	"wasm/whatsmeow/util/hkdfutil"
+ )
+ 
+ type LTHash struct {
+diff --git a/binary/attrs.go b/binary/attrs.go
+index d7d43f0..dddd381 100644
+--- a/binary/attrs.go
++++ b/binary/attrs.go
+@@ -11,7 +11,7 @@ import (
+ 	"strconv"
+ 	"time"
+ 
+-	"go.mau.fi/whatsmeow/types"
++	"wasm/whatsmeow/types"
+ )
+ 
+ // AttrUtility is a helper struct for reading multiple XML attributes and checking for errors afterwards.
+diff --git a/binary/decoder.go b/binary/decoder.go
+index f13f9b4..5f58714 100644
+--- a/binary/decoder.go
++++ b/binary/decoder.go
+@@ -5,8 +5,8 @@ import (
+ 	"io"
+ 	"strings"
+ 
+-	"go.mau.fi/whatsmeow/binary/token"
+-	"go.mau.fi/whatsmeow/types"
++	"wasm/whatsmeow/binary/token"
++	"wasm/whatsmeow/types"
+ )
+ 
+ type binaryDecoder struct {
+diff --git a/binary/encoder.go b/binary/encoder.go
+index 7def56b..dd570a0 100644
+--- a/binary/encoder.go
++++ b/binary/encoder.go
+@@ -5,8 +5,8 @@ import (
+ 	"math"
+ 	"strconv"
+ 
+-	"go.mau.fi/whatsmeow/binary/token"
+-	"go.mau.fi/whatsmeow/types"
++	"wasm/whatsmeow/binary/token"
++	"wasm/whatsmeow/types"
+ )
+ 
+ type binaryEncoder struct {
+diff --git a/broadcast.go b/broadcast.go
+index d3bbf8e..1e8916d 100644
+--- a/broadcast.go
++++ b/broadcast.go
+@@ -10,8 +10,8 @@ import (
+ 	"errors"
+ 	"fmt"
+ 
+-	waBinary "go.mau.fi/whatsmeow/binary"
+-	"go.mau.fi/whatsmeow/types"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/types"
+ )
+ 
+ func (cli *Client) getBroadcastListParticipants(jid types.JID) ([]types.JID, error) {
+diff --git a/call.go b/call.go
+index f4de9bd..73427db 100644
+--- a/call.go
++++ b/call.go
+@@ -7,9 +7,9 @@
+ package whatsmeow
+ 
+ import (
+-	waBinary "go.mau.fi/whatsmeow/binary"
+-	"go.mau.fi/whatsmeow/types"
+-	"go.mau.fi/whatsmeow/types/events"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
+ )
+ 
+ func (cli *Client) handleCallEvent(node *waBinary.Node) {
+diff --git a/client.go b/client.go
+index 8658119..b35bf07 100644
+--- a/client.go
++++ b/client.go
+@@ -20,15 +20,15 @@ import (
+ 	"sync/atomic"
+ 	"time"
+ 
+-	"go.mau.fi/whatsmeow/appstate"
+-	waBinary "go.mau.fi/whatsmeow/binary"
+-	waProto "go.mau.fi/whatsmeow/binary/proto"
+-	"go.mau.fi/whatsmeow/socket"
+-	"go.mau.fi/whatsmeow/store"
+-	"go.mau.fi/whatsmeow/types"
+-	"go.mau.fi/whatsmeow/types/events"
+-	"go.mau.fi/whatsmeow/util/keys"
+-	waLog "go.mau.fi/whatsmeow/util/log"
++	"wasm/whatsmeow/appstate"
++	waBinary "wasm/whatsmeow/binary"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/socket"
++	"wasm/whatsmeow/store"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
++	"wasm/whatsmeow/util/keys"
++	waLog "wasm/whatsmeow/util/log"
+ )
+ 
+ // EventHandler is a function that can handle events from WhatsApp.
+diff --git a/client_test.go b/client_test.go
+index d407ffe..093e5a9 100644
+--- a/client_test.go
++++ b/client_test.go
+@@ -12,11 +12,11 @@ import (
+ 	"os"
+ 	"os/signal"
+ 	"syscall"
++	"wasm/whatsmeow"
+ 
+-	"go.mau.fi/whatsmeow"
+-	"go.mau.fi/whatsmeow/store/sqlstore"
+-	"go.mau.fi/whatsmeow/types/events"
+-	waLog "go.mau.fi/whatsmeow/util/log"
++	"wasm/whatsmeow/store/sqlstore"
++	"wasm/whatsmeow/types/events"
++	waLog "wasm/whatsmeow/util/log"
+ )
+ 
+ func eventHandler(evt interface{}) {
+diff --git a/connectionevents.go b/connectionevents.go
+index 3a6d9e2..90a61c8 100644
+--- a/connectionevents.go
++++ b/connectionevents.go
+@@ -10,9 +10,9 @@ import (
+ 	"sync/atomic"
+ 	"time"
+ 
+-	waBinary "go.mau.fi/whatsmeow/binary"
+-	"go.mau.fi/whatsmeow/types"
+-	"go.mau.fi/whatsmeow/types/events"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
+ )
+ 
+ func (cli *Client) handleStreamError(node *waBinary.Node) {
+diff --git a/download.go b/download.go
+index e9bedd4..4171068 100644
+--- a/download.go
++++ b/download.go
+@@ -18,10 +18,10 @@ import (
+ 	"google.golang.org/protobuf/proto"
+ 	"google.golang.org/protobuf/reflect/protoreflect"
+ 
+-	waProto "go.mau.fi/whatsmeow/binary/proto"
+-	"go.mau.fi/whatsmeow/socket"
+-	"go.mau.fi/whatsmeow/util/cbcutil"
+-	"go.mau.fi/whatsmeow/util/hkdfutil"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/socket"
++	"wasm/whatsmeow/util/cbcutil"
++	"wasm/whatsmeow/util/hkdfutil"
+ )
+ 
+ // MediaType represents a type of uploaded file on WhatsApp.
+diff --git a/errors.go b/errors.go
+index 62227f3..24324b0 100644
+--- a/errors.go
++++ b/errors.go
+@@ -10,7 +10,7 @@ import (
+ 	"errors"
+ 	"fmt"
+ 
+-	waBinary "go.mau.fi/whatsmeow/binary"
++	waBinary "wasm/whatsmeow/binary"
+ )
+ 
+ // Miscellaneous errors
+diff --git a/go.mod b/go.mod
+deleted file mode 100644
+index daaceff..0000000
+--- a/go.mod
++++ /dev/null
+@@ -1,12 +0,0 @@
+-module go.mau.fi/whatsmeow
+-
+-go 1.19
+-
+-require (
+-	github.com/gorilla/websocket v1.5.0
+-	go.mau.fi/libsignal v0.1.0
+-	golang.org/x/crypto v0.5.0
+-	google.golang.org/protobuf v1.28.1
+-)
+-
+-require filippo.io/edwards25519 v1.0.0 // indirect
+diff --git a/go.sum b/go.sum
+deleted file mode 100644
+index 68047e1..0000000
+--- a/go.sum
++++ /dev/null
+@@ -1,16 +0,0 @@
+-filippo.io/edwards25519 v1.0.0 h1:0wAIcmJUqRdI8IJ/3eGi5/HwXZWPujYXXlkrQogz0Ek=
+-filippo.io/edwards25519 v1.0.0/go.mod h1:N1IkdkCkiLB6tki+MYJoSx2JTY9NUlxZE7eHn5EwJns=
+-github.com/golang/protobuf v1.5.0/go.mod h1:FsONVRAS9T7sI+LIUmWTfcYkHO4aIWwzhcaSAoJOfIk=
+-github.com/google/go-cmp v0.5.5 h1:Khx7svrCpmxxtHBq5j2mp/xVjsi8hQMfNLvJFAlrGgU=
+-github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
+-github.com/gorilla/websocket v1.5.0 h1:PPwGk2jz7EePpoHN/+ClbZu8SPxiqlu12wZP/3sWmnc=
+-github.com/gorilla/websocket v1.5.0/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
+-go.mau.fi/libsignal v0.1.0 h1:vAKI/nJ5tMhdzke4cTK1fb0idJzz1JuEIpmjprueC+c=
+-go.mau.fi/libsignal v0.1.0/go.mod h1:R8ovrTezxtUNzCQE5PH30StOQWWeBskBsWE55vMfY9I=
+-golang.org/x/crypto v0.5.0 h1:U/0M97KRkSFvyD/3FSmdP5W5swImpNgle/EHFhOsQPE=
+-golang.org/x/crypto v0.5.0/go.mod h1:NK/OQwhpMQP3MwtdjgLlYHnH9ebylxKWv3e0fK+mkQU=
+-golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543 h1:E7g+9GITq07hpfrRu66IVDexMakfv52eLZ2CXBWiKr4=
+-golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
+-google.golang.org/protobuf v1.26.0-rc.1/go.mod h1:jlhhOSvTdKEhbULTjvd4ARK9grFBp09yW+WbY/TyQbw=
+-google.golang.org/protobuf v1.28.1 h1:d0NfwRgPtno5B1Wa6L2DAG+KivqkdutMf1UhdNx175w=
+-google.golang.org/protobuf v1.28.1/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
+diff --git a/group.go b/group.go
+index c771b5a..d3564dd 100644
+--- a/group.go
++++ b/group.go
+@@ -12,9 +12,9 @@ import (
+ 	"fmt"
+ 	"strings"
+ 
+-	waBinary "go.mau.fi/whatsmeow/binary"
+-	"go.mau.fi/whatsmeow/types"
+-	"go.mau.fi/whatsmeow/types/events"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
+ )
+ 
+ const InviteLinkPrefix = "https://chat.whatsapp.com/"
+diff --git a/handshake.go b/handshake.go
+index dbfe9d9..2b52b0d 100644
+--- a/handshake.go
++++ b/handshake.go
+@@ -13,9 +13,9 @@ import (
+ 
+ 	"google.golang.org/protobuf/proto"
+ 
+-	waProto "go.mau.fi/whatsmeow/binary/proto"
+-	"go.mau.fi/whatsmeow/socket"
+-	"go.mau.fi/whatsmeow/util/keys"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/socket"
++	"wasm/whatsmeow/util/keys"
+ )
+ 
+ const NoiseHandshakeResponseTimeout = 20 * time.Second
+diff --git a/internals.go b/internals.go
+index f71e71e..d006288 100644
+--- a/internals.go
++++ b/internals.go
+@@ -9,7 +9,7 @@ package whatsmeow
+ import (
+ 	"context"
+ 
+-	waBinary "go.mau.fi/whatsmeow/binary"
++	waBinary "wasm/whatsmeow/binary"
+ )
+ 
+ type DangerousInternalClient struct {
+diff --git a/keepalive.go b/keepalive.go
+index d5e4028..fba225f 100644
+--- a/keepalive.go
++++ b/keepalive.go
+@@ -11,9 +11,9 @@ import (
+ 	"math/rand"
+ 	"time"
+ 
+-	waBinary "go.mau.fi/whatsmeow/binary"
+-	"go.mau.fi/whatsmeow/types"
+-	"go.mau.fi/whatsmeow/types/events"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
+ )
+ 
+ var (
+diff --git a/mdtest/main.go b/mdtest/main.go
+index 0e75791..3699347 100644
+--- a/mdtest/main.go
++++ b/mdtest/main.go
+@@ -23,20 +23,20 @@ import (
+ 	"sync/atomic"
+ 	"syscall"
+ 	"time"
++	"wasm/whatsmeow"
+ 
+ 	_ "github.com/mattn/go-sqlite3"
+ 	"github.com/mdp/qrterminal/v3"
+ 	"google.golang.org/protobuf/proto"
+ 
+-	"go.mau.fi/whatsmeow"
+-	"go.mau.fi/whatsmeow/appstate"
+-	waBinary "go.mau.fi/whatsmeow/binary"
+-	waProto "go.mau.fi/whatsmeow/binary/proto"
+-	"go.mau.fi/whatsmeow/store"
+-	"go.mau.fi/whatsmeow/store/sqlstore"
+-	"go.mau.fi/whatsmeow/types"
+-	"go.mau.fi/whatsmeow/types/events"
+-	waLog "go.mau.fi/whatsmeow/util/log"
++	"wasm/whatsmeow/appstate"
++	waBinary "wasm/whatsmeow/binary"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/store"
++	"wasm/whatsmeow/store/sqlstore"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
++	waLog "wasm/whatsmeow/util/log"
+ )
+ 
+ var cli *whatsmeow.Client
+diff --git a/mediaconn.go b/mediaconn.go
+index 2e83303..716222b 100644
+--- a/mediaconn.go
++++ b/mediaconn.go
+@@ -10,8 +10,8 @@ import (
+ 	"fmt"
+ 	"time"
+ 
+-	waBinary "go.mau.fi/whatsmeow/binary"
+-	"go.mau.fi/whatsmeow/types"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/types"
+ )
+ 
+ //type MediaConnIP struct {
+diff --git a/mediaretry.go b/mediaretry.go
+index 167df5f..0909d03 100644
+--- a/mediaretry.go
++++ b/mediaretry.go
+@@ -12,12 +12,12 @@ import (
+ 
+ 	"google.golang.org/protobuf/proto"
+ 
+-	waBinary "go.mau.fi/whatsmeow/binary"
+-	waProto "go.mau.fi/whatsmeow/binary/proto"
+-	"go.mau.fi/whatsmeow/types"
+-	"go.mau.fi/whatsmeow/types/events"
+-	"go.mau.fi/whatsmeow/util/gcmutil"
+-	"go.mau.fi/whatsmeow/util/hkdfutil"
++	waBinary "wasm/whatsmeow/binary"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
++	"wasm/whatsmeow/util/gcmutil"
++	"wasm/whatsmeow/util/hkdfutil"
+ )
+ 
+ func getMediaRetryKey(mediaKey []byte) (cipherKey []byte) {
+diff --git a/message.go b/message.go
+index 97cb006..6ff696a 100644
+--- a/message.go
++++ b/message.go
+@@ -25,12 +25,12 @@ import (
+ 	"go.mau.fi/libsignal/protocol"
+ 	"go.mau.fi/libsignal/session"
+ 
+-	"go.mau.fi/whatsmeow/appstate"
+-	waBinary "go.mau.fi/whatsmeow/binary"
+-	waProto "go.mau.fi/whatsmeow/binary/proto"
+-	"go.mau.fi/whatsmeow/store"
+-	"go.mau.fi/whatsmeow/types"
+-	"go.mau.fi/whatsmeow/types/events"
++	"wasm/whatsmeow/appstate"
++	waBinary "wasm/whatsmeow/binary"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/store"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
+ )
+ 
+ var pbSerializer = store.SignalProtobufSerializer
+diff --git a/msgsecret.go b/msgsecret.go
+index a4cbb17..fc15078 100644
+--- a/msgsecret.go
++++ b/msgsecret.go
+@@ -14,11 +14,11 @@ import (
+ 
+ 	"google.golang.org/protobuf/proto"
+ 
+-	waProto "go.mau.fi/whatsmeow/binary/proto"
+-	"go.mau.fi/whatsmeow/types"
+-	"go.mau.fi/whatsmeow/types/events"
+-	"go.mau.fi/whatsmeow/util/gcmutil"
+-	"go.mau.fi/whatsmeow/util/hkdfutil"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
++	"wasm/whatsmeow/util/gcmutil"
++	"wasm/whatsmeow/util/hkdfutil"
+ )
+ 
+ type MsgSecretType string
+diff --git a/notification.go b/notification.go
+index 567722b..45264f1 100644
+--- a/notification.go
++++ b/notification.go
+@@ -9,11 +9,11 @@ package whatsmeow
+ import (
+ 	"errors"
+ 
+-	"go.mau.fi/whatsmeow/appstate"
+-	waBinary "go.mau.fi/whatsmeow/binary"
+-	"go.mau.fi/whatsmeow/store"
+-	"go.mau.fi/whatsmeow/types"
+-	"go.mau.fi/whatsmeow/types/events"
++	"wasm/whatsmeow/appstate"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/store"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
+ )
+ 
+ func (cli *Client) handleEncryptNotification(node *waBinary.Node) {
+diff --git a/pair.go b/pair.go
+index 573b038..3a96068 100644
+--- a/pair.go
++++ b/pair.go
+@@ -17,11 +17,11 @@ import (
+ 	"go.mau.fi/libsignal/ecc"
+ 	"google.golang.org/protobuf/proto"
+ 
+-	waBinary "go.mau.fi/whatsmeow/binary"
+-	waProto "go.mau.fi/whatsmeow/binary/proto"
+-	"go.mau.fi/whatsmeow/types"
+-	"go.mau.fi/whatsmeow/types/events"
+-	"go.mau.fi/whatsmeow/util/keys"
++	waBinary "wasm/whatsmeow/binary"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
++	"wasm/whatsmeow/util/keys"
+ )
+ 
+ func (cli *Client) handleIQ(node *waBinary.Node) {
+diff --git a/prekeys.go b/prekeys.go
+index c0ece2e..bef5039 100644
+--- a/prekeys.go
++++ b/prekeys.go
+@@ -17,9 +17,9 @@ import (
+ 	"go.mau.fi/libsignal/keys/prekey"
+ 	"go.mau.fi/libsignal/util/optional"
+ 
+-	waBinary "go.mau.fi/whatsmeow/binary"
+-	"go.mau.fi/whatsmeow/types"
+-	"go.mau.fi/whatsmeow/util/keys"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/util/keys"
+ )
+ 
+ const (
+diff --git a/presence.go b/presence.go
+index 0ce94a7..19ee47c 100644
+--- a/presence.go
++++ b/presence.go
+@@ -10,9 +10,9 @@ import (
+ 	"fmt"
+ 	"sync/atomic"
+ 
+-	waBinary "go.mau.fi/whatsmeow/binary"
+-	"go.mau.fi/whatsmeow/types"
+-	"go.mau.fi/whatsmeow/types/events"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
+ )
+ 
+ func (cli *Client) handleChatState(node *waBinary.Node) {
+diff --git a/privacysettings.go b/privacysettings.go
+index 3aca72d..8f43f66 100644
+--- a/privacysettings.go
++++ b/privacysettings.go
+@@ -7,9 +7,9 @@
+ package whatsmeow
+ 
+ import (
+-	waBinary "go.mau.fi/whatsmeow/binary"
+-	"go.mau.fi/whatsmeow/types"
+-	"go.mau.fi/whatsmeow/types/events"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
+ )
+ 
+ // TryFetchPrivacySettings will fetch the user's privacy settings, either from the in-memory cache or from the server.
+diff --git a/qrchan.go b/qrchan.go
+index 5401ac0..57f774c 100644
+--- a/qrchan.go
++++ b/qrchan.go
+@@ -12,8 +12,8 @@ import (
+ 	"sync/atomic"
+ 	"time"
+ 
+-	"go.mau.fi/whatsmeow/types/events"
+-	waLog "go.mau.fi/whatsmeow/util/log"
++	"wasm/whatsmeow/types/events"
++	waLog "wasm/whatsmeow/util/log"
+ )
+ 
+ type QRChannelItem struct {
+diff --git a/receipt.go b/receipt.go
+index 7e02c0a..950b2b8 100644
+--- a/receipt.go
++++ b/receipt.go
+@@ -11,9 +11,9 @@ import (
+ 	"sync/atomic"
+ 	"time"
+ 
+-	waBinary "go.mau.fi/whatsmeow/binary"
+-	"go.mau.fi/whatsmeow/types"
+-	"go.mau.fi/whatsmeow/types/events"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
+ )
+ 
+ func (cli *Client) handleReceipt(node *waBinary.Node) {
+diff --git a/request.go b/request.go
+index 6945fd7..46e43c4 100644
+--- a/request.go
++++ b/request.go
+@@ -13,8 +13,8 @@ import (
+ 	"sync/atomic"
+ 	"time"
+ 
+-	waBinary "go.mau.fi/whatsmeow/binary"
+-	"go.mau.fi/whatsmeow/types"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/types"
+ )
+ 
+ func (cli *Client) generateRequestID() string {
+diff --git a/retry.go b/retry.go
+index 95104c8..d693d34 100644
+--- a/retry.go
++++ b/retry.go
+@@ -18,10 +18,10 @@ import (
+ 	"go.mau.fi/libsignal/protocol"
+ 	"google.golang.org/protobuf/proto"
+ 
+-	waBinary "go.mau.fi/whatsmeow/binary"
+-	waProto "go.mau.fi/whatsmeow/binary/proto"
+-	"go.mau.fi/whatsmeow/types"
+-	"go.mau.fi/whatsmeow/types/events"
++	waBinary "wasm/whatsmeow/binary"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
+ )
+ 
+ // Number of sent messages to cache in memory for handling retry receipts.
+diff --git a/send.go b/send.go
+index 96d888b..32db7d1 100644
+--- a/send.go
++++ b/send.go
+@@ -27,9 +27,9 @@ import (
+ 	"go.mau.fi/libsignal/protocol"
+ 	"go.mau.fi/libsignal/session"
+ 
+-	waBinary "go.mau.fi/whatsmeow/binary"
+-	waProto "go.mau.fi/whatsmeow/binary/proto"
+-	"go.mau.fi/whatsmeow/types"
++	waBinary "wasm/whatsmeow/binary"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/types"
+ )
+ 
+ // GenerateMessageID generates a random string that can be used as a message ID on WhatsApp.
+diff --git a/socket/constants.go b/socket/constants.go
+index 8b8b690..0248bf2 100644
+--- a/socket/constants.go
++++ b/socket/constants.go
+@@ -13,7 +13,7 @@ package socket
+ import (
+ 	"errors"
+ 
+-	"go.mau.fi/whatsmeow/binary/token"
++	"wasm/whatsmeow/binary/token"
+ )
+ 
+ const (
+diff --git a/socket/framesocket.go b/socket/framesocket.go
+index 2d7e4ad..ae114c7 100644
+--- a/socket/framesocket.go
++++ b/socket/framesocket.go
+@@ -8,6 +8,7 @@ package socket
+ 
+ import (
+ 	"context"
++	"encoding/binary"
+ 	"errors"
+ 	"fmt"
+ 	"net/http"
+@@ -15,9 +16,31 @@ import (
+ 	"sync"
+ 	"time"
+ 
+-	"github.com/gorilla/websocket"
++	"nhooyr.io/websocket"
+ 
+-	waLog "go.mau.fi/whatsmeow/util/log"
++	waLog "wasm/whatsmeow/util/log"
++)
++
++const (
++	// TextMessage denotes a text data message. The text message payload is
++	// interpreted as UTF-8 encoded text data.
++	TextMessage = 1
++
++	// BinaryMessage denotes a binary data message.
++	BinaryMessage = 2
++
++	// CloseMessage denotes a close control message. The optional message
++	// payload contains a numeric code and text. Use the FormatCloseMessage
++	// function to format a close message payload.
++	CloseMessage = 8
++
++	// PingMessage denotes a ping control message. The optional message payload
++	// is UTF-8 encoded text.
++	PingMessage = 9
++
++	// PongMessage denotes a pong control message. The optional message payload
++	// is UTF-8 encoded text.
++	PongMessage = 10
+ )
+ 
+ type Proxy = func(*http.Request) (*url.URL, error)
+@@ -61,7 +84,20 @@ func (fs *FrameSocket) Context() context.Context {
+ 	return fs.ctx
+ }
+ 
+-func (fs *FrameSocket) Close(code int) {
++func FormatCloseMessage(closeCode websocket.StatusCode, text string) []byte {
++	if closeCode == websocket.StatusNoStatusRcvd {
++		// Return empty message because it's illegal to send
++		// CloseNoStatusReceived. Return non-nil value in case application
++		// checks for nil.
++		return []byte{}
++	}
++	buf := make([]byte, 2+len(text))
++	binary.BigEndian.PutUint16(buf, uint16(closeCode))
++	copy(buf[2:], text)
++	return buf
++}
++
++func (fs *FrameSocket) Close(code websocket.StatusCode) {
+ 	fs.lock.Lock()
+ 	defer fs.lock.Unlock()
+ 
+@@ -70,15 +106,15 @@ func (fs *FrameSocket) Close(code int) {
+ 	}
+ 
+ 	if code > 0 {
+-		message := websocket.FormatCloseMessage(code, "")
+-		err := fs.conn.WriteControl(websocket.CloseMessage, message, time.Now().Add(time.Second))
++		message := FormatCloseMessage(code, "")
++		err := fs.conn.Write(context.Background(), CloseMessage, message) //, time.Now().Add(time.Second))
+ 		if err != nil {
+ 			fs.log.Warnf("Error sending close message: %v", err)
+ 		}
+ 	}
+ 
+ 	fs.cancel()
+-	err := fs.conn.Close()
++	err := fs.conn.Close(websocket.StatusNormalClosure, "")
+ 	if err != nil {
+ 		fs.log.Errorf("Error closing websocket: %v", err)
+ 	}
+@@ -98,28 +134,30 @@ func (fs *FrameSocket) Connect() error {
+ 		return ErrSocketAlreadyOpen
+ 	}
+ 	ctx, cancel := context.WithCancel(context.Background())
+-	dialer := websocket.Dialer{
+-		Proxy: fs.Proxy,
+-	}
++	//dialer := websocket.Dialer{
++	//	Proxy: fs.Proxy,
++	//}
++	// TODO do I need the proxy??
+ 
+-	headers := http.Header{"Origin": []string{Origin}}
+ 	fs.log.Debugf("Dialing %s", URL)
+-	conn, _, err := dialer.Dial(URL, headers)
++	//conn, _, err := dialer.Dial(URL, headers)
++	//options := &websocket.DialOptions{HTTPHeader: http.Header{"Origin": []string{Origin}}}
++	conn, _, err := websocket.Dial(ctx, URL, nil) //, options)
+ 	if err != nil {
+ 		cancel()
+-		return fmt.Errorf("couldn't dial whatsapp web websocket: %w", err)
++		return fmt.Errorf("Fresh; couldn't dial whatsapp web websocket: %w", err)
+ 	}
+ 
+ 	fs.ctx, fs.cancel = ctx, cancel
+ 	fs.conn = conn
+-	conn.SetCloseHandler(func(code int, text string) error {
++	/*conn.SetCloseHandler(func(code int, text string) error {
+ 		fs.log.Debugf("Server closed websocket with status %d/%s", code, text)
+ 		cancel()
+ 		// from default CloseHandler
+-		message := websocket.FormatCloseMessage(code, "")
+-		_ = conn.WriteControl(websocket.CloseMessage, message, time.Now().Add(time.Second))
++		message := FormatCloseMessage(code, "")
++		_ = conn.Write(context.Background(), CloseMessage, message) //, time.Now().Add(time.Second))
+ 		return nil
+-	})
++	})*/
+ 
+ 	go fs.readPump(conn, ctx)
+ 	return nil
+@@ -154,13 +192,14 @@ func (fs *FrameSocket) SendFrame(data []byte) error {
+ 	// Copy actual frame data
+ 	copy(wholeFrame[headerLength+FrameLengthSize:], data)
+ 
+-	if fs.WriteTimeout > 0 {
++	// TODO removed
++	/*if fs.WriteTimeout > 0 {
+ 		err := conn.SetWriteDeadline(time.Now().Add(fs.WriteTimeout))
+ 		if err != nil {
+ 			fs.log.Warnf("Failed to set write deadline: %v", err)
+ 		}
+-	}
+-	return conn.WriteMessage(websocket.BinaryMessage, wholeFrame)
++	}*/
++	return conn.Write(context.Background(), BinaryMessage, wholeFrame)
+ }
+ 
+ func (fs *FrameSocket) frameComplete() {
+@@ -220,14 +259,14 @@ func (fs *FrameSocket) readPump(conn *websocket.Conn, ctx context.Context) {
+ 		go fs.Close(0)
+ 	}()
+ 	for {
+-		msgType, data, err := conn.ReadMessage()
++		msgType, data, err := conn.Read(context.Background())
+ 		if err != nil {
+ 			// Ignore the error if the context has been closed
+ 			if !errors.Is(ctx.Err(), context.Canceled) {
+ 				fs.log.Errorf("Error reading from websocket: %v", err)
+ 			}
+ 			return
+-		} else if msgType != websocket.BinaryMessage {
++		} else if msgType != BinaryMessage {
+ 			fs.log.Warnf("Got unexpected websocket message type %d", msgType)
+ 			continue
+ 		}
+diff --git a/socket/noisehandshake.go b/socket/noisehandshake.go
+index 3add470..dc05ebe 100644
+--- a/socket/noisehandshake.go
++++ b/socket/noisehandshake.go
+@@ -16,7 +16,7 @@ import (
+ 	"golang.org/x/crypto/curve25519"
+ 	"golang.org/x/crypto/hkdf"
+ 
+-	"go.mau.fi/whatsmeow/util/gcmutil"
++	"wasm/whatsmeow/util/gcmutil"
+ )
+ 
+ type NoiseHandshake struct {
+diff --git a/socket/noisesocket.go b/socket/noisesocket.go
+index 85973d7..806edeb 100644
+--- a/socket/noisesocket.go
++++ b/socket/noisesocket.go
+@@ -13,7 +13,7 @@ import (
+ 	"sync"
+ 	"sync/atomic"
+ 
+-	"github.com/gorilla/websocket"
++	"nhooyr.io/websocket"
+ )
+ 
+ type NoiseSocket struct {
+@@ -79,7 +79,7 @@ func (ns *NoiseSocket) Stop(disconnect bool) {
+ 		close(ns.stopConsumer)
+ 		ns.fs.OnDisconnect = nil
+ 		if disconnect {
+-			ns.fs.Close(websocket.CloseNormalClosure)
++			ns.fs.Close(websocket.StatusNormalClosure)
+ 		}
+ 	}
+ }
+diff --git a/store/clientpayload.go b/store/clientpayload.go
+index 7107e1d..abfab87 100644
+--- a/store/clientpayload.go
++++ b/store/clientpayload.go
+@@ -17,7 +17,7 @@ import (
+ 
+ 	"go.mau.fi/libsignal/ecc"
+ 
+-	waProto "go.mau.fi/whatsmeow/binary/proto"
++	waProto "wasm/whatsmeow/binary/proto"
+ )
+ 
+ // WAVersionContainer is a container for a WhatsApp web version number.
+diff --git a/store/signal.go b/store/signal.go
+index 4c06ed4..861ae51 100644
+--- a/store/signal.go
++++ b/store/signal.go
+@@ -15,7 +15,7 @@ import (
+ 	"go.mau.fi/libsignal/state/record"
+ 	"go.mau.fi/libsignal/state/store"
+ 
+-	"go.mau.fi/whatsmeow/util/keys"
++	"wasm/whatsmeow/util/keys"
+ )
+ 
+ var SignalProtobufSerializer = serialize.NewProtoBufSerializer()
+diff --git a/store/sqlstore/container.go b/store/sqlstore/container.go
+index 8f6eacd..c503238 100644
+--- a/store/sqlstore/container.go
++++ b/store/sqlstore/container.go
+@@ -13,11 +13,11 @@ import (
+ 	"fmt"
+ 	mathRand "math/rand"
+ 
+-	waProto "go.mau.fi/whatsmeow/binary/proto"
+-	"go.mau.fi/whatsmeow/store"
+-	"go.mau.fi/whatsmeow/types"
+-	"go.mau.fi/whatsmeow/util/keys"
+-	waLog "go.mau.fi/whatsmeow/util/log"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/store"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/util/keys"
++	waLog "wasm/whatsmeow/util/log"
+ )
+ 
+ // Container is a wrapper for a SQL database that can contain multiple whatsmeow sessions.
+diff --git a/store/sqlstore/store.go b/store/sqlstore/store.go
+index f9f5a28..87edb85 100644
+--- a/store/sqlstore/store.go
++++ b/store/sqlstore/store.go
+@@ -16,9 +16,9 @@ import (
+ 	"sync"
+ 	"time"
+ 
+-	"go.mau.fi/whatsmeow/store"
+-	"go.mau.fi/whatsmeow/types"
+-	"go.mau.fi/whatsmeow/util/keys"
++	"wasm/whatsmeow/store"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/util/keys"
+ )
+ 
+ // ErrInvalidLength is returned by some database getters if the database returned a byte array with an unexpected length.
+diff --git a/store/store.go b/store/store.go
+index 36a6dce..a20ec22 100644
+--- a/store/store.go
++++ b/store/store.go
+@@ -11,10 +11,10 @@ import (
+ 	"fmt"
+ 	"time"
+ 
+-	waProto "go.mau.fi/whatsmeow/binary/proto"
+-	"go.mau.fi/whatsmeow/types"
+-	"go.mau.fi/whatsmeow/util/keys"
+-	waLog "go.mau.fi/whatsmeow/util/log"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/util/keys"
++	waLog "wasm/whatsmeow/util/log"
+ )
+ 
+ type IdentityStore interface {
+diff --git a/types/events/appstate.go b/types/events/appstate.go
+index f019264..2ebb9e2 100644
+--- a/types/events/appstate.go
++++ b/types/events/appstate.go
+@@ -9,9 +9,9 @@ package events
+ import (
+ 	"time"
+ 
+-	"go.mau.fi/whatsmeow/appstate"
+-	waProto "go.mau.fi/whatsmeow/binary/proto"
+-	"go.mau.fi/whatsmeow/types"
++	"wasm/whatsmeow/appstate"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/types"
+ )
+ 
+ // Contact is emitted when an entry in the user's contact list is modified from another device.
+diff --git a/types/events/call.go b/types/events/call.go
+index 3622cb5..769ed72 100644
+--- a/types/events/call.go
++++ b/types/events/call.go
+@@ -7,8 +7,8 @@
+ package events
+ 
+ import (
+-	waBinary "go.mau.fi/whatsmeow/binary"
+-	"go.mau.fi/whatsmeow/types"
++	waBinary "wasm/whatsmeow/binary"
++	"wasm/whatsmeow/types"
+ )
+ 
+ // CallOffer is emitted when the user receives a call on WhatsApp.
+diff --git a/types/events/events.go b/types/events/events.go
+index 4ec38d2..dd44d3b 100644
+--- a/types/events/events.go
++++ b/types/events/events.go
+@@ -11,9 +11,9 @@ import (
+ 	"fmt"
+ 	"time"
+ 
+-	waBinary "go.mau.fi/whatsmeow/binary"
+-	waProto "go.mau.fi/whatsmeow/binary/proto"
+-	"go.mau.fi/whatsmeow/types"
++	waBinary "wasm/whatsmeow/binary"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/types"
+ )
+ 
+ // QR is emitted after connecting when there's no session data in the device store.
+diff --git a/types/user.go b/types/user.go
+index 6daa06b..287506a 100644
+--- a/types/user.go
++++ b/types/user.go
+@@ -9,7 +9,7 @@ package types
+ import (
+ 	"time"
+ 
+-	waProto "go.mau.fi/whatsmeow/binary/proto"
++	waProto "wasm/whatsmeow/binary/proto"
+ )
+ 
+ // VerifiedName contains verified WhatsApp business details.
+diff --git a/update.go b/update.go
+index 00e35bf..626c305 100644
+--- a/update.go
++++ b/update.go
+@@ -13,8 +13,8 @@ import (
+ 	"net/http"
+ 	"net/url"
+ 
+-	"go.mau.fi/whatsmeow/socket"
+-	"go.mau.fi/whatsmeow/store"
++	"wasm/whatsmeow/socket"
++	"wasm/whatsmeow/store"
+ )
+ 
+ // CheckUpdateResponse is the data returned by CheckUpdate.
+diff --git a/upload.go b/upload.go
+index c72025f..b706337 100644
+--- a/upload.go
++++ b/upload.go
+@@ -18,8 +18,8 @@ import (
+ 	"net/http"
+ 	"net/url"
+ 
+-	"go.mau.fi/whatsmeow/socket"
+-	"go.mau.fi/whatsmeow/util/cbcutil"
++	"wasm/whatsmeow/socket"
++	"wasm/whatsmeow/util/cbcutil"
+ )
+ 
+ // UploadResponse contains the data from the attachment upload, which can be put into a message to send the attachment.
+diff --git a/user.go b/user.go
+index 229dc4b..8637ad9 100644
+--- a/user.go
++++ b/user.go
+@@ -14,10 +14,10 @@ import (
+ 
+ 	"google.golang.org/protobuf/proto"
+ 
+-	waBinary "go.mau.fi/whatsmeow/binary"
+-	waProto "go.mau.fi/whatsmeow/binary/proto"
+-	"go.mau.fi/whatsmeow/types"
+-	"go.mau.fi/whatsmeow/types/events"
++	waBinary "wasm/whatsmeow/binary"
++	waProto "wasm/whatsmeow/binary/proto"
++	"wasm/whatsmeow/types"
++	"wasm/whatsmeow/types/events"
+ )
+ 
+ const BusinessMessageLinkPrefix = "https://wa.me/message/"
+@@ -375,10 +375,12 @@ func (cli *Client) handleHistoricalPushNames(names []*waProto.Pushname) {
+ 			continue
+ 		}
+ 		var changed bool
++		var name string
+ 		if jid, err := types.ParseJID(user.GetId()); err != nil {
+ 			cli.Log.Warnf("Failed to parse user ID '%s' in push name history sync: %v", user.GetId(), err)
+-		} else if changed, _, err = cli.Store.Contacts.PutPushName(jid, user.GetPushname()); err != nil {
+-			cli.Log.Warnf("Failed to store push name of %s from history sync: %v", err)
++		} else if changed, name, err = cli.Store.Contacts.PutPushName(jid, user.GetPushname()); err != nil {
++			cli.Log.Warnf("Failed to store push name of %s from history sync: %v", user.GetPushname(), err)
++			cli.Log.Warnf("Other info changed %v: and name %v", changed, name)
+ 		} else if changed {
+ 			cli.Log.Debugf("Got push name %s for %s in history sync", user.GetPushname(), jid)
+ 		}

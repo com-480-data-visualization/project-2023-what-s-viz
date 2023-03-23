@@ -6,6 +6,8 @@
 | Hugo Lanfranchi | 300585 |
 | | |
 
+For the source code of the final project look at the [readme](wa-visualization/README.md) there.
+
 [Milestone 1](#milestone-1) • [Milestone 2](#milestone-2) • [Milestone 3](#milestone-3)
 
 ## Milestone 1 (7th April, 5pm)
