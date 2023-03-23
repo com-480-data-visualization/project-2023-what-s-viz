@@ -1,3 +1,6 @@
 [submodule "wa-visualization/wasm/whatsmeow"]
 	path = wa-visualization/wasm/whatsmeow
 	url = git@github.com:tulir/whatsmeow.git
+[submodule "backEnd/wasm/whatsmeow"]
+	path = backEnd/wasm/whatsmeow
+	url = git@github.com:tulir/whatsmeow.git
