@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"sync/atomic"
 	"syscall/js"
 	"time"
 
@@ -22,10 +23,19 @@ import (
 	_ "wasm/sqljs"
 )
 
+var clientLoaded *atomic.Bool
 var client *whatsmeow.Client
+
+var messages chan string
+
 var totalSyncedConversations int
 
-func printMessage(evt *events.Message) {
+// This function takes a string and a js.Value and console.logs it
+func ConsoleLog(s string, v js.Value) {
+	js.Global().Get("console").Call("log", s, v)
+}
+
+func doMessage(evt *events.Message) {
 	metaParts := []string{fmt.Sprintf("pushname: %s", evt.Info.PushName), fmt.Sprintf("timestamp: %s", evt.Info.Timestamp)}
 	if evt.Info.Type != "" {
 		metaParts = append(metaParts, fmt.Sprintf("type: %s", evt.Info.Type))
@@ -49,14 +59,26 @@ func printMessage(evt *events.Message) {
 		metaParts = append(metaParts, "edit")
 	}
 
+	// For now still print all messages as well
 	fmt.Printf("Received message %s from %s (%s): %+v metaParameters: \n", evt.Info.ID, evt.Info.SourceString(), strings.Join(metaParts, ", "), evt.Message)
+
+	// But also hand it to JS
+	//msg := fmt.Sprintf("Received message %s from %s (%s): %+v metaParameters: \n", evt.Info.ID, evt.Info.SourceString(), strings.Join(metaParts, ", "), evt.Message)
+	msg := evt.Message.GetConversation()
+	if len(msg) > 0 {
+		fmt.Println("Sending to JS:", msg)
+		messages <- msg
+	} else {
+		fmt.Println("Empty msg")
+	}
+
 	fmt.Println()
 }
 
 func eventHandler(rawEvt interface{}) {
 	switch evt := rawEvt.(type) {
 	case *events.Message:
-		printMessage(evt)
+		doMessage(evt)
 
 		// TODO show user info n stuff
 		//userInfo, err := client.GetUserInfo(client.ID)
@@ -111,100 +133,140 @@ func eventHandler(rawEvt interface{}) {
 	}
 }
 
-func StartMeow(clientChannel chan *whatsmeow.Client) {
-	dbLog := waLog.Stdout("Database", "INFO", true)
-	// Make sure you add appropriate DB connector imports, e.g. github.com/mattn/go-sqlite3 for SQLite
-	//container, err := sqlstore.New("sqljs", "file:examplestore.db?_foreign_keys=on", dbLog)
+func StartMeow(doneClient chan *whatsmeow.Client) {
+	if !clientLoaded.Load() {
+		dbLog := waLog.Stdout("Database", "INFO", true)
+		// Make sure you add appropriate DB connector imports, e.g. github.com/mattn/go-sqlite3 for SQLite
+		//container, err := sqlstore.New("sqljs", "file:examplestore.db?_foreign_keys=on", dbLog)
 
-	sqlDB, err := sql.Open("sqljs", "")
-	if err != nil {
-		panic(err)
+		sqlDB, err := sql.Open("sqljs", "")
+		if err != nil {
+			panic(err)
+		}
+
+		// Lets modify the protoBuf store properties to get more history
+		store.DeviceProps.RequireFullSync = proto.Bool(true)
+		// For info about these check: https://github.com/mautrix/whatsapp/blob/6df2ff725999ff82d0f3b171b44d748533bf34ee/example-config.yaml#L141
+		days_of_history := uint32(365 * 15)
+		days_of_history = uint32(5)
+		config := &waproto.DeviceProps_HistorySyncConfig{
+			FullSyncDaysLimit:   proto.Uint32(days_of_history), // supposedly only really 3 years worth of data can be gotten
+			FullSyncSizeMbLimit: proto.Uint32(50),
+			StorageQuotaMb:      proto.Uint32(5000),
+		}
+		store.DeviceProps.HistorySyncConfig = config
+
+		// Use the sqljs driver for whatsmeow
+		container := sqlstore.NewWithDB(sqlDB, "sqlite", dbLog)
+		err = container.Upgrade()
+		if err != nil {
+			panic(err)
+		}
+
+		// Check if the limits are still there
+		//fmt.Println("GetFullSyncDaysLimit: ", store.DeviceProps.HistorySyncConfig.GetFullSyncDaysLimit())
+		//fmt.Println("GetFullSyncSizeMbLimit: ", store.DeviceProps.HistorySyncConfig.GetFullSyncSizeMbLimit())
+		//fmt.Println("GetStorageQuotaMb: ", store.DeviceProps.HistorySyncConfig.GetStorageQuotaMb())
+
+		// If you want multiple sessions, remember their JIDs and use .GetDevice(jid) or .GetAllDevices() instead.
+		deviceStore, err := container.GetFirstDevice()
+
+		if err != nil {
+			panic(err)
+		}
+		clientLog := waLog.Stdout("Client", "INFO", true)
+		client = whatsmeow.NewClient(deviceStore, clientLog)
+		client.AddEventHandler(eventHandler)
+
+		clientLoaded.CompareAndSwap(false, true)
 	}
-
-	// Lets modify the protoBuf store properties to get more history
-	store.DeviceProps.RequireFullSync = proto.Bool(true)
-	// For info about these check: https://github.com/mautrix/whatsapp/blob/6df2ff725999ff82d0f3b171b44d748533bf34ee/example-config.yaml#L141
-	days_of_history := uint32(365 * 15)
-	days_of_history = uint32(5)
-	config := &waproto.DeviceProps_HistorySyncConfig{
-		FullSyncDaysLimit:   proto.Uint32(days_of_history), // supposedly only really 3 years worth of data can be gotten
-		FullSyncSizeMbLimit: proto.Uint32(50),
-		StorageQuotaMb:      proto.Uint32(5000),
-	}
-	store.DeviceProps.HistorySyncConfig = config
-
-	// Use the sqljs driver for whatsmeow
-	container := sqlstore.NewWithDB(sqlDB, "sqlite", dbLog)
-	err = container.Upgrade()
-	if err != nil {
-		panic(err)
-	}
-
-	// Check if the limits are still there
-	//fmt.Println("GetFullSyncDaysLimit: ", store.DeviceProps.HistorySyncConfig.GetFullSyncDaysLimit())
-	//fmt.Println("GetFullSyncSizeMbLimit: ", store.DeviceProps.HistorySyncConfig.GetFullSyncSizeMbLimit())
-	//fmt.Println("GetStorageQuotaMb: ", store.DeviceProps.HistorySyncConfig.GetStorageQuotaMb())
-
-	// If you want multiple sessions, remember their JIDs and use .GetDevice(jid) or .GetAllDevices() instead.
-	deviceStore, err := container.GetFirstDevice()
-
-	if err != nil {
-		panic(err)
-	}
-	clientLog := waLog.Stdout("Client", "INFO", true)
-	client = whatsmeow.NewClient(deviceStore, clientLog)
-	client.AddEventHandler(eventHandler)
-
-	clientChannel <- client
 }
 
-func LoginUser(clientChannel <-chan *whatsmeow.Client) js.Func {
+func LoginUser() js.Func {
 	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		// get the setter function from javascript for the QR-code
-		setQRCode := args[0]
+		if clientLoaded.Load() {
+			// get the setter function from javascript for the QR-code
+			setQRCode := args[0]
 
-		go func() {
-			client := <-clientChannel
-			if client.Store.ID == nil {
-				// No ID stored, new login
-				qrChan, _ := client.GetQRChannel(context.Background())
-				err := client.Connect()
-				if err != nil {
-					panic(err)
-				}
-				for evt := range qrChan {
-					if evt.Event == "code" {
-						// Render the QR code in react
-						// or just manually `echo 2@... | qrencode -t ansiutf8` in a terminal
-						//fmt.Println("echo ", evt.Code, " | qrencode -t ansiutf8")
-						setQRCode.Invoke(evt.Code)
-					} else {
-						//fmt.Println("Login event:", evt.Event)
-						setQRCode.Invoke(evt.Event)
+			go func() {
+				// Wait for the client & DB to be ready
+				if client.Store.ID == nil {
+					// No ID stored, new login
+					qrChan, _ := client.GetQRChannel(context.Background())
+					err := client.Connect()
+					if err != nil {
+						panic(err)
+					}
+					for evt := range qrChan {
+						if evt.Event == "code" {
+							// Render the QR code in react
+							// or just manually `echo 2@... | qrencode -t ansiutf8` in a terminal
+							//fmt.Println("echo ", evt.Code, " | qrencode -t ansiutf8")
+							setQRCode.Invoke(evt.Code)
+						} else {
+							//fmt.Println("Login event:", evt.Event)
+							setQRCode.Invoke(evt.Event)
+						}
+					}
+				} else {
+					// Already logged in, so when reloaded, but the DB still there
+					err := client.Connect()
+					if err != nil {
+						panic(err)
 					}
 				}
-			} else {
-				// Already logged in, so when reloaded, but the DB still there
-				err := client.Connect()
-				if err != nil {
-					panic(err)
-				}
-			}
-		}()
+			}()
+		}
 		return nil
+	})
+}
+
+func LogoutUser() js.Func {
+	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		// Handler for the Promise: this is a JS function
+		// It receives two arguments, which are JS functions themselves: resolve and reject
+		handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+			resolve := args[0]
+			// Commented out because this Promise never fails
+			reject := args[1]
+			if !clientLoaded.Load() {
+				reject.Invoke("Client not loaded")
+				return nil
+			}
+			// Now that we have a way to return the response to JS, spawn a goroutine
+			// This way, we don't block the event loop and avoid a deadlock
+			go func() {
+				// logout the user
+				err := client.Logout()
+				fmt.Println("Logged out through JS")
+				if err != nil {
+					reject.Invoke(err)
+				}
+				totalSyncedConversations = 0
+				// Resolve the Promise, passing anything back to JavaScript
+				// This is done by invoking the "resolve" function passed to the handler
+				resolve.Invoke("Logged out")
+			}()
+
+			// The handler of a Promise doesn't return any value
+			return nil
+		})
+
+		// Create and return the Promise object
+		promiseConstructor := js.Global().Get("Promise")
+		return promiseConstructor.New(handler)
 	})
 }
 
 func LoadSQL(clientChannel chan *whatsmeow.Client) js.Func {
 	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		// Get the setData function from the JS side
 		// args[0] is a js.Value, so we need to get a string out of it
 
 		// run all of the code that needs that stream to JS
 		go StartMeow(clientChannel)
 
 		// Print that we received the object
-		fmt.Println("Received the start signal")
+		fmt.Println("Loading SQL & setting up DB")
 
 		// We don't return anything
 		return nil
@@ -212,93 +274,51 @@ func LoadSQL(clientChannel chan *whatsmeow.Client) js.Func {
 }
 
 // Streaming is possible: https://withblue.ink/2020/10/03/go-webassembly-http-requests-and-promises.html
-
-func HandSetData() js.Func {
+func handNewDataFunc() js.Func {
 	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		// Get the setData function from the JS side
-		// args[0] is a js.Value, so we need to get a string out of it
-		setData := args[0]
+		// this function must take a new message as update
+		handNewData := args[0]
 
-		// Trying a stream update of top level
-		setDataFun := make(chan js.Value, 1)
+		go func() {
+			fmt.Println("Started data handling")
+			// First aggregate messages then set them once
+			for {
+				// Lets send every second data to the JS side
+				time.Sleep(time.Second)
+				fmt.Println("Aggregating data for JS")
 
-		// run all of the code that needs that stream to JS
-		//go CreateData(setDataFun)
-		go WaitAndTest(setDataFun)
+				// Aggregate messages and send them
+				var aggregate string
+				for i := 0; i < 500; i++ {
+					aggregate += <-messages + "\n"
+				}
 
-		// Send the setData function to the channel
-		setDataFun <- setData
+				// And send them
+				fmt.Println("Sending data to JS")
+				handNewData.Invoke(aggregate)
+			}
+		}()
 
-		// We don't return anything
 		return nil
 	})
 }
 
-func WaitAndTest(setDataFun <-chan js.Value) {
-	// Get the setData function from the channel
-	setData := <-setDataFun
-
-	// Wait a second
-	time.Sleep(time.Second)
-
-	setData.Invoke("Starting SQLite3 DB in memroy")
-	db, err := sql.Open("sqlite3", ":memory:")
-
-	if err != nil {
-		panic(err)
-	}
-
-	defer db.Close()
-
-	setData.Invoke("SQLite3 DB in memroy created")
-	var version string
-	err = db.QueryRow("SELECT SQLITE_VERSION()").Scan(&version)
-
-	setData.Invoke("query done")
-
-	if err != nil {
-		panic(err)
-	}
-
-	setData.Invoke("Current version: " + version)
-}
-
-func CreateData(setDataFun <-chan js.Value) {
-	// Get the setData function from the channel
-	setData := <-setDataFun
-
-	// Create some string data every second and send it to the JS side
-	for {
-		// Create the data, the current time as string
-		data := js.ValueOf(time.Now().String())
-
-		// Call the setData function
-		setData.Invoke(data)
-
-		// Wait a second
-		time.Sleep(time.Second)
-	}
-}
-
-func InitServer() js.Func {
-	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		name := args[0].String()
-		ret := fmt.Sprintf("Server was inited with '%s.'", name)
-		return ret
-	})
-}
-
 func main() {
-	ch := make(chan struct{}, 0)
-	js.Global().Set("initServer", InitServer())
+	ch := make(chan struct{})
+	// Use bool lock to make sure the client is only loaded once & only used when loaded
+	clientLoaded = &atomic.Bool{}
+	clientLoaded.Store(false)
 
-	js.Global().Set("handSetData", HandSetData())
-
-	clientChannel := make(chan *whatsmeow.Client)
+	// prepare the streaming of messages
+	messages = make(chan string)
 
 	// For the handover
+	clientChannel := make(chan *whatsmeow.Client)
 	js.Global().Set("loadSQL", LoadSQL(clientChannel))
-	js.Global().Set("loginUser", LoginUser(clientChannel))
+	js.Global().Set("loginUser", LoginUser())
+	js.Global().Set("logoutUser", LogoutUser())
+	js.Global().Set("handNewData", handNewDataFunc())
 
 	// Trick to keep the program running
 	<-ch

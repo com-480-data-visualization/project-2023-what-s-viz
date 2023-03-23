@@ -5,7 +5,7 @@ import { useFetch } from '../hooks/useFetch';
 //const weatherUrl = "https://api.weatherbit.io/v2.0/forecast/daily?city=Lausanne&days=7&key=de7baa6dfedd4ee8b140662b5298b160"
 //const weatherUrl = "http://localhost:8000/testData.json"
 
-function Home() {
+function Weather() {
 	const [city, setCity] = useState('Lausanne');
 
 	const url = city && `https://api.weatherbit.io/v2.0/forecast/daily?city=${city}&days=7&key=de7baa6dfedd4ee8b140662b5298b160`;
@@ -81,4 +81,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default Weather;

@@ -9,8 +9,8 @@ const Navigation = () => {
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav>
+                            <Nav.Link href="/weather">Weather</Nav.Link>
                             <Nav.Link href="/about">About</Nav.Link>
-                            <Nav.Link href="/wasm">Wasm</Nav.Link>
                         </Nav>
                     </Navbar.Collapse>
                 </Container>

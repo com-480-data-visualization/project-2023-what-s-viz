@@ -19,6 +19,7 @@ Because we had to heavily modify some projects we depend on, you first have to r
 Then afterwards go to wasm/whatsmeow and run `git apply ../whatsmeowDiff.diff` to apply the changes.
 
 After having applied the go changes, to run the development server you need to install all dependencies; run `npm install` from this folder (wa-visualization) to download them.
+Lastly, the go compiler (tested with version 1.19.1) also needs to be available.
 
 Having done these steps, the following scripts should work.
 
