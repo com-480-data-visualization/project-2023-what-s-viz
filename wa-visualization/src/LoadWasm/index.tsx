@@ -2,7 +2,7 @@ import './wasm_exec.js';
 import './wasmTypes.d.ts';
 import './LoadWasm.css';
 import initSqlJs from '../sql-wasm-debug.js';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 async function loadWasm(): Promise<void> {
   const goWasm = new window.Go();
@@ -14,24 +14,12 @@ async function loadWasm(): Promise<void> {
 declare global {
     interface Window {
         SQL:any;
-        circType: any;
         WAdb: any;
     }
 }
 
-function circType(value: any) {
-  if (typeof value === 'number') {
-    return value + 1
-  }
-  if (typeof value === 'boolean' && value === true) {
-    return 1
-  } else if (typeof value === 'boolean' && value === false) {
-    return -1
-  }
-}
-
 export const LoadWasm: React.FC<React.PropsWithChildren<{}>> = (props) => {
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // First load the Go WebAssembly
@@ -41,17 +29,11 @@ export const LoadWasm: React.FC<React.PropsWithChildren<{}>> = (props) => {
         initSqlJs({
           locateFile: () => 'sql-wasm-debug.wasm'
         }).then((tSQL: any) => {
-          // Some minor console tests of sql.js
-          //TestSQL(tSQL)
-
           // Set the gloval SQL value, this way Go can access it
           window.SQL = tSQL
-          window.circType = circType
 
           // Tell go to load the DB
           window.loadSQL()
-
-          
           
           // We are done loading
           setIsLoading(false);

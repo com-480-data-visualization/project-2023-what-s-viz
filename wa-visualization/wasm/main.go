@@ -99,9 +99,9 @@ func eventHandler(rawEvt interface{}) {
 	case *events.LoggedOut:
 		// print the disconnection information
 		fmt.Println("Logged out from WhatsApp")
-	case *events.QR:
-		// print the QR code every 30 seconds
-		fmt.Println("QR code:", evt.Codes)
+	//case *events.QR:
+	// print the QR code every 30 seconds
+	//fmt.Println("QR code:", evt.Codes)
 	case *events.PairSuccess:
 		// print the pairing information
 		fmt.Println("Pairing successful")
@@ -124,8 +124,10 @@ func StartMeow(clientChannel chan *whatsmeow.Client) {
 	// Lets modify the protoBuf store properties to get more history
 	store.DeviceProps.RequireFullSync = proto.Bool(true)
 	// For info about these check: https://github.com/mautrix/whatsapp/blob/6df2ff725999ff82d0f3b171b44d748533bf34ee/example-config.yaml#L141
+	days_of_history := uint32(365 * 15)
+	days_of_history = uint32(5)
 	config := &waproto.DeviceProps_HistorySyncConfig{
-		FullSyncDaysLimit:   proto.Uint32(365 * 15), // supposedly only really 3 years worth of data can be gotten
+		FullSyncDaysLimit:   proto.Uint32(days_of_history), // supposedly only really 3 years worth of data can be gotten
 		FullSyncSizeMbLimit: proto.Uint32(50),
 		StorageQuotaMb:      proto.Uint32(5000),
 	}
@@ -139,9 +141,9 @@ func StartMeow(clientChannel chan *whatsmeow.Client) {
 	}
 
 	// Check if the limits are still there
-	fmt.Println("GetFullSyncDaysLimit: ", store.DeviceProps.HistorySyncConfig.GetFullSyncDaysLimit())
-	fmt.Println("GetFullSyncSizeMbLimit: ", store.DeviceProps.HistorySyncConfig.GetFullSyncSizeMbLimit())
-	fmt.Println("GetStorageQuotaMb: ", store.DeviceProps.HistorySyncConfig.GetStorageQuotaMb())
+	//fmt.Println("GetFullSyncDaysLimit: ", store.DeviceProps.HistorySyncConfig.GetFullSyncDaysLimit())
+	//fmt.Println("GetFullSyncSizeMbLimit: ", store.DeviceProps.HistorySyncConfig.GetFullSyncSizeMbLimit())
+	//fmt.Println("GetStorageQuotaMb: ", store.DeviceProps.HistorySyncConfig.GetStorageQuotaMb())
 
 	// If you want multiple sessions, remember their JIDs and use .GetDevice(jid) or .GetAllDevices() instead.
 	deviceStore, err := container.GetFirstDevice()
@@ -158,6 +160,9 @@ func StartMeow(clientChannel chan *whatsmeow.Client) {
 
 func LoginUser(clientChannel <-chan *whatsmeow.Client) js.Func {
 	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		// get the setter function from javascript for the QR-code
+		setQRCode := args[0]
+
 		go func() {
 			client := <-clientChannel
 			if client.Store.ID == nil {
@@ -169,18 +174,17 @@ func LoginUser(clientChannel <-chan *whatsmeow.Client) js.Func {
 				}
 				for evt := range qrChan {
 					if evt.Event == "code" {
-						// Render the QR code here
-						// e.g. qrterminal.GenerateHalfBlock(evt.Code, qrterminal.L, os.Stdout)
+						// Render the QR code in react
 						// or just manually `echo 2@... | qrencode -t ansiutf8` in a terminal
-						fmt.Println("echo ", evt.Code, " | qrencode -t ansiutf8")
+						//fmt.Println("echo ", evt.Code, " | qrencode -t ansiutf8")
+						setQRCode.Invoke(evt.Code)
 					} else {
-						fmt.Println("Login event:", evt.Event)
+						//fmt.Println("Login event:", evt.Event)
+						setQRCode.Invoke(evt.Event)
 					}
 				}
 			} else {
-				// Already logged in, just connect
-				// should never happen
-				panic("Called login with already logged in client")
+				// Already logged in, so when reloaded, but the DB still there
 				err := client.Connect()
 				if err != nil {
 					panic(err)
