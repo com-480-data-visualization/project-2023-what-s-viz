@@ -9,7 +9,11 @@ declare global {
     // Loggs out the user, does also delete the DB
     logoutUser: () => Promise<string>
     // The function called whenever new messages arrive
-    handNewData: (newData:any) => void
+    handNewMsgs: (newMsgs:any) => void
+    // The function called whenever information about new contacts arrive
+    handNewContacts: (newContacts:any) => void
+    // The function called whenever information about new chats arrive
+    handNewChat: (newChats:any) => void
   }
 }
 

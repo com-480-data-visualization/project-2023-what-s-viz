@@ -26,13 +26,32 @@ import (
 var clientLoaded *atomic.Bool
 var client *whatsmeow.Client
 
-var messages chan string
+var messages chan map[string]interface{}
 
 var totalSyncedConversations int
 
 // This function takes a string and a js.Value and console.logs it
 func ConsoleLog(s string, v js.Value) {
 	js.Global().Get("console").Call("log", s, v)
+}
+
+func parseJID(arg string) (types.JID, bool) {
+	if arg[0] == '+' {
+		arg = arg[1:]
+	}
+	if !strings.ContainsRune(arg, '@') {
+		return types.NewJID(arg, types.DefaultUserServer), true
+	} else {
+		recipient, err := types.ParseJID(arg)
+		if err != nil {
+			fmt.Printf("Invalid JID %s: %v", arg, err)
+			return recipient, false
+		} else if recipient.User == "" {
+			fmt.Printf("Invalid JID %s: no server specified", arg)
+			return recipient, false
+		}
+		return recipient, true
+	}
 }
 
 func doMessage(evt *events.Message) {
@@ -43,15 +62,6 @@ func doMessage(evt *events.Message) {
 	if evt.Info.Category != "" {
 		metaParts = append(metaParts, fmt.Sprintf("category: %s", evt.Info.Category))
 	}
-	if evt.IsViewOnce {
-		metaParts = append(metaParts, "viewonce")
-	}
-	if evt.IsViewOnce {
-		metaParts = append(metaParts, "ephemeral")
-	}
-	if evt.IsViewOnceV2 {
-		metaParts = append(metaParts, "ephemeral (v2)")
-	}
 	if evt.IsDocumentWithCaption {
 		metaParts = append(metaParts, "document with caption")
 	}
@@ -59,20 +69,27 @@ func doMessage(evt *events.Message) {
 		metaParts = append(metaParts, "edit")
 	}
 
-	// For now still print all messages as well
-	fmt.Printf("Received message %s from %s (%s): %+v metaParameters: \n", evt.Info.ID, evt.Info.SourceString(), strings.Join(metaParts, ", "), evt.Message)
+	// Queue up the message info for the JS side
 
-	// But also hand it to JS
-	//msg := fmt.Sprintf("Received message %s from %s (%s): %+v metaParameters: \n", evt.Info.ID, evt.Info.SourceString(), strings.Join(metaParts, ", "), evt.Message)
-	msg := evt.Message.GetConversation()
-	if len(msg) > 0 {
-		fmt.Println("Sending to JS:", msg)
-		messages <- msg
+	// We built the message with:
+	// ID as key, timestamp, message, contact by whom sent, chat it was sent in
+	msgMap := make(map[string]interface{})
+	msgMap["id"] = evt.Info.ID
+	msgMap["timestamp"] = evt.Info.Timestamp.String()
+	msgMap["chat"] = evt.Info.MessageSource.Chat.User
+	msgMap["sent-by"] = evt.Info.MessageSource.Sender.User
+
+	if msg := evt.Message.GetConversation(); len(msg) > 0 {
+		msgMap["message"] = msg
+		messages <- msgMap
+	} else if evt.Message != nil {
+		if msg2 := evt.Message.ExtendedTextMessage; msg2 != nil && len(msg2.GetText()) > 0 {
+			msgMap["message"] = msg2.GetText()
+			messages <- msgMap
+		}
 	} else {
-		fmt.Println("Empty msg")
+		fmt.Printf("Unknow type of converstaion: %+v", evt)
 	}
-
-	fmt.Println()
 }
 
 func eventHandler(rawEvt interface{}) {
@@ -110,7 +127,8 @@ func eventHandler(rawEvt interface{}) {
 
 	case *events.Receipt:
 		// print the receipt information
-		fmt.Println("Receipt at %v for %v", evt.Timestamp, evt.MessageIDs)
+		fmt.Printf("Receipt at %v for %v", evt.Timestamp, evt.MessageIDs)
+		fmt.Println()
 
 	case *events.Connected:
 		// print the connection information
@@ -145,10 +163,9 @@ func StartMeow(doneClient chan *whatsmeow.Client) {
 		}
 
 		// Lets modify the protoBuf store properties to get more history
-		store.DeviceProps.RequireFullSync = proto.Bool(true)
+		store.DeviceProps.RequireFullSync = proto.Bool(false)
 		// For info about these check: https://github.com/mautrix/whatsapp/blob/6df2ff725999ff82d0f3b171b44d748533bf34ee/example-config.yaml#L141
 		days_of_history := uint32(365 * 15)
-		days_of_history = uint32(5)
 		config := &waproto.DeviceProps_HistorySyncConfig{
 			FullSyncDaysLimit:   proto.Uint32(days_of_history), // supposedly only really 3 years worth of data can be gotten
 			FullSyncSizeMbLimit: proto.Uint32(50),
@@ -162,11 +179,6 @@ func StartMeow(doneClient chan *whatsmeow.Client) {
 		if err != nil {
 			panic(err)
 		}
-
-		// Check if the limits are still there
-		//fmt.Println("GetFullSyncDaysLimit: ", store.DeviceProps.HistorySyncConfig.GetFullSyncDaysLimit())
-		//fmt.Println("GetFullSyncSizeMbLimit: ", store.DeviceProps.HistorySyncConfig.GetFullSyncSizeMbLimit())
-		//fmt.Println("GetStorageQuotaMb: ", store.DeviceProps.HistorySyncConfig.GetStorageQuotaMb())
 
 		// If you want multiple sessions, remember their JIDs and use .GetDevice(jid) or .GetAllDevices() instead.
 		deviceStore, err := container.GetFirstDevice()
@@ -260,8 +272,6 @@ func LogoutUser() js.Func {
 
 func LoadSQL(clientChannel chan *whatsmeow.Client) js.Func {
 	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		// args[0] is a js.Value, so we need to get a string out of it
-
 		// run all of the code that needs that stream to JS
 		go StartMeow(clientChannel)
 
@@ -274,32 +284,55 @@ func LoadSQL(clientChannel chan *whatsmeow.Client) js.Func {
 }
 
 // Streaming is possible: https://withblue.ink/2020/10/03/go-webassembly-http-requests-and-promises.html
-func handNewDataFunc() js.Func {
+func handNewMsgsFunc() js.Func {
 	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		// Get the setData function from the JS side
 		// this function must take a new message as update
 		handNewData := args[0]
 
 		go func() {
-			fmt.Println("Started data handling")
-			// First aggregate messages then set them once
+			fmt.Println("Started data handling for messages")
+			// Aggregate messages into single list for JS
 			for {
-				// Lets send every second data to the JS side
-				time.Sleep(time.Second)
-				fmt.Println("Aggregating data for JS")
-
-				// Aggregate messages and send them
-				var aggregate string
-				for i := 0; i < 500; i++ {
-					aggregate += <-messages + "\n"
+				aggregate := make(map[string]interface{})
+			innerFor:
+				for {
+					select {
+					case msg := <-messages:
+						// Aggregate messages and send them
+						aggregate[msg["id"].(string)] = msg
+					case <-time.After(10 * time.Millisecond):
+						// After doing a few messages we go on
+						break innerFor
+					}
+				}
+				if len(aggregate) > 0 {
+					fmt.Printf("Got %d messages through channel\n", len(aggregate))
+					// And send them
+					handNewData.Invoke(aggregate)
 				}
 
-				// And send them
-				fmt.Println("Sending data to JS")
-				handNewData.Invoke(aggregate)
+				// Lets send at least every second data to the JS side
+				time.Sleep(1000 * time.Millisecond)
 			}
 		}()
 
+		return nil
+	})
+}
+
+func handNewContactsFunc() js.Func {
+	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		//cli.GetUserInfo(jids)
+		//pic, err := cli.GetProfilePictureInfo(jid, &whatsmeow.GetProfilePictureParams{
+		return nil
+	})
+}
+
+func handNewChatsFunc() js.Func {
+	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		//groups, err := cli.GetJoinedGroups()
+		//resp, err := cli.GetGroupInfo(group)
 		return nil
 	})
 }
@@ -311,14 +344,16 @@ func main() {
 	clientLoaded.Store(false)
 
 	// prepare the streaming of messages
-	messages = make(chan string)
+	messages = make(chan map[string]interface{}, 250)
 
 	// For the handover
 	clientChannel := make(chan *whatsmeow.Client)
 	js.Global().Set("loadSQL", LoadSQL(clientChannel))
 	js.Global().Set("loginUser", LoginUser())
 	js.Global().Set("logoutUser", LogoutUser())
-	js.Global().Set("handNewData", handNewDataFunc())
+	js.Global().Set("handNewMsgs", handNewMsgsFunc())
+	js.Global().Set("handNewContacts", handNewContactsFunc())
+	js.Global().Set("handNewChats", handNewChatsFunc())
 
 	// Trick to keep the program running
 	<-ch

@@ -27,9 +27,10 @@ function Home() {
       window.loadSQL()
 
       // Give the handler to set the data
-      window.handNewData((message:any) => {
+      window.handNewMsgs((messages:any) => {
         // Append the new message to the data
-        setData(data + message)
+        //setData(data + message)
+        console.log(messages)
       })
       
       // We are done loading
