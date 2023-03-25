@@ -56,12 +56,6 @@ func parseJID(arg string) (types.JID, bool) {
 
 func doMessage(evt *events.Message) {
 	metaParts := []string{fmt.Sprintf("pushname: %s", evt.Info.PushName), fmt.Sprintf("timestamp: %s", evt.Info.Timestamp)}
-	if evt.Info.Type != "" {
-		metaParts = append(metaParts, fmt.Sprintf("type: %s", evt.Info.Type))
-	}
-	if evt.Info.Category != "" {
-		metaParts = append(metaParts, fmt.Sprintf("category: %s", evt.Info.Category))
-	}
 	if evt.IsDocumentWithCaption {
 		metaParts = append(metaParts, "document with caption")
 	}
@@ -76,15 +70,15 @@ func doMessage(evt *events.Message) {
 	msgMap := make(map[string]interface{})
 	msgMap["id"] = evt.Info.ID
 	msgMap["timestamp"] = evt.Info.Timestamp.String()
-	msgMap["chat"] = evt.Info.MessageSource.Chat.User
-	msgMap["sent-by"] = evt.Info.MessageSource.Sender.User
+	msgMap["chat"] = evt.Info.MessageSource.Chat.String()
+	msgMap["sent-by"] = evt.Info.MessageSource.Sender.String()
 
 	if msg := evt.Message.GetConversation(); len(msg) > 0 {
 		msgMap["message"] = msg
 		messages <- msgMap
 	} else if evt.Message != nil {
 		if msg2 := evt.Message.ExtendedTextMessage; msg2 != nil && len(msg2.GetText()) > 0 {
-			msgMap["message"] = msg2.GetText()
+			msgMap["message"] = msg2.GetText()<
 			messages <- msgMap
 		}
 	} else {
