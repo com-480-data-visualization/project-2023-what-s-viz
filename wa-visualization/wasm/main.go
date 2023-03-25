@@ -78,7 +78,7 @@ func doMessage(evt *events.Message) {
 		messages <- msgMap
 	} else if evt.Message != nil {
 		if msg2 := evt.Message.ExtendedTextMessage; msg2 != nil && len(msg2.GetText()) > 0 {
-			msgMap["message"] = msg2.GetText()<
+			msgMap["message"] = msg2.GetText()
 			messages <- msgMap
 		}
 	} else {
