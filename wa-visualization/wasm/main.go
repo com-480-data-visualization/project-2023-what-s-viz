@@ -39,6 +39,32 @@ func ConsoleLog(s string, v js.Value) {
 	js.Global().Get("console").Call("log", s, v)
 }
 
+func convertParamsAny(params interface{}) interface{} {
+	switch par := params.(type) {
+	case []string:
+		anyL := make([]any, len(par))
+		for i, v := range par {
+			// we need this conversion for js.ValueOf to work
+			anyL[i] = any(v)
+		}
+		return anyL
+	case []interface{}:
+		anyL := make([]any, len(par))
+		for i, v := range par {
+			anyL[i] = convertParamsAny(v)
+		}
+		return anyL
+	case map[string]interface{}:
+		anyM := make(map[string]any)
+		for k, v := range params.(map[string]interface{}) {
+			anyM[k] = convertParamsAny(v)
+		}
+		return anyM
+	default:
+		return params
+	}
+}
+
 func parseJID(arg string) (types.JID, bool) {
 	if arg[0] == '+' {
 		arg = arg[1:]
@@ -335,6 +361,25 @@ func handNewMsgsFunc() js.Func {
 	})
 }
 
+func getAvatar(jid types.JID) string {
+	//fmt.Printf("Doing jid picture %v\n", jid)
+	pic, err := client.GetProfilePictureInfo(jid, &whatsmeow.GetProfilePictureParams{
+		Preview: true,
+		//IsCommunity: false,
+		//ExistingID: "",
+	})
+	if err != nil {
+		//fmt.Printf("Failed to get avatar: %v", err)
+		//fmt.Println()
+		return ""
+	} else if pic != nil {
+		//fmt.Printf("Got avatar ID %s: %s", pic.ID, pic.URL)
+		//fmt.Println()
+		return pic.URL
+	}
+	return ""
+}
+
 func handNewContactsFunc() js.Func {
 	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		handNewContacts := args[0]
@@ -370,15 +415,22 @@ func handNewContactsFunc() js.Func {
 							cur["status"] = info.Status
 							userInfo, err := client.Store.Contacts.GetContact(jid)
 							if err != nil {
-								fmt.Printf("Failed to get contact info: %v", err)
-								fmt.Println()
+								if strings.Contains(err.Error(), "429: rate-overlimit") {
+									// We are too fast, lets slow down
+									time.Sleep(500 * time.Microsecond)
+									// we need to put the JID back into the queue
+									contactsJIDs <- jid
+								} else {
+									fmt.Printf("Failed to get contact info: %v", err)
+									fmt.Println()
+								}
 								continue
 							}
 							if !userInfo.Found {
 								// Not sure what the reason is for not finding someone...
 								cur["name"] = jid.User
 								// lets retry finding this person
-								// for now lets not
+								// for now lets not, might loop infintely
 								//contactsJIDs <- jid
 							} else {
 								if len(userInfo.FullName) > 0 {
@@ -389,28 +441,11 @@ func handNewContactsFunc() js.Func {
 									cur["name"] = userInfo.PushName
 								}
 							}
-
-							// Get avatars
-							//fmt.Printf("Doing jid picture %v\n", jid)
-							pic, err := client.GetProfilePictureInfo(jid, &whatsmeow.GetProfilePictureParams{
-								Preview: true,
-								//IsCommunity: false,
-								//ExistingID: "",
-							})
-							if err != nil {
-								fmt.Printf("Failed to get avatar: %v", err)
-								fmt.Println()
-								cur["avatar"] = ""
-							} else if pic != nil {
-								//fmt.Printf("Got avatar ID %s: %s", pic.ID, pic.URL)
-								//fmt.Println()
-								cur["avatar"] = pic.URL
-							} else {
-								cur["avatar"] = ""
-							}
-
+							// Get avatar
+							cur["avatar"] = getAvatar(jid)
 							// Save the users info for their jid
 							aggregate[jid.User] = cur
+							time.Sleep(100 * time.Microsecond)
 						}
 					}
 
@@ -421,8 +456,9 @@ func handNewContactsFunc() js.Func {
 					}
 				}
 
-				// Lets send at least every second data to the JS side
-				time.Sleep(1000 * time.Millisecond)
+				// Lets send at least every 5 seconds data to the JS side
+				// Getting profile pictures is super slow
+				time.Sleep(5000 * time.Millisecond)
 			}
 		}()
 		return nil
@@ -431,8 +467,77 @@ func handNewContactsFunc() js.Func {
 
 func handNewGroupsFunc() js.Func {
 	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		//groups, err := cli.GetJoinedGroups()
-		//resp, err := cli.GetGroupInfo(group)
+		handNewGroups := args[0]
+
+		go func() {
+			for {
+				if clientLoaded.Load() && client.Store.Contacts != nil {
+					//groups, err := cli.GetJoinedGroups()
+					aggregate := make(map[string]interface{})
+					jids := make([]types.JID, 0)
+				innerFor:
+					for {
+						select {
+						case jid := <-groupsJIDs:
+							jids = append(jids, jid)
+						case <-time.After(10 * time.Millisecond):
+							// After getting a few we go on
+							break innerFor
+						}
+					}
+
+					fmt.Printf("Getting group info for jids: %v\n", jids)
+
+					// Actually get the group information for the new users
+					for _, jid := range jids {
+						info, err := client.GetGroupInfo(jid)
+						if err != nil {
+							if strings.Contains(err.Error(), "429: rate-overlimit") {
+								fmt.Println("Slowing down in groups!")
+								// We are too fast, lets slow down
+								time.Sleep(2 * time.Second)
+								// we need to put the JID back into the queue
+								contactsJIDs <- jid
+							} else {
+								fmt.Printf("Failed to get user info: %v\n", err)
+								fmt.Println()
+							}
+							continue
+						} else {
+							// build the aggregate map of the group info
+							cur := make(map[string]interface{})
+							cur["name"] = info.GroupName.Name
+							cur["owner_id"] = info.OwnerJID.User
+							cur["topic"] = info.GroupTopic.Topic
+							// Create participants JID list
+							mapped := make([]string, len(info.Participants))
+							for i, e := range info.Participants {
+								mapped[i] = e.JID.User
+							}
+							cur["participants"] = convertParamsAny(mapped)
+
+							// Get avatar, does not seem to work for many groups??
+							cur["avatar"] = getAvatar(info.JID)
+
+							// Save the users info for their jid
+							aggregate[info.JID.User] = cur
+						}
+						time.Sleep(100 * time.Microsecond)
+					}
+
+					if len(aggregate) > 0 {
+						fmt.Printf("Got %d groups through channel\n", len(aggregate))
+						// And send them
+						handNewGroups.Invoke(aggregate)
+					}
+				}
+
+				// Lets send at least every 5 seconds data to the JS side
+				// Getting profile pictures is super slow & rate limiting
+				time.Sleep(5000 * time.Millisecond)
+			}
+		}()
+
 		return nil
 	})
 }

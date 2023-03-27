@@ -35,9 +35,14 @@ function Home() {
 
       // Give the handler to get new contacts
       window.handNewContacts((contact:any) => {
-        // Append the new message to the data
-        //setData(data + message)
+        // See console for now what the data looks like
         console.log(contact)
+      })
+
+      // Give the handler to get new groups info
+      window.handNewGroups((group:any) => {
+        // See console for now what the data looks like
+        console.log(group)
       })
       
       // We are done loading
