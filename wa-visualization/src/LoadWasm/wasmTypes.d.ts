@@ -10,10 +10,10 @@ declare global {
     logoutUser: () => Promise<string>
     // The function called whenever new messages arrive
     handNewMsgs: (newMsgs:any) => void
-    // The function called whenever information about new contacts arrive
+    // The function called whenever information about new contacts/chats arrives
     handNewContacts: (newContacts:any) => void
-    // The function called whenever information about new chats arrive
-    handNewChat: (newChats:any) => void
+    // The function called whenever information about new groups arrives
+    handNewGroups: (newGroups:any) => void
   }
 }
 

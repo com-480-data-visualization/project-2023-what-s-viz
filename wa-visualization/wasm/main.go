@@ -18,6 +18,7 @@ import (
 
 	waproto "wasm/whatsmeow/binary/proto"
 
+	lru "github.com/hraban/lrucache"
 	"google.golang.org/protobuf/proto"
 
 	_ "wasm/sqljs"
@@ -27,6 +28,9 @@ var clientLoaded *atomic.Bool
 var client *whatsmeow.Client
 
 var messages chan map[string]interface{}
+var contactsJIDs chan types.JID
+var groupsJIDs chan types.JID
+var seenJIDs *lru.Cache
 
 var totalSyncedConversations int
 
@@ -54,6 +58,26 @@ func parseJID(arg string) (types.JID, bool) {
 	}
 }
 
+// This function looks what type of JID it is and then
+// enques it for processing
+func gotJID(jid types.JID) {
+	// Check in cache if we already have seen this JID
+	// If not, add it to the filter and send it to the JS side
+	s := jid.String()
+	_, err := seenJIDs.Get(s)
+	if err == lru.ErrNotFound {
+		if strings.Contains(s, "s.whatsapp.net") {
+			contactsJIDs <- jid
+		} else if strings.Contains(s, "g.us") || strings.Contains(s, "c.us") {
+			groupsJIDs <- jid
+		} else {
+			fmt.Printf("Unknown JID type: %+v", jid)
+			fmt.Println()
+		}
+		seenJIDs.Set(s, s)
+	}
+}
+
 func doMessage(evt *events.Message) {
 	metaParts := []string{fmt.Sprintf("pushname: %s", evt.Info.PushName), fmt.Sprintf("timestamp: %s", evt.Info.Timestamp)}
 	if evt.IsDocumentWithCaption {
@@ -70,8 +94,10 @@ func doMessage(evt *events.Message) {
 	msgMap := make(map[string]interface{})
 	msgMap["id"] = evt.Info.ID
 	msgMap["timestamp"] = evt.Info.Timestamp.String()
-	msgMap["chat"] = evt.Info.MessageSource.Chat.String()
-	msgMap["sent-by"] = evt.Info.MessageSource.Sender.String()
+	msgMap["chat"] = evt.Info.MessageSource.Chat.User
+	gotJID(evt.Info.MessageSource.Chat)
+	msgMap["sent-by"] = evt.Info.MessageSource.Sender.User
+	gotJID(evt.Info.MessageSource.Sender)
 
 	if msg := evt.Message.GetConversation(); len(msg) > 0 {
 		msgMap["message"] = msg
@@ -91,13 +117,6 @@ func eventHandler(rawEvt interface{}) {
 	case *events.Message:
 		doMessage(evt)
 
-		// TODO show user info n stuff
-		//userInfo, err := client.GetUserInfo(client.ID)
-		//if err != nil {
-		//	fmt.Println("Error getting user info:", err)
-		//}
-		//fmt.Println(userInfo)
-
 	case *events.HistorySync:
 		// The chat JID can be found in the Conversation data:
 		conversations := evt.Data.GetConversations()
@@ -116,8 +135,6 @@ func eventHandler(rawEvt interface{}) {
 				}
 			}
 		}
-		totalSyncedConversations += len(conversations)
-		fmt.Println("Synced total", totalSyncedConversations, "conversations")
 
 	case *events.Receipt:
 		// print the receipt information
@@ -162,7 +179,7 @@ func StartMeow(doneClient chan *whatsmeow.Client) {
 		days_of_history := uint32(365 * 15)
 		config := &waproto.DeviceProps_HistorySyncConfig{
 			FullSyncDaysLimit:   proto.Uint32(days_of_history), // supposedly only really 3 years worth of data can be gotten
-			FullSyncSizeMbLimit: proto.Uint32(50),
+			FullSyncSizeMbLimit: proto.Uint32(100),
 			StorageQuotaMb:      proto.Uint32(5000),
 		}
 		store.DeviceProps.HistorySyncConfig = config
@@ -243,10 +260,12 @@ func LogoutUser() js.Func {
 			// This way, we don't block the event loop and avoid a deadlock
 			go func() {
 				// logout the user
+				clientLoaded.Store(false)
 				err := client.Logout()
 				fmt.Println("Logged out through JS")
 				if err != nil {
-					reject.Invoke(err)
+					reject.Invoke(fmt.Sprintf("Error logging out: %v", err))
+					return
 				}
 				totalSyncedConversations = 0
 				// Resolve the Promise, passing anything back to JavaScript
@@ -301,7 +320,8 @@ func handNewMsgsFunc() js.Func {
 					}
 				}
 				if len(aggregate) > 0 {
-					fmt.Printf("Got %d messages through channel\n", len(aggregate))
+					totalSyncedConversations += len(aggregate)
+					fmt.Printf("Got %d messages through channel (total %d)\n", len(aggregate), totalSyncedConversations)
 					// And send them
 					handNewData.Invoke(aggregate)
 				}
@@ -317,13 +337,99 @@ func handNewMsgsFunc() js.Func {
 
 func handNewContactsFunc() js.Func {
 	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		//cli.GetUserInfo(jids)
-		//pic, err := cli.GetProfilePictureInfo(jid, &whatsmeow.GetProfilePictureParams{
+		handNewContacts := args[0]
+
+		go func() {
+			for {
+				if clientLoaded.Load() && client.Store.Contacts != nil {
+					aggregate := make(map[string]interface{})
+					jids := make([]types.JID, 0)
+				innerFor:
+					for {
+						select {
+						case jid := <-contactsJIDs:
+							jids = append(jids, jid)
+						case <-time.After(10 * time.Millisecond):
+							// After getting a few we go on
+							break innerFor
+						}
+					}
+
+					fmt.Printf("Getting contact info for jids: %v\n", jids)
+
+					// Actually get the user information for the new users
+					resp, err := client.GetUserInfo(jids)
+					if err != nil {
+						fmt.Printf("Failed to get user info: %v\n", err)
+						fmt.Println()
+					} else {
+						for jid, info := range resp {
+							// build the aggregate map of the user info
+							cur := make(map[string]interface{})
+							//cur["id"] = jid.User
+							cur["status"] = info.Status
+							userInfo, err := client.Store.Contacts.GetContact(jid)
+							if err != nil {
+								fmt.Printf("Failed to get contact info: %v", err)
+								fmt.Println()
+								continue
+							}
+							if !userInfo.Found {
+								// Not sure what the reason is for not finding someone...
+								cur["name"] = jid.User
+								// lets retry finding this person
+								// for now lets not
+								//contactsJIDs <- jid
+							} else {
+								if len(userInfo.FullName) > 0 {
+									cur["name"] = userInfo.FullName
+								} else if len(userInfo.FirstName) > 0 {
+									cur["name"] = userInfo.FirstName
+								} else {
+									cur["name"] = userInfo.PushName
+								}
+							}
+
+							// Get avatars
+							//fmt.Printf("Doing jid picture %v\n", jid)
+							pic, err := client.GetProfilePictureInfo(jid, &whatsmeow.GetProfilePictureParams{
+								Preview: true,
+								//IsCommunity: false,
+								//ExistingID: "",
+							})
+							if err != nil {
+								fmt.Printf("Failed to get avatar: %v", err)
+								fmt.Println()
+								cur["avatar"] = ""
+							} else if pic != nil {
+								//fmt.Printf("Got avatar ID %s: %s", pic.ID, pic.URL)
+								//fmt.Println()
+								cur["avatar"] = pic.URL
+							} else {
+								cur["avatar"] = ""
+							}
+
+							// Save the users info for their jid
+							aggregate[jid.User] = cur
+						}
+					}
+
+					if len(aggregate) > 0 {
+						fmt.Printf("Got %d contacts through channel\n", len(aggregate))
+						// And send them
+						handNewContacts.Invoke(aggregate)
+					}
+				}
+
+				// Lets send at least every second data to the JS side
+				time.Sleep(1000 * time.Millisecond)
+			}
+		}()
 		return nil
 	})
 }
 
-func handNewChatsFunc() js.Func {
+func handNewGroupsFunc() js.Func {
 	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		//groups, err := cli.GetJoinedGroups()
 		//resp, err := cli.GetGroupInfo(group)
@@ -336,9 +442,12 @@ func main() {
 	// Use bool lock to make sure the client is only loaded once & only used when loaded
 	clientLoaded = &atomic.Bool{}
 	clientLoaded.Store(false)
+	seenJIDs = lru.New(500) // Should be enough for chats for most users
 
 	// prepare the streaming of messages
-	messages = make(chan map[string]interface{}, 250)
+	messages = make(chan map[string]interface{}, 500)
+	contactsJIDs = make(chan types.JID, 250)
+	groupsJIDs = make(chan types.JID, 250)
 
 	// For the handover
 	clientChannel := make(chan *whatsmeow.Client)
@@ -347,7 +456,7 @@ func main() {
 	js.Global().Set("logoutUser", LogoutUser())
 	js.Global().Set("handNewMsgs", handNewMsgsFunc())
 	js.Global().Set("handNewContacts", handNewContactsFunc())
-	js.Global().Set("handNewChats", handNewChatsFunc())
+	js.Global().Set("handNewGroups", handNewGroupsFunc())
 
 	// Trick to keep the program running
 	<-ch

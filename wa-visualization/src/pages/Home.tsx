@@ -26,11 +26,18 @@ function Home() {
       // Tell go to load the DB
       window.loadSQL()
 
-      // Give the handler to set the data
+      // Give the handler to get new messages
       window.handNewMsgs((messages:any) => {
         // Append the new message to the data
         //setData(data + message)
         console.log(messages)
+      })
+
+      // Give the handler to get new contacts
+      window.handNewContacts((contact:any) => {
+        // Append the new message to the data
+        //setData(data + message)
+        console.log(contact)
       })
       
       // We are done loading
