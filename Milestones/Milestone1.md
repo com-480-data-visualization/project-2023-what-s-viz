@@ -2,9 +2,45 @@
 
 ### Dataset
 
-For this class, we decided to use the WhatsApp messages as a the dataset for our project. To have the best experience for each user of our project, we built a web system that would parse the web WhatsApp application into a dataset containing all the messages the user has. We sucessfully managed to get the text of the messages, the correspondant and the associated image, if a message was sent to a group (and the group image) and the moment of sending.  
+For this project, we will use WhatsApp chats, including messages and metadata, as well as the contacts and the architecture of groups, as our dataset. Using WhatsApp data as a resource puts us in a unique position: we can customise the dataset and visualisation for each user on our website. Indeed, with two billion monthly active users, WhatsApp is one of the leading social networks for messaging.
 
-The data is of great quality as it comes directly from the Whatsapp logs. 
+To this end, we have built a web system that acts as a client (like What's app web) for the WhatsApp API. The user simply scans the QR code displayed. As soon as the user is logged in, our web application retrieves locally (in the user's browser) the user's WhatsApp data for the last three years. As long as the user is logged in, new messages flow in and are integrated into our dynamic visualisations.
+
+Several layers in several languages are needed to achieve such results. We will focus on the format of the data received by the javascript layer, after pre-processing and formatting in the lower layers, as this is the format that will be used as a basis for the visualisations.
+
+We have three types of application messages that transmit new data. The first is the message, here is its architecture:
+```
+<message_id> : 
+{
+  chat: <chat_id>,
+  id: <message_id>
+  message: <message_text>
+  sent-by: <user_id>
+  timestamp: <date_time>
+}
+```
+The second one is a contact message:
+```
+<contact_id> : 
+{
+  id: <contact_id>
+  status: <conatct_status>
+  name: <contact_name>
+  avatar: <link_to_contact_profile_picture>
+}
+```
+The third and final type of application message received by javascript layer is describing a chat:
+```
+<chat_id> : 
+{
+  avatar: <link_to_the_chat_picture>
+  name: <chat_name>
+  owner_id: <chat_owner_id>
+  participants: [<particpant_id>, ..]
+  topic: <chat_topic>
+}
+```
+Our dataset is therefore a collection of thousands (depending on the user's network/activity) of such messages.
 
 ### Problematic
 
