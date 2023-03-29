@@ -44,13 +44,15 @@ Our dataset is therefore a collection of thousands (depending on the user's netw
 
 ### Problematic
 
-The main axis we want to develop is the social graph of the user. By visualizing the graph, the user will be able to see who are the people he talks the most to, what groups is he in and with whom.
+We deeply believe that WhatsApp data is a goldmine (no wonder Meta is funding it even though WhatsApp doesn't benefit directly). Equipped with our data science and data visualization tools, we aim to extract and present the valuable knowledge hidden in this massive amount of data. Our website will present actionable insights like a jeweller would present gold rings, without the customer having to get their hands dirty. 
 
-This visualization will enable the user to become aware of his usage of WhatsApp. Indeed, he will be able to analyze who he is talking to the most, at what frequency and time of the day. For instance, if he talks to someone with a frequency of one message every five minutes, the user might want to write longer messages, or if he sees that he often talks late a night, he can try to finish his conversations earlier so his sleep schedule is not messed up.
+WhatsApp is used to communicate with family, friends, but also with the professional network. Indeed, communication on WhatsApp is so easy that many people are abandoning email. Today, many organisations and freelancers (including, unofficially, the Swiss army) rely on WhatsApp to carry out their daily activities.
 
-The motivation of the project falls within the scope of social media usage, and how can we try to make a better usage of them. By providing such vizualisations to the users he might become aware on how much time he spends on whatsapp and would want to improve that. Thefore, here the main audience would be people that use a lot whatsapp as a mean of communication to have a realistic overview of their behavior.
+The main goal of our visualisations is to give the user an overview of his (contact) network. A good understanding of the landscape of your connections allows you to maintain and exploit them. We plan to build a visualisation that answers the following questions. Who is in your network and how close are you to them? Who is connected to whom? In what context do you know someone? 
 
+Once the user has a good level of understanding of their network, we want to allow them to dig deeper into a specific contact/group. What are the main topics discussed? What time of day (or night) is the person most responsive? What is the typical language used to communicate with this person? 
 
+Easy access to these answers will undoubtedly facilitate the management of a professional (or even friendly) network.
 
 ### Exploratory Data Analysis
 
