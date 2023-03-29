@@ -32,16 +32,9 @@ The motivation of the project falls within the scope of social media usage, and 
 
 ### Related work
 
+As for each user the data will be new, we can't compare our direct dataset to already existing ones. Nevertheless, Whatsapp chat analyzers already exist.  
+Our approach is different as we process the messages on the fly, building the vizualization progressively as we parse the messages, enabling the user to see in real time the statistics change. This due to the fact that WhatsApp chat analyzer need would to upload a folder with all the messages in it, whereas in our approach you just need to scan the QR code.
 
-> - What others have already done with the data?
-> - Why is your approach original?
-> - What source of inspiration do you take? Visualizations that you found on other websites or magazines (might be unrelated to your data).
-> - In case you are using a dataset that you have already explored in another context (ML or ADA course, semester project...), you are required to share the report of that work to outline the differences with the submission for this class.
-
-As for each user the data will be new, we can't compare our direct dataset to already existing ones.
-
-In our approach, we process the messages on the fly, building the vizualization progressively as we parse the message, enabling the user to see in real time the statistics change.
-
-We took inspiration in graphs that would simulate the dynamics in populations and how would information spread out in these.
+We took inspiration in graphs that would simulate the dynamics in populations and how would information spread out in these. As it is the conventional manner to visualize communications between human beings, we wanted to develop that idea to observe what we do with todays means of communications.  
 
 
