@@ -27,13 +27,17 @@ The motivation of the project falls within the scope of social media usage, and 
 
 ### Exploratory Data Analysis
 
-> Pre-processing of the data set you chose
-> - Show some basic statistics and get insights about the data
+Some pre-processing we have to do before being able to compute statistics about the messages, is to transform the messages for each discussion the user has, we have to parse the message to a common message structure that would consist of the message content, the name of the contact, the avatar, the status, the message id, and group information.
+
+Some statistics (which are user dependent) we have are:
+  - The average number of messages per contact
+  - The average time the messages were sent
+  - Top 3 most talked people 
+
 
 ### Related work
 
-As for each user the data will be new, we can't compare our direct dataset to already existing ones. Nevertheless, Whatsapp chat analyzers already exist.  
-Our approach is different as we process the messages on the fly, building the vizualization progressively as we parse the messages, enabling the user to see in real time the statistics change. This due to the fact that WhatsApp chat analyzer need would to upload a folder with all the messages in it, whereas in our approach you just need to scan the QR code.
+As for each user the data will be new, we can't compare our direct dataset to already existing ones. Nevertheless, Whatsapp chat analyzers already exist. Our approach is different as we process the messages on the fly, building the vizualization progressively as we parse the messages, enabling the user to see in real time the statistics change. This due to the fact that WhatsApp chat analyzer need would to upload a folder with all the messages in it, whereas in our approach you just need to scan the QR code.
 
 We took inspiration in graphs that would simulate the dynamics in populations and how would information spread out in these. As it is the conventional manner to visualize communications between human beings, we wanted to develop that idea to observe what we do with todays means of communications.  
 
