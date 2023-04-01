@@ -2,5 +2,5 @@
 	path = wa-visualization/wasm/whatsmeow
 	url = git@github.com:tulir/whatsmeow.git
 [submodule "backEnd/meowTest/whatsmeow"]
-	path = backEnd/meowTest/whatsmeow
+	path = testing/meowTest/whatsmeow
 	url = git@github.com:tulir/whatsmeow.git
