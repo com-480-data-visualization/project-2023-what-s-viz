@@ -4,7 +4,7 @@
 | -------------- | ------ |
 | Tobias Oberdoerfer | 367487 |
 | Hugo Lanfranchi | 300585 |
-| | |
+| Jonas Blanc | 287508 |
 
 For the source code of the final project look at the [readme](wa-visualization/README.md) there.
 
