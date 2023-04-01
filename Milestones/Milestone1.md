@@ -76,7 +76,7 @@ Easy access to these answers will undoubtedly facilitate the management of a pro
 
 Pre-processing we have to do before being able to compute statistics about the messages, is to transform the messages for each discussion the user has, we have to parse the message to a common message structure that would consist of the message content, the name of the contact, the avatar, the status, the message id, and group information.
 
-Some statistics (which are user dependent) we have are:
+The following user dependent statistics we have and will make visualizations for:
   - The number of message
   - The number of contacts
   - The number of groups
@@ -89,6 +89,7 @@ Some statistics (which are user dependent) we have are:
   - Top 3 most talked to people
   - Top languages spoken (per chat/per contact)
 
+> - Show some basic statistics and get insights about the data
 
 ### Related work
 
