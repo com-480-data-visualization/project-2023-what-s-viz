@@ -21,16 +21,48 @@ function Home() {
     words: 0,
   });
 
+  interface stringDict { [index: string]: any }
+  interface counter { [index: string]: number }
+
+  interface contact{
+    name: string,
+    avatar: string,
+    status: string,
+  }
+  interface contactDict{ [index: string]: contact}
+
+  interface chatStats { 
+    idSendCount: counter,
+  }
+  interface messageStats {
+    [index: string]: chatStats
+  }
+  interface group {
+    name: string,
+    avatar: string,
+    topic: string,
+    owner_id: string,
+    participants: string[],
+  }
+  interface groupDict{ [index: string]: group}
+
+  
+
   const [update, setUpdate] = useState(0);
   const [asyncUpdate, setAsyncUpdate] = useState(0);
 
+  // Maps from id to contacts / groups info
+  const [idToGroup, setIdToGroup] = useState<groupDict>({})
+  const [idToContact, setIdToContact] = useState<contactDict>({})
 
-  const [bagOfWord, setBagOfWord] = useState<{ [index: string]: any }>({})
 
-  const [numberMessagePerContact, setNumberMessagePerContact] = useState<{ [index: string]: any }>({})
+  const [bagOfWord, setBagOfWord] = useState<counter>({})
+
+  const [messageStatsPerChat, setMessageStatsPerChat] = useState<messageStats>({})
+  
 
   
-  function reduceCounter(prevCount: { [index: string]: any }, changed_value: { [index: string]: any }){
+  function reduceCounter(prevCount:stringDict, changed_value:stringDict){
     let summed: { [index: string]: any }= {}
     for (let [key, value] of Object.entries(changed_value)) {
       if (prevCount.hasOwnProperty(key)) {
@@ -67,32 +99,71 @@ function Home() {
 
   function topWords() {
     // Create items array
-    var items = Object.keys(bagOfWord).map(function(key) {
+    let items: [string, number][] = Object.keys(bagOfWord).map(function (key) {
       return [key, bagOfWord[key]];
     });
 
     // Sort the array based on the second element
-    items.sort(function(first, second) {
+    items.sort(function(first:[string, number], second:[string, number]) {
       return second[1] - first[1];
     });
 
     return items.slice(0, 5)
   }
 
-  function updateNumberMessagePerContact(messages: any) {
+  function updateMessageStatsPerContact(messages: any) {
 
-    let updated_mpc: { [index: string]: any } = {}
+    let updated_stats: messageStats = {}
     Object.keys(messages).forEach((key) => {
       let chat_id = messages[key].chat
+      let sender = messages[key]["sent-by"]
 
-      if (!updated_mpc[chat_id]) {
-        updated_mpc[chat_id] = 0
+      // If the chat is not in the dict, add it
+      if (!updated_stats[chat_id]) {
+        updated_stats[chat_id] = { idSendCount: {} }
       }
-      updated_mpc[chat_id] += 1;
+      // If the sender is not in the chat, add it
+      if (!updated_stats[chat_id].idSendCount[sender]) {
+        updated_stats[chat_id].idSendCount[sender] = 0
+      }
+      updated_stats[chat_id].idSendCount[sender] += 1;
     })
-    setNumberMessagePerContact(prev => (reduceCounter(prev, updated_mpc)))
+
+    console.log("updated_stats: ", updated_stats)
+
+    function reduceMessageStats(prev: messageStats, updated_stats: messageStats) {
+      let merged: messageStats = {}
+      for (let [chat_id, chat_stats] of Object.entries(updated_stats)) {
+        if (prev.hasOwnProperty(chat_id)) {
+          merged[chat_id] = prev[chat_id]
+          merged[chat_id].idSendCount = reduceCounter(prev[chat_id].idSendCount, chat_stats.idSendCount)
+        } else {
+          merged[chat_id] = chat_stats
+        }
+      }
+      let res = {...prev, ...merged}
+      console.log("merged_stats: ", res)
+      return {...prev, ...merged}
+    }
+    setMessageStatsPerChat(prev => (reduceMessageStats(prev, updated_stats)))
+    console.log("Message stats: ", messageStatsPerChat)
   }
 
+  function disaplyMessagePerChat() {
+    let res = []
+    for (let [chat_id, chat_stats] of Object.entries(messageStatsPerChat)) {
+      let temp = []
+      let sortedMembers = Object.entries(chat_stats.idSendCount).sort(function (first: [string, number], second: [string, number]) {
+        return second[1] - first[1];
+      })
+      for (let [id, count] of sortedMembers) {
+        temp.push(<p>{id in idToContact ? idToContact[id].name: id} sent {count} messages</p>)
+      }
+      let name = chat_id in idToContact ? idToContact[chat_id].name + "- PM": (chat_id in idToGroup ? idToGroup[chat_id].name  : "Unknown")
+      res.push(<div><h2>{name}</h2>{temp}</div>)
+    }
+    return res
+  }
 
   function doSetup() {
     setIsLoading(true);
@@ -112,35 +183,28 @@ function Home() {
         //setData(data + message)
 
         updateBagOfWOrd(messages)
-        updateNumberMessagePerContact(messages)
+        updateMessageStatsPerContact(messages)
 
         // Update the stats
         let num_message = Object.keys(messages).length
         setStats(prevStats => ({ ...prevStats, messages: prevStats.messages + num_message}))
-
       
         setUpdate(prevUpdate => (prevUpdate + 1))
-
-
         //console.log(messages)
       })
 
       // Give the handler to get new contacts
-      window.handNewContacts((contact:any) => {
+      window.handNewContacts((contacts:any) => {
         // See console for now what the data looks like
-
-        let num_contact = Object.keys(contact).length
-        setStats(prevStats => ({ ...prevStats, contacts: prevStats.contacts + num_contact}))
-        console.log(contact)
+        setIdToContact(prev => ({ ...prev, ...contacts }))
+        console.log(contacts)
       })
 
       // Give the handler to get new groups info
-      window.handNewGroups((group:any) => {
+      window.handNewGroups((groups:any) => {
         // See console for now what the data looks like
-
-        let num_group = Object.keys(group).length
-        setStats(prevStats => ({ ...prevStats, groups: prevStats.groups + num_group}))
-        console.log(group)
+        setIdToGroup(prev => ({ ...prev, ...groups }))
+        console.log(groups)
       })
       
       // We are done loading
@@ -216,11 +280,12 @@ function Home() {
         {res === 'timeout' && loggedIn ? <p>Timeout, reload and scan faster!</p> : null}
       </div>
       <div>{"Number of message(s) retrived: " + stats.messages}</div>
-      <div>{"Number of contact(s) retrived: " + stats.contacts}</div>
-      <div>{"Number of groups(s) retrived: " + stats.groups}</div>   
+      <div>{"Number of contact(s) retrived: " + Object.keys(idToContact).length}</div>
+      <div>{"Number of groups(s) retrived: " + Object.keys(idToGroup).length}</div>   
       <div>{"Number unique token: " + Object.keys(bagOfWord).length}</div> 
       <div>{"Most frequent words: "+ topWords() }</div>        
-      <div>{"Number sync update: " + update}</div>        
+      <div>{"Number sync update: " + update}</div>   
+      {disaplyMessagePerChat()}
 
       <div>{data}</div>
     </div>
