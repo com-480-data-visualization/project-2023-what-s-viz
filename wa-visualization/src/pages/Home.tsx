@@ -100,19 +100,13 @@ function Home() {
   return (
     <div className="container fill">
       <p>Login to your WhatApp and see the message in the console for now.</p>
-      <div>
-        <form className="Form" onSubmit={loginHandler}>
-          <button> Login </button>
-        </form>
-      </div>
-      <div>
-        <form className="Form" onSubmit={logoutHandler}>
-          <button> Logout </button>
-        </form>
+      <div className="container">
+          <button type="button" className="btn btn-primary" onClick={loginHandler}>Login</button>
+          <button type="button" className="btn btn-primary ml-2" onClick={logoutHandler}>Logout</button>
       </div>
       <div className="container fill">
         {res === 'not logged in'? <p>Need to login!</p>: null }
-        {res !== 'not logged in' && res !== 'timeout' && res !== 'success' && loggedIn ? <QRCode value={res} /> : null }
+        {res !== 'not logged in' && res !== 'timeout' && res !== 'success' && loggedIn ? <QRCode value={res} fgColor="#022224ff" /> : null }
         {res !== 'success' && res !== 'not logged in' && !loggedIn ? <p>Some error: {res}</p> : null}
         {res === 'success' && loggedIn ? <p>Logged you in now! Keep app open to do sync.</p> : null}
         {res === 'timeout' && loggedIn ? <p>Timeout, reload and scan faster!</p> : null}
