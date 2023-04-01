@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useReducer } from 'react';
 import QRCode from "react-qr-code";
 import initSqlJs from '../sql-wasm-debug.js';
 
@@ -13,6 +13,86 @@ declare global {
 function Home() {
 	const [data, setData] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  // Store statistics about the data
+  const [stats, setStats] = useState({
+    contacts: 0,
+    groups: 0,
+    messages: 0,
+    words: 0,
+  });
+
+  const [update, setUpdate] = useState(0);
+  const [asyncUpdate, setAsyncUpdate] = useState(0);
+
+
+  const [bagOfWord, setBagOfWord] = useState<{ [index: string]: any }>({})
+
+  const [numberMessagePerContact, setNumberMessagePerContact] = useState<{ [index: string]: any }>({})
+
+  
+  function reduceCounter(prevCount: { [index: string]: any }, changed_value: { [index: string]: any }){
+    let summed: { [index: string]: any }= {}
+    for (let [key, value] of Object.entries(changed_value)) {
+      if (prevCount.hasOwnProperty(key)) {
+        summed[key] = value + prevCount[key]
+      } else {
+        summed[key] = value
+      }
+    }
+    return { ...prevCount, ...summed}
+  }
+
+  function updateBagOfWOrd(messages: any) {
+    let filters = ["the"]
+    let updated_value_bag: { [index: string]: any } = {}
+
+    let count_words = 0
+    Object.keys(messages).forEach((key) => {
+      let words = messages[key].message.split(" ")
+        .map((token: string) => token.toLowerCase())
+        .filter((token: string) => filters.indexOf(token) == -1)
+      
+      count_words += words.length
+
+      words.forEach((w: string) => {
+        if (!updated_value_bag[w]) {
+          updated_value_bag[w] = 0//bagOfWord.hasOwnProperty(key) ? bagOfWord[key] : 0;
+        }
+        updated_value_bag[w] += 1;
+      })
+    })
+    
+    setBagOfWord(bag => (reduceCounter(bag, updated_value_bag)))
+  }
+
+  function topWords() {
+    // Create items array
+    var items = Object.keys(bagOfWord).map(function(key) {
+      return [key, bagOfWord[key]];
+    });
+
+    // Sort the array based on the second element
+    items.sort(function(first, second) {
+      return second[1] - first[1];
+    });
+
+    return items.slice(0, 5)
+  }
+
+  function updateNumberMessagePerContact(messages: any) {
+
+    let updated_mpc: { [index: string]: any } = {}
+    Object.keys(messages).forEach((key) => {
+      let chat_id = messages[key].chat
+
+      if (!updated_mpc[chat_id]) {
+        updated_mpc[chat_id] = 0
+      }
+      updated_mpc[chat_id] += 1;
+    })
+    setNumberMessagePerContact(prev => (reduceCounter(prev, updated_mpc)))
+  }
+
 
   function doSetup() {
     setIsLoading(true);
@@ -27,21 +107,39 @@ function Home() {
       window.loadSQL()
 
       // Give the handler to get new messages
-      window.handNewMsgs((messages:any) => {
+      window.handNewMsgs((messages: any) => {
         // Append the new message to the data
         //setData(data + message)
-        console.log(messages)
+
+        updateBagOfWOrd(messages)
+        updateNumberMessagePerContact(messages)
+
+        // Update the stats
+        let num_message = Object.keys(messages).length
+        setStats(prevStats => ({ ...prevStats, messages: prevStats.messages + num_message}))
+
+      
+        setUpdate(prevUpdate => (prevUpdate + 1))
+
+
+        //console.log(messages)
       })
 
       // Give the handler to get new contacts
       window.handNewContacts((contact:any) => {
         // See console for now what the data looks like
+
+        let num_contact = Object.keys(contact).length
+        setStats(prevStats => ({ ...prevStats, contacts: prevStats.contacts + num_contact}))
         console.log(contact)
       })
 
       // Give the handler to get new groups info
       window.handNewGroups((group:any) => {
         // See console for now what the data looks like
+
+        let num_group = Object.keys(group).length
+        setStats(prevStats => ({ ...prevStats, groups: prevStats.groups + num_group}))
         console.log(group)
       })
       
@@ -117,9 +215,21 @@ function Home() {
         {res === 'success' && loggedIn ? <p>Logged you in now! Keep app open to do sync.</p> : null}
         {res === 'timeout' && loggedIn ? <p>Timeout, reload and scan faster!</p> : null}
       </div>
+      <div>{"Number of message(s) retrived: " + stats.messages}</div>
+      <div>{"Number of contact(s) retrived: " + stats.contacts}</div>
+      <div>{"Number of groups(s) retrived: " + stats.groups}</div>   
+      <div>{"Number unique token: " + Object.keys(bagOfWord).length}</div> 
+      <div>{"Most frequent words: "+ topWords() }</div>        
+      <div>{"Number sync update: " + update}</div>        
+
       <div>{data}</div>
     </div>
   );
 }
 
 export default Home;
+
+
+{/*  */ }
+
+//       <div>{"Number total words: " + stats.words}</div>    
