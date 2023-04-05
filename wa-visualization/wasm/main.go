@@ -400,7 +400,7 @@ func handNewContactsFunc() js.Func {
 						}
 					}
 
-					fmt.Printf("Getting contact info for jids: %v\n", jids)
+					//fmt.Printf("Getting contact info for jids: %v\n", jids)
 
 					// Actually get the user information for the new users
 					resp, err := client.GetUserInfo(jids)
@@ -486,7 +486,7 @@ func handNewGroupsFunc() js.Func {
 						}
 					}
 
-					fmt.Printf("Getting group info for jids: %v\n", jids)
+					//fmt.Printf("Getting group info for jids: %v\n", jids)
 
 					// Actually get the group information for the new users
 					for _, jid := range jids {

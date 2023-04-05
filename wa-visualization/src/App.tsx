@@ -3,7 +3,7 @@ import Navigation from './components/Navigation';
 import Weather from './pages/Weather';
 import Home from './pages/Home';
 import About from './pages/About';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import './custom.scss';
 
 function App() {
   return (
