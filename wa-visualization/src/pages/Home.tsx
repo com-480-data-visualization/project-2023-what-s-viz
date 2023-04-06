@@ -1,8 +1,9 @@
-import { useState, useEffect, useReducer } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import QRCode from "react-qr-code";
 import initSqlJs from '../sql-wasm-debug.js';
 
-import {Histogram}  from '../components/Histogram.js';
+import { Histogram } from '../components/Histogram.js';
+import { NetworkGraph } from '../components/NetworkGraph.js';
 
 // We need SQL to be global, otherwise the js.Global() in Go won't find it
 declare global {
@@ -331,7 +332,7 @@ function Home() {
       <p>Login to your WhatApp and see the message in the console for now.</p>
       <div className="container">
           <button type="button" className="btn btn-primary" onClick={loginHandler}>Login</button>
-          <button type="button" className="btn btn-primary ml-2" onClick={logoutHandler}>Logout</button>
+        <button type="button" className="btn btn-primary ml-2" onClick={logoutHandler}>Logout</button>
       </div>
       <div className="container fill">
         {res === 'not logged in'? <p>Need to login!</p>: null }
@@ -348,17 +349,16 @@ function Home() {
       <div>{"Most frequent words: "+ topWords() }</div>        
       <div>{"Number sync update: " + update}</div>   
       {disaplyAvergaeMessageLength()}
-      <Histogram data={computeAverageMessageLengthPerContact()} width={400} height={400} title={"Average length of message per contact"} />
-      <Histogram data={computeNumberMessagePerContact()} width={400} height={400} title={"Average number of message per contact"} />
-
+      <Histogram data={computeAverageMessageLengthPerContact()} width={200} height={200} title={"Average length of message per contact"} />
+      <Histogram data={computeNumberMessagePerContact()} width={200} height={200} title={"Average number of message per contact"} />
+      <NetworkGraph idToContact ={idToContact}
+      idToGroup = {idToGroup}
+  messageStatsPerChat = {messageStatsPerChat}
+  width = {1000}
+        height={1000}
+      ></NetworkGraph>
     </div>
   );
 }
 
 export default Home;
-
-
-{/*  */ }
-//  {disaplyMessagePerChat()}
-
-//       <div>{"Number total words: " + stats.words}</div>    
