@@ -91,6 +91,10 @@ The following user dependent statistics we have and will make visualizations for
 
 > - Show some basic statistics and get insights about the data
 
+<img src="figures/WhatsViz%20statistics.png" alt="Overview of page" width="500"/>
+
+<img src="figures/WhatsViz%20statistics2.png" alt="Another histogram" width="500"/>
+
 ### Related work
 
 Because for our approach the data will be new/different for each user, we can not compare our dataset directly to existing ones.
