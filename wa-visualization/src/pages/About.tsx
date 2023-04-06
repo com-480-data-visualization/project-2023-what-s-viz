@@ -9,9 +9,10 @@ function About() {
           {/* TODO: Add content about who we are and what this is: */}
           <p>Our team is made up of three people: </p>
           <ul>
-              <li>John Doe</li>
-              <li>Jane Doe</li>
-              <li>Tobias Oberdoerfer</li>
+            <li>Hugo Lanfranchi</li>
+            <li>Tobias Oberdoerfer</li>
+            <li>Jonas Blanc</li>
+
           </ul>
         </header>
       </div>
