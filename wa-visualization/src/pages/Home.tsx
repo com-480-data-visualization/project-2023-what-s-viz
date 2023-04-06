@@ -1,4 +1,4 @@
-import { useState, useEffect, useReducer } from 'react';
+import { useState, useEffect } from 'react';
 import QRCode from "react-qr-code";
 import initSqlJs from '../sql-wasm-debug.js';
 import exportFromJSON from 'export-from-json';
@@ -101,13 +101,13 @@ function Home() {
     let filters = ["the"]
     let updated_value_bag: { [index: string]: any } = {}
 
-    let count_words = 0
+    //let count_words = 0
     Object.keys(messages).forEach((key) => {
       let words = messages[key].message.split(" ")
         .map((token: string) => token.toLowerCase())
-        .filter((token: string) => filters.indexOf(token) == -1)
+        .filter((token: string) => filters.indexOf(token) === -1)
       
-      count_words += words.length
+      //count_words += words.length
 
       words.forEach((w: string) => {
         if (!updated_value_bag[w]) {
@@ -213,7 +213,7 @@ function Home() {
       totalWords += stats.numWords
       totalMessages += stats.numMessages
     }
-    return <p>Average message length: {totalMessages == 0 ? 0: totalWords / totalMessages} words</p>
+    return <p>Average message length: {totalMessages === 0 ? 0: totalWords / totalMessages} words</p>
   }
 
   function disaplyMessagePerChat() {
@@ -227,7 +227,7 @@ function Home() {
         temp.push(<p>{id in idToContact ? idToContact[id].name: id} sent {count} messages</p>)
       }
       let name = chat_id in idToContact ? idToContact[chat_id].name + "- PM": (chat_id in idToGroup ? idToGroup[chat_id].name  : "Unknown")
-      res.push(<div><h2>{name}</h2>{temp}</div>)
+      res.push(<div><h4>{name}</h4>{temp}</div>)
     }
     return res
   }
@@ -235,7 +235,7 @@ function Home() {
   function computeAverageMessageLengthPerContact() {
     let averageLengthPerContact = []
     for (let [id, stats] of Object.entries(messageStatsPerContact)) {
-      averageLengthPerContact.push(stats.numMessages == 0 ? 0 : stats.numWords / stats.numMessages)
+      averageLengthPerContact.push(stats.numMessages === 0 ? 0 : stats.numWords / stats.numMessages)
     }
     return averageLengthPerContact
   }
@@ -252,6 +252,29 @@ function Home() {
 
   // ====================== Setup function ====================== //
 
+  function doMsg(messages: any) {
+    updateBagOfWOrd(messages)
+    updateMessageStatsPerContact(messages)
+    updateMessageStatsPerChat(messages)
+
+    // Update the stats
+    let num_message = Object.keys(messages).length
+    setStats(prevStats => ({ ...prevStats, messages: prevStats.messages + num_message}))
+    setUpdate(prevUpdate => (prevUpdate + 1))
+    setIdToMessage(prev => ({ ...prev, ...messages }))
+    //console.log(messages)
+  }
+
+  function doContacts(contacts:any) {
+    setIdToContact(prev => ({ ...prev, ...contacts }))
+    //console.log(contacts)
+  }
+
+  function doGroups(groups:any) {
+    setIdToGroup(prev => ({ ...prev, ...groups }))
+    //console.log(groups)
+  }
+
   function doSetup() {
     setIsLoading(true);
     // Test run of https://github.com/sql-js/sql.js
@@ -265,30 +288,13 @@ function Home() {
       window.loadSQL()
 
       // Give the handler to get new messages
-      window.handNewMsgs((messages: any) => {
-        updateBagOfWOrd(messages)
-        updateMessageStatsPerContact(messages)
-        updateMessageStatsPerChat(messages)
-
-        // Update the stats
-        let num_message = Object.keys(messages).length
-        setStats(prevStats => ({ ...prevStats, messages: prevStats.messages + num_message}))
-        setUpdate(prevUpdate => (prevUpdate + 1))
-        setIdToMessage(prev => ({ ...prev, ...messages }))
-        //console.log(messages)
-      })
+      window.handNewMsgs(doMsg)
 
       // Give the handler to get new contacts
-      window.handNewContacts((contacts:any) => {
-        setIdToContact(prev => ({ ...prev, ...contacts }))
-        //console.log(contacts)
-      })
+      window.handNewContacts(doContacts)
 
       // Give the handler to get new groups info
-      window.handNewGroups((groups:any) => {
-        setIdToGroup(prev => ({ ...prev, ...groups }))
-        //console.log(groups)
-      })
+      window.handNewGroups(doGroups)
       
       // We are done loading
       setIsLoading(false);
@@ -342,11 +348,29 @@ function Home() {
     e.preventDefault();
     console.log("Clicked save; export all current data")
     // Save
-    const data = [{ messages: idToMessage}, { contacts: idToContact }, { groups: idToGroup}]
+    const data = { messages: idToMessage, contacts: idToContact, groups: idToGroup}
     const fileName = 'exportOfReceivedRawData'
     const exportType =  exportFromJSON.types.json
 
     exportFromJSON({ data, fileName, exportType })
+  }
+
+  const loadHandler = (e:any) => {
+    e.preventDefault();
+    console.log("Clicked load")
+    const fileReader = new FileReader();
+    fileReader.readAsText(e.target.files[0], "UTF-8");
+    fileReader.onload = loaded => {
+      if (loaded === null || loaded.target === null || loaded.target.result === null) {
+        console.log("Error loading file")
+      } else {
+        const data = JSON.parse(loaded.target.result as string)
+        console.log("Was able to read the file, lets run them!")
+        doMsg(data.messages)
+        doContacts(data.contacts)
+        doGroups(data.groups)
+      }
+    };
   }
   // =============================================================== //
 
@@ -356,8 +380,12 @@ function Home() {
       <div className="container">
           <button type="button" className="btn btn-primary" onClick={loginHandler}>Login</button>
           <button type="button" className="btn btn-primary ml-2" onClick={logoutHandler}>Logout</button>
-          <button type="button" className="btn btn-primary ml-2" onClick={saveHandler}>Save received data</button>
+      <div className="container">
       </div>
+          <button type="button" className="btn btn-primary ml-2" onClick={saveHandler}>Save received data</button>
+          <input type="file" className="btn btn-primary ml-2" onChange={loadHandler} />
+      </div>
+      <p></p>
       <div className="container fill">
         {res === 'not logged in'? <p>Need to login!</p>: null }
         {res !== 'not logged in' && res !== 'timeout' && res !== 'success' && loggedIn ? <QRCode value={res} fgColor="#022224ff" /> : null }
@@ -376,14 +404,16 @@ function Home() {
       <Histogram data={computeAverageMessageLengthPerContact()} width={400} height={400} title={"Average length of message per contact"} />
       <Histogram data={computeNumberMessagePerContact()} width={400} height={400} title={"Average number of message per contact"} />
 
+      <div className="container">
+        <h3>Message overview per chat:</h3>
+        {disaplyMessagePerChat()}
+      </div>
     </div>
   );
 }
 
 export default Home;
 
-
-{/*  */ }
 //  {disaplyMessagePerChat()}
 
 //       <div>{"Number total words: " + stats.words}</div>    

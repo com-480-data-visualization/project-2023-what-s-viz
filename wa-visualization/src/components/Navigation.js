@@ -6,7 +6,7 @@ const Navigation = () => {
             <Navbar bg="dark" variant="dark" expand="sm" fixed='top'>
                 <Container>
                     <Navbar.Brand href="/">
-                        <img src={require('../../public/logo.png')} width="30" height="30" />
+                        <img src={require('../../public/logo.png')} alt="" width="30" height="30" />
                     </Navbar.Brand>
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
                     <Navbar.Collapse id="basic-navbar-nav">
