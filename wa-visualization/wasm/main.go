@@ -209,6 +209,9 @@ func StartMeow(doneClient chan *whatsmeow.Client) {
 			StorageQuotaMb:      proto.Uint32(5000),
 		}
 		store.DeviceProps.HistorySyncConfig = config
+		// Modify what is shown to WA app
+		store.DeviceProps.Os = proto.String("What's Viz")
+		//store.DeviceProps.PlatformType = proto.int32(waproto.DeviceProps_DESKTOP)
 
 		// Use the sqljs driver for whatsmeow
 		container := sqlstore.NewWithDB(sqlDB, "sqlite", dbLog)

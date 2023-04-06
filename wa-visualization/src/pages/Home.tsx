@@ -1,7 +1,7 @@
 import { useState, useEffect, useReducer } from 'react';
 import QRCode from "react-qr-code";
 import initSqlJs from '../sql-wasm-debug.js';
-
+import exportFromJSON from 'export-from-json';
 import {Histogram}  from '../components/Histogram.js';
 
 // We need SQL to be global, otherwise the js.Global() in Go won't find it
@@ -40,6 +40,14 @@ function Home() {
   }
   interface groupDict{ [index: string]: group }
 
+  interface message {
+    chat: string,
+    message: string,
+    'sent-by': string,
+    timestamp: string,
+  }
+  interface messageDict{ [index: string]: message }
+
   interface contactStats { 
     numMessages: number,
     numWords: number,
@@ -59,6 +67,8 @@ function Home() {
   });
   const [isLoading, setIsLoading] = useState(true);
 
+  // Messages for export
+  const [idToMessage, setIdToMessage] = useState<messageDict>({})
 
   // Maps from id to contacts / groups info
   const [idToGroup, setIdToGroup] = useState<groupDict>({})
@@ -264,19 +274,20 @@ function Home() {
         let num_message = Object.keys(messages).length
         setStats(prevStats => ({ ...prevStats, messages: prevStats.messages + num_message}))
         setUpdate(prevUpdate => (prevUpdate + 1))
+        setIdToMessage(prev => ({ ...prev, ...messages }))
         //console.log(messages)
       })
 
       // Give the handler to get new contacts
       window.handNewContacts((contacts:any) => {
         setIdToContact(prev => ({ ...prev, ...contacts }))
-        console.log(contacts)
+        //console.log(contacts)
       })
 
       // Give the handler to get new groups info
       window.handNewGroups((groups:any) => {
         setIdToGroup(prev => ({ ...prev, ...groups }))
-        console.log(groups)
+        //console.log(groups)
       })
       
       // We are done loading
@@ -326,6 +337,17 @@ function Home() {
         console.log(err)
       })
 	};
+
+  const saveHandler = (e:any) => {
+    e.preventDefault();
+    console.log("Clicked save; export all current data")
+    // Save
+    const data = [{ messages: idToMessage}, { contacts: idToContact }, { groups: idToGroup}]
+    const fileName = 'exportOfReceivedRawData'
+    const exportType =  exportFromJSON.types.json
+
+    exportFromJSON({ data, fileName, exportType })
+  }
   // =============================================================== //
 
   return (
@@ -334,6 +356,7 @@ function Home() {
       <div className="container">
           <button type="button" className="btn btn-primary" onClick={loginHandler}>Login</button>
           <button type="button" className="btn btn-primary ml-2" onClick={logoutHandler}>Logout</button>
+          <button type="button" className="btn btn-primary ml-2" onClick={saveHandler}>Save received data</button>
       </div>
       <div className="container fill">
         {res === 'not logged in'? <p>Need to login!</p>: null }
