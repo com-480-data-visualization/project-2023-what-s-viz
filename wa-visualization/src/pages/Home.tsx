@@ -269,14 +269,12 @@ function Home() {
 
       // Give the handler to get new contacts
       window.handNewContacts((contacts:any) => {
-        // See console for now what the data looks like
         setIdToContact(prev => ({ ...prev, ...contacts }))
         console.log(contacts)
       })
 
       // Give the handler to get new groups info
       window.handNewGroups((groups:any) => {
-        // See console for now what the data looks like
         setIdToGroup(prev => ({ ...prev, ...groups }))
         console.log(groups)
       })
@@ -303,7 +301,11 @@ function Home() {
         }, 1000);
     
         setLoggedIn(true)
-        resolve(window.loginUser(setRes))
+        resolve(window.loginUser(setRes, (loggedIn:any) => {
+          // Logged in is a list of JIDs
+          console.log("Logged in sucessfully with following number:")
+          console.log(loggedIn)
+        }))
       }).catch( err => console.log(err) );
     } else {
       console.log("Still loading!")
