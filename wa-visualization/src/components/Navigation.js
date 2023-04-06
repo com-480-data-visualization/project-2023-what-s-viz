@@ -27,4 +27,4 @@ const Navigation = () => {
 
 export default Navigation;
 
-//                             <Nav.Link href="/weather">Weather</Nav.Link>
+// <Nav.Link href="/weather">Weather</Nav.Link>

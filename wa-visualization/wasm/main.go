@@ -209,6 +209,9 @@ func StartMeow(doneClient chan *whatsmeow.Client) {
 			StorageQuotaMb:      proto.Uint32(5000),
 		}
 		store.DeviceProps.HistorySyncConfig = config
+		// Modify what is shown to WA app
+		store.DeviceProps.Os = proto.String("What's Viz")
+		//store.DeviceProps.PlatformType = proto.int32(waproto.DeviceProps_DESKTOP)
 
 		// Use the sqljs driver for whatsmeow
 		container := sqlstore.NewWithDB(sqlDB, "sqlite", dbLog)
@@ -236,6 +239,7 @@ func LoginUser() js.Func {
 		if clientLoaded.Load() {
 			// get the setter function from javascript for the QR-code
 			setQRCode := args[0]
+			setLoggedIn := args[1]
 
 			go func() {
 				// Wait for the client & DB to be ready
@@ -263,6 +267,13 @@ func LoginUser() js.Func {
 					if err != nil {
 						panic(err)
 					}
+				}
+				// Now that the user is logged in, hand back the actual logged in user
+				ownID := client.Store.ID
+				if ownID == nil {
+					panic("Own ID is empty after login")
+				} else {
+					setLoggedIn.Invoke((*ownID).User)
 				}
 			}()
 		}
@@ -542,6 +553,83 @@ func handNewGroupsFunc() js.Func {
 	})
 }
 
+func handLoggedInFunc() js.Func {
+	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		handNewGroups := args[0]
+
+		go func() {
+			for {
+				if clientLoaded.Load() && client.Store.Contacts != nil {
+					//groups, err := cli.GetJoinedGroups()
+					aggregate := make(map[string]interface{})
+					jids := make([]types.JID, 0)
+				innerFor:
+					for {
+						select {
+						case jid := <-groupsJIDs:
+							jids = append(jids, jid)
+						case <-time.After(10 * time.Millisecond):
+							// After getting a few we go on
+							break innerFor
+						}
+					}
+
+					//fmt.Printf("Getting group info for jids: %v\n", jids)
+
+					// Actually get the group information for the new users
+					for _, jid := range jids {
+						info, err := client.GetGroupInfo(jid)
+						if err != nil {
+							if strings.Contains(err.Error(), "429: rate-overlimit") {
+								fmt.Println("Slowing down in groups!")
+								// We are too fast, lets slow down
+								time.Sleep(2 * time.Second)
+								// we need to put the JID back into the queue
+								contactsJIDs <- jid
+							} else {
+								fmt.Printf("Failed to get user info: %v\n", err)
+								fmt.Println()
+							}
+							continue
+						} else {
+							// build the aggregate map of the group info
+							cur := make(map[string]interface{})
+							cur["name"] = info.GroupName.Name
+							cur["owner_id"] = info.OwnerJID.User
+							cur["topic"] = info.GroupTopic.Topic
+							// Create participants JID list
+							mapped := make([]string, len(info.Participants))
+							for i, e := range info.Participants {
+								mapped[i] = e.JID.User
+							}
+							cur["participants"] = convertParamsAny(mapped)
+
+							// Get avatar, does not seem to work for many groups??
+							cur["avatar"] = getAvatar(info.JID)
+
+							// Save the users info for their jid
+							aggregate[info.JID.User] = cur
+						}
+						time.Sleep(100 * time.Microsecond)
+					}
+
+					if len(aggregate) > 0 {
+						fmt.Printf("Got %d groups through channel\n", len(aggregate))
+						// And send them
+						handNewGroups.Invoke(aggregate)
+					}
+				}
+
+				// Lets send at least every 5 seconds data to the JS side
+				// Getting profile pictures is super slow & rate limiting
+				time.Sleep(5000 * time.Millisecond)
+			}
+		}()
+
+		return nil
+	})
+}
+
 func main() {
 	ch := make(chan struct{})
 	// Use bool lock to make sure the client is only loaded once & only used when loaded
@@ -562,6 +650,7 @@ func main() {
 	js.Global().Set("handNewMsgs", handNewMsgsFunc())
 	js.Global().Set("handNewContacts", handNewContactsFunc())
 	js.Global().Set("handNewGroups", handNewGroupsFunc())
+	js.Global().Set("handLoggedIn", handLoggedInFunc())
 
 	// Trick to keep the program running
 	<-ch

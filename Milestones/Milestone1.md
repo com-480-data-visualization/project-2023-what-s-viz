@@ -1,17 +1,32 @@
-## Milestone 1 (7th April, 5pm)
+# Project of Data Visualization (COM-480)
+
+| Student's name | SCIPER |
+| -------------- | ------ |
+| Tobias Oberdoerfer | 367487 |
+| Hugo Lanfranchi | 300585 |
+| Jonas Blanc | 287508 |
+
+## Milestone 1 (23rd April, 5 pm)
+
+**10% of the final grade**
+
+This is a preliminary milestone to let you set up goals for your final project and assess the feasibility of your ideas.
+Please, fill in the following sections about your project.
+
+*(max. 2000 characters per section)*
 
 ### Dataset
 
 For this project, we will use WhatsApp chats, including messages and metadata, as well as the contacts and the architecture of groups, as our dataset.
-Using WhatsApp data as a resource puts us in a unique position: we can customise the dataset and visualisation for each user on our website.
+Using WhatsApp data as a resource puts us in a unique position: we can customize the dataset and visualization for each user on our website.
 Indeed, with two billion monthly active users, WhatsApp is one of the leading social networks for messaging.
 
-To this end, we have built a web system that acts as a client (like What's app web) for the WhatsApp API.
+To this end, we have built a web system that acts as a client (like What's App web) for the WhatsApp API.
 The user simply scans the QR code displayed.
-As soon as the user is logged in, our web application retrieves locally (in the user's browser) the user's WhatsApp data for the last three years. As long as the user is logged in, new messages flow in and are integrated into our dynamic visualisations.
+As soon as the user is logged in, our web application retrieves locally (in the user's browser) the user's WhatsApp data for the last three years. As long as the user is logged in, new messages flow in and are integrated into our dynamic visualizations.
 
 Several layers in several languages are needed to achieve such results.
-We will focus on the format of the data received by the javascript layer, after pre-processing and formatting in the lower layers, as this is the format that will be used as a basis for the visualisations.
+We will focus on the format of the data received by the javascript layer, after pre-processing and formatting in the lower layers, as this is the format that will be used as a basis for the visualizations.
 
 We have three types of application messages that transmit new data. The first is the message, here is its architecture:
 ```
@@ -35,7 +50,7 @@ The second one is a contact message:
   avatar: <link_to_avatar_picture>
 }
 ```
-The third and final type of application message received by javascript layer is describing a chat:
+The third and final type of application message received by the javascript layer is describing a chat:
 ```
 <group_id> : 
 {
@@ -54,14 +69,14 @@ Our dataset is therefore a collection of tens of thousands (depending on the use
 
 We deeply believe that WhatsApp data is a goldmine (no wonder Meta is funding it even though WhatsApp doesn't benefit directly).
 Equipped with our data science and data visualization tools, we aim to extract and present the valuable knowledge hidden in this massive amount of data.
-Our website will present actionable insights like a jeweller would present gold rings, without the customer having to get their hands dirty. 
+Our website will present actionable insights like a jeweler would present gold rings, without the customer having to get their hands dirty. 
 
-WhatsApp is used to communicate with family, friends, but also with the professional network.
+WhatsApp is used to communicate with family and friends, but also with the professional network.
 Indeed, communication on WhatsApp is so easy that many people are abandoning email.
-Today, many organisations and freelancers (including, unofficially, the Swiss army) rely on WhatsApp to carry out their daily activities.
+Today, many organizations and freelancers (including, unofficially, the Swiss army) rely on WhatsApp to carry out their daily activities.
 
-The main goal of our visualisations is to give the user an overview of his (contact) network.
-A good understanding of the landscape of your connections allows you to maintain and exploit them. We plan to build a visualisation that answers the following questions.
+The main goal of our visualizations is to give the user an overview of his (contact) network.
+A good understanding of the landscape of your connections allows you to maintain and exploit them. We plan to build a visualization that answers the following questions.
 Who is in your network and how close are you to them? Who is connected to whom?
 In what context do you know someone? 
 
@@ -73,33 +88,41 @@ What is the typical language used to communicate with this person?
 Easy access to these answers will undoubtedly facilitate the management of a professional (or even friendly) network.
 
 ### Exploratory Data Analysis
+Based on the app messages explained in the dataset section above, we create data structures that let us compute some interesting statistics. We report here some of these exploratory statistics for three different users with different WhatsApp usage (this is based on real-world WhatsApp data).
 
-Pre-processing we have to do before being able to compute statistics about the messages, is to transform the messages for each discussion the user has, we have to parse the message to a common message structure that would consist of the message content, the name of the contact, the avatar, the status, the message id, and group information.
+| Statistics                                       | User 1       | User 2    | User 3     |
+|--------------------------------------------------|--------------|-----------|------------|
+| Number of messages                               | 98'729       | 7405      | 141'134    |
+| Number of contacts                               | 1010         | 191       | 758        |
+| Number of groups                                 | 179          | 22        | 87         |
+| Number of chat                                   | 422          | 155       | 147        |
+| Number of unique words                           | 68'658       | 19'028    | 130'272    |
+| Most frequent word                               | "de": 26'149 occurrences| "de": 4489 occurrences | "I": 35'319 occurrences |
+| Average message length                           | 10.09 words| 20.15 words| 11.77 words|
+| Histogram: Average length of message per contact |<img src="./figures/almpc1.png" alt="almpc1" width="210"/>| <img src="./figures/almpc2.png" alt="almpc2" width="210"/>|<img src="./figures/almpc3.png" alt="almpc3" width="210"/>|
+| Histogram: Average number of message per contact |<img src="./figures/anmpc1.png" alt="anmpc1" width="210"/>|<img src="./figures/anmpc2.png" alt="anmpc2" width="210"/>|<img src="./figures/anmpc3.png" alt="anmpc3" width="210"/>|
 
-The following user dependent statistics we have and will make visualizations for:
-  - The number of message
-  - The number of contacts
-  - The number of groups
-  - The number of words
-  - The average number of messages per contact
-  - The average number of words per message sent per contact
-  - The average length of messages per contact
-  - Wordstock/Emojies in use per chat 
-  - The average time the messages were sent at, or also as a per weekday graph
-  - Top 3 most talked to people
-  - Top languages spoken (per chat/per contact)
+Note that this is just a quick data analysis/exploration of the data to demonstrate its potential, with many aspects that can be improved as we continue to work on the project.
+Firstly as we can see that the most frequent word is not very interesting due to the low-level parsing we applied.
+The main visualizations we are planning do not rely on individual words, so we did not spend too much time building the tokenizer (excluding stop words, etc).
+Secondly, concerning the histograms, they are designed as a preview of the data and not as actual visualization.
+They could be greatly improved in many ways (log scale, labels on axis, title, etc).
+However, they already give some insights such as the vast majority of people send less than 200 messages and only a few send a huge amount of messages. 
+We think it would be useful to exclude the user from the second graph, as he is probably the person who sends the most messages.
 
-> - Show some basic statistics and get insights about the data
+User 2 has very limited usage of WhatsApp and yet this exploratory analysis which only scratches the tip of the iceberg, already shows us that there is potential for meaningful visualizations.
 
 ### Related work
 
 Because for our approach the data will be new/different for each user, we can not compare our dataset directly to existing ones.
-Nevertheless, Whatsapp chat analyzers already exist, some of them are [WhatsAnalyze](https://whatsanalyze.com/), [ChatAnalyzer](https://chatanalyzer.moritzwolf.com/), [DoubleText](https://doubletext.me/whatsapp/) and [Chatilyzer](https://chatilyzer.com/).
-Our approach is different from all of these as we process the messages on the fly, building the vizualization progressively as we receive them from WhatsApps servers and parse the messages.
-This enables the user to see in real time the statistics change when using WhatsApp and also does away with the necessary step of backuping the chats.
-This is due to the fact that existing WhatsApp chat analyzers need an uploaded backup of all chats, whereas in our approach the user just scans the QR code like they would for WhatsApp Web.
+Nevertheless, Whatsapp chat analyzers already exist, some of them are [WhatsAnalyze](https://whatsanalyze.com/), [ChatAnalyzer](https://chatanalyzer.moritzwolf.com/), [DoubleText](https://doubletext.me/whatsapp/), and [Chatilyzer](https://chatilyzer.com/).
+Our approach is different from all of these as we process the messages on the fly, building the visualization progressively as we receive them from WhatsApp servers and parse the messages.
+This enables the user to see in real-time the statistics change when using WhatsApp and also does away with the necessary step of backing up the chats.
+This is because existing WhatsApp chat analyzers need an uploaded backup of all chats, whereas in our approach the user just scans the QR code like they would for WhatsApp Web.
+Existing solutions focus on one chat since WhatsApp makes it difficult to export all chats at once.
+Our solution on the other hand captures the whole picture and offers an overview of all chats and contacts.
 
-We took inspiration in graphs that would simulate the dynamics in populations and how information would spread out in these.
-Some pitcorial examples are [this](https://cambridge-intelligence.com/wp-content/uploads/2020/07/6.0-PR-feature.png) and [this](https://cvo22.files.wordpress.com/2014/03/inmap.gif).
+We took inspiration from graphs that would simulate the dynamics in populations and how the information would spread out in these.
+Some pictorial examples are [this](https://cambridge-intelligence.com/wp-content/uploads/2020/07/6.0-PR-feature.png) and [this](https://cvo22.files.wordpress.com/2014/03/inmap.gif).
 As it is the conventional manner to visualize communications between human beings, we wanted to keep such a graph as the basis for our visualizations.
-Other inspirations we take from the above mentioned already existing chat analyzers.
+Other inspirations we take from already existing chat analyzers.

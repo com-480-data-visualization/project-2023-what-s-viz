@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import * as d3 from "d3";
 
-const MARGIN = { top: 30, right: 30, bottom: 40, left: 50 };
+const MARGIN = { top: 0, right: 30, bottom: 40, left: 50 };
 const BUCKET_NUMBER = 70;
 const BUCKET_PADDING = 1;
 
@@ -14,7 +14,7 @@ export const Histogram = ({ width, height, data, title }) => {
     const max = Math.max(...data);
     return d3
       .scaleLinear()
-      .domain([0, d3.max(data, (d) => d)]) // note: limiting to 1000 instead of max here because of extreme values in the dataset
+      .domain([0, d3.max(data, (d) => d)])
       .range([10, boundsWidth]);
   }, [data, width]);
 
