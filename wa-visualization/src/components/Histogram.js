@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import * as d3 from "d3";
+import styles from "./Histogram.module.css";
 
 const MARGIN = { top: 0, right: 30, bottom: 40, left: 50 };
 const BUCKET_NUMBER = 70;
@@ -61,7 +62,7 @@ export const Histogram = ({ width, height, data, title }) => {
   });
 
   return (
-    <div>
+    <div className={styles.container}>
       <p>{title}</p>
       <svg width={width} height={height}>
         <g

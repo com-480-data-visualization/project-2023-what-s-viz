@@ -1,0 +1,52 @@
+.container {
+  display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+  display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+  display: -ms-flexbox;      /* TWEENER - IE 10 */
+  display: -webkit-flex;     /* NEW - Chrome */
+  display: flex;  
+  background-color: blue;
+  height: 100%;
+}
+
+.globalstatsContainer {
+  display: flex;  
+  flex-direction: row;
+  background-color: pink;
+  justify-content: space-between;
+}
+
+.itemsStatsContainer{
+  display: flex;  
+  flex-direction: row;
+  background-color: green;
+  padding:10px;
+  align-items: center;
+  align-content: center;
+}
+
+.statsItem {
+  margin-left: 10px;
+  margin-right: 10px;
+  align-self: center;
+  background-color:yellow;
+}
+
+.graphContainer {
+  width: 70%;
+  background-color: red;
+  height: 100%;
+}
+
+.sideContainer {
+  -webkit-box-flex: 1;      /* OLD - iOS 6-, Safari 3.1-6 */
+  -moz-box-flex: 1;         /* OLD - Firefox 19- */
+  width: 30%;               /* For old syntax, otherwise collapses. */
+  -webkit-flex: 1;          /* Chrome */
+  -ms-flex: 1;              /* IE 10 */
+  flex: 1; 
+  background-color: rebeccapurple;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+}
+

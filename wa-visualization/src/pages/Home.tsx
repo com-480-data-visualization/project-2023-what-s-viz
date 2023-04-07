@@ -4,6 +4,10 @@ import initSqlJs from '../sql-wasm-debug.js';
 import exportFromJSON from 'export-from-json';
 import { Histogram } from '../components/Histogram.js';
 import { NetworkGraph } from '../components/NetworkGraph.js';
+import AuthModule from '../components/Authentification.js';
+import styles from './Home.module.css'
+
+import {contactStatsDict, messageStats, groupDict, messageDict, contactDict, stringDict, counter} from '../state/types'
 
 // We need SQL to be global, otherwise the js.Global() in Go won't find it
 declare global {
@@ -14,54 +18,8 @@ declare global {
 }
 
 function Home() {
-
-  // ============================= Types ============================ //
-  interface stringDict { [index: string]: any }
-  interface counter { [index: string]: number }
-
-  interface contact{
-    name: string,
-    avatar: string,
-    status: string,
-  }
-  interface contactDict{ [index: string]: contact}
-
-  interface chatStats { 
-    idSendCount: counter,
-  }
-  interface messageStats {
-    [index: string]: chatStats
-  }
-  interface group {
-    name: string,
-    avatar: string,
-    topic: string,
-    owner_id: string,
-    participants: string[],
-  }
-  interface groupDict{ [index: string]: group }
-
-  interface message {
-    chat: string,
-    message: string,
-    'sent-by': string,
-    timestamp: string,
-  }
-  interface messageDict{ [index: string]: message }
-
-  interface contactStats { 
-    numMessages: number,
-    numWords: number,
-  }
-  interface contactStatsDict{ [index: string]: contactStats }
-
-  // =============================================================== //
   
   // ============================= State ============================ //
-   // Hand the setRes func to go to run the create Data
-   const [res, setRes] = useState("not logged in");
-   const [loggedIn, setLoggedIn] = useState(false);
-
   const [update, setUpdate] = useState(0);
   const [stats, setStats] = useState({
     messages: 0,
@@ -82,6 +40,9 @@ function Home() {
   const [messageStatsPerChat, setMessageStatsPerChat] = useState<messageStats>({})
   // Number of messages sent by each user
   const [messageStatsPerContact, setMessageStatsPerContact] = useState<contactStatsDict>({})
+  
+  const [selectedId, setSelectedId] = useState<number>()
+
 
   // =============================================================== //
   
@@ -306,45 +267,6 @@ function Home() {
 
   useEffect(doSetup, []); //only run once
 
-
-  // Now that we are setup do the actual handling
-  const loginHandler = (e:any) => {
-		e.preventDefault();
-    console.log("Clicked login")
-    if (!isLoading) {
-      // Login the user
-      new Promise<void>((resolve, reject) => {
-        setTimeout(() => {
-          reject("Didn't login the user in time.");
-        }, 1000);
-    
-        setLoggedIn(true)
-        resolve(window.loginUser(setRes, (loggedIn:any) => {
-          // Logged in is a list of JIDs
-          console.log("Logged in sucessfully with following number:")
-          console.log(loggedIn)
-        }))
-      }).catch( err => console.log(err) );
-    } else {
-      console.log("Still loading!")
-    }
-	};
-
-  const logoutHandler = (e:any) => {
-		e.preventDefault();
-    console.log("Clicked logout")
-    // Logout the user and reset if it is a sucess
-    window.logoutUser()
-      .then((_) => {
-        setLoggedIn(false)
-        setRes("not logged in")
-        doSetup()
-      })
-      .catch((err) => {
-        console.log(err)
-      })
-	};
-
   const saveHandler = (e:any) => {
     e.preventDefault();
     console.log("Clicked save; export all current data")
@@ -376,42 +298,32 @@ function Home() {
   // =============================================================== //
 
   return (
-    <div className="container fill">
-      <p>Login to your WhatApp and see the message in the console for now.</p>
-      <div className="container">
-          <button type="button" className="btn btn-primary" onClick={loginHandler}>Login</button>
-          <button type="button" className="btn btn-primary ml-2" onClick={logoutHandler}>Logout</button>
-      <div className="container">
+    <div className={styles.container} >
+      <div className={styles.graphContainer}>
+        <div className={styles.globalstatsContainer}>
+          <div className={styles.itemsStatsContainer}>
+            <p className={styles.statsItem} > Contacts: {Object.keys(idToContact).length}</p>
+            <p className={styles.statsItem} > Messages: {stats.messages}</p>
+            <p className={styles.statsItem} > Groups: {Object.keys(idToGroup).length}</p>
+          </div>
+          <div className={styles.itemsStatsContainer}>
+            <button type="button" className="btn btn-primary ml-2" onClick={saveHandler}>Save received data</button>
+            <input type="file" className="btn btn-primary ml-2" onChange={loadHandler} />
+          </div>
+        </div>
+        <NetworkGraph idToContact ={idToContact}
+            idToGroup = {idToGroup}
+          messageStatsPerChat={messageStatsPerChat}
+          setSelectedId={setSelectedId}
+          />
       </div>
-          <button type="button" className="btn btn-primary ml-2" onClick={saveHandler}>Save received data</button>
-          <input type="file" className="btn btn-primary ml-2" onChange={loadHandler} />
+      <div className={styles.sideContainer}>
+        <AuthModule isLoading={isLoading} doSetup={doSetup} />
+        <p>Selected id: {selectedId}</p>
+        <Histogram data={computeAverageMessageLengthPerContact()} title={"Average length of message per contact"} width={200} height={200} />
+        <Histogram data={computeNumberMessagePerContact()} title={"Average number of message per contact"} width={200} height={200} />
       </div>
-      <p></p>
-      <div className="container fill">
-        {res === 'not logged in'? <p>Need to login!</p>: null }
-        {res !== 'not logged in' && res !== 'timeout' && res !== 'success' && loggedIn ? <QRCode value={res} fgColor="#022224ff" /> : null }
-        {res !== 'success' && res !== 'not logged in' && !loggedIn ? <p>Some error: {res}</p> : null}
-        {res === 'success' && loggedIn ? <p>Logged you in now! Keep app open to do sync.</p> : null}
-        {res === 'timeout' && loggedIn ? <p>Timeout, reload and scan faster!</p> : null}
-      </div>
-      <div>{"Number of message(s) retrived: " + stats.messages}</div>
-      <div>{"Number of contact(s) retrived: " + Object.keys(idToContact).length}</div>
-      <div>{"Number of groups(s) retrived: " + Object.keys(idToGroup).length}</div>  
-      <div>{"Number chat : " + Object.keys(messageStatsPerChat).length}</div> 
-      <div>{"Number unique token: " + Object.keys(bagOfWord).length}</div> 
-      <div>{"Most frequent words: "+ topWords() }</div>        
-      <div>{"Number sync update: " + update}</div>   
-      {disaplyAvergaeMessageLength()}
-      <Histogram data={computeAverageMessageLengthPerContact()} width={200} height={200} title={"Average length of message per contact"} />
-      <Histogram data={computeNumberMessagePerContact()} width={200} height={200} title={"Average number of message per contact"} />
-      <NetworkGraph idToContact ={idToContact}
-      idToGroup = {idToGroup}
-  messageStatsPerChat = {messageStatsPerChat}
-  width = {1000}
-        height={1000}
-      ></NetworkGraph>
-    </div >
-      
+    </div>
   );
 }
 
@@ -422,4 +334,11 @@ export default Home;
         <h3>Message overview per chat:</h3>
         {disaplyMessagePerChat()}
       </div>
-      */
+
+      <div>{"Number chat : " + Object.keys(messageStatsPerChat).length}</div> 
+      <div>{"Number unique token: " + Object.keys(bagOfWord).length}</div> 
+      <div>{"Most frequent words: "+ topWords() }</div>        
+      <div>{"Number sync update: " + update}</div>   
+      {disaplyAvergaeMessageLength()}
+    
+     */

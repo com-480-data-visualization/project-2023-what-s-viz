@@ -5,8 +5,7 @@ export function NetworkGraph({
   idToContact,
   idToGroup,
   messageStatsPerChat,
-  width,
-  height,
+  setSelectedId,
 }) {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
@@ -15,11 +14,23 @@ export function NetworkGraph({
     let nodes = [];
     // Add contacts
     for (let [id, contact] of Object.entries(idToContact)) {
-      nodes.push({ id: id, r: 10, name: contact.name, isGroup: false });
+      nodes.push({
+        id: id,
+        r: 10,
+        name: contact.name,
+        isGroup: false,
+        img: contact.avatar,
+      });
     }
     // Add groups
     for (let [id, group] of Object.entries(idToGroup)) {
-      nodes.push({ id: id, r: 10, name: group.name, isGroup: true });
+      nodes.push({
+        id: id,
+        r: 10,
+        name: group.name,
+        isGroup: true,
+        img: group.avatar,
+      });
     }
     return nodes;
   }
@@ -45,6 +56,7 @@ export function NetworkGraph({
     }
 
     // Add link for group members
+    // What if pair already exists?
     for (let [group_id, group] of Object.entries(idToGroup)) {
       group.participants.forEach((contact_id) => {
         if (
@@ -77,7 +89,5 @@ export function NetworkGraph({
     setEdges([...updatedEdges]);
   }, [idToContact, idToGroup, messageStatsPerChat]);
 
-  return (
-    <ForceGraph nodes={nodes} edges={edges} width={width} height={height} />
-  );
+  return <ForceGraph nodes={nodes} edges={edges} onClickNode={setSelectedId} />;
 }
