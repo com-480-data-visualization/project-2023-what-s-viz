@@ -444,11 +444,13 @@ func handNewContactsFunc() js.Func {
 								// for now lets not, might loop infintely
 								//contactsJIDs <- jid
 							} else {
+								cur["registered"] = true
 								if len(userInfo.FullName) > 0 {
 									cur["name"] = userInfo.FullName
 								} else if len(userInfo.FirstName) > 0 {
 									cur["name"] = userInfo.FirstName
 								} else {
+									cur["registered"] = false
 									cur["name"] = userInfo.PushName
 								}
 							}

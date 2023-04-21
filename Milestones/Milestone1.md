@@ -47,9 +47,11 @@ The second one is a contact message:
   id: <contact_id>
   status: <conatct_status>
   name: <contact_name>
+  registered: <true/false>
   avatar: <link_to_avatar_picture>
 }
 ```
+Avatar is a link to the avatar picture on WhatsApps servers, while registered is true iff the user is a registered contact on the users phone.
 The third and final type of application message received by the javascript layer is describing a chat:
 ```
 <group_id> : 
