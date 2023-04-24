@@ -33,38 +33,44 @@ function updateBagOfWord(messages: any, setBagOfWord: any, bagOfWord: any) {
         let chat_id:string = messages[key].chat
         let sender = messages[key]["sent-by"]
 
-        if (!updated_value_bag[chat_id]) {
-        updated_value_bag[chat_id] = {}
-        }
-        if (!updated_value_bag[sender]) {
-        updated_value_bag[sender] = {}
-        }
         words.forEach((w: string) => {
-        if (!updated_value_bag[chat_id][w]) {
-            // Get the old cound should it exist
-            if (!bagOfWord[chat_id] || !bagOfWord[chat_id] || !bagOfWord[chat_id][w]) {
-            updated_value_bag[chat_id][w] = 1;
-            } else {
-            updated_value_bag[chat_id][w] = bagOfWord[chat_id][w] + 1;
-            }
-        } else {
-            updated_value_bag[chat_id][w] += 1;
-        }
-        if (!updated_value_bag[sender][w]) {
-            // Get the old cound should it exist
-            if (!bagOfWord[sender] || !bagOfWord[sender] || !bagOfWord[sender][w]) {
-            updated_value_bag[sender][w] = 1;
-            } else {
-            updated_value_bag[sender][w] = bagOfWord[sender][w] + 1;
-            }
-        } else {
-            updated_value_bag[chat_id][w] += 1;
-        }
+            //Update chat
+            if (!updated_value_bag[chat_id])
+                updated_value_bag[chat_id] = {}
+            if (!updated_value_bag[chat_id][w])
+                updated_value_bag[chat_id][w] = 1;
+            else
+                updated_value_bag[chat_id][w] += 1;
+            // Update sender
+            if (!updated_value_bag[sender])
+                updated_value_bag[sender] = {}
+            if (!updated_value_bag[sender][w])
+                updated_value_bag[sender][w] = 1;
+            else
+                updated_value_bag[chat_id][w] += 1;
         })
     })
 
-    // TODO might need to write again a reducer for concurrency reasons
-    setBagOfWord(updated_value_bag)
+    function reduceBagOfWord(prev: bagWords, updated_stats: bagWords) {
+        let merged: bagWords = {}
+        for (let [chat, words] of Object.entries(updated_stats)) {
+            for (let [word, value] of Object.entries(words)) {
+                if (prev.hasOwnProperty(chat)) {
+                    merged[chat] = prev[chat]
+                    if (merged[chat].hasOwnProperty(word)) {
+                        merged[chat][word] += value
+                    } else {
+                        merged[chat][word] = value
+                    }
+                } else {
+                    merged[chat] = {}
+                    merged[chat][word] = value
+                }
+            }
+        }
+        return { ...prev, ...merged }
+      }
+    setBagOfWord((prev:any) => reduceBagOfWord(prev, updated_value_bag));
 }
 
 export {updateBagOfWord}

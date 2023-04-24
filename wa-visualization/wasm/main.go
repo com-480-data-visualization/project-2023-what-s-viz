@@ -405,7 +405,7 @@ func handNewContactsFunc() js.Func {
 						select {
 						case jid := <-contactsJIDs:
 							jids = append(jids, jid)
-						case <-time.After(10 * time.Millisecond):
+						case <-time.After(2 * time.Millisecond):
 							// After getting a few we go on
 							break innerFor
 						}
@@ -428,7 +428,7 @@ func handNewContactsFunc() js.Func {
 							if err != nil {
 								if strings.Contains(err.Error(), "429: rate-overlimit") {
 									// We are too fast, lets slow down
-									time.Sleep(500 * time.Microsecond)
+									time.Sleep(250 * time.Microsecond)
 									// we need to put the JID back into the queue
 									contactsJIDs <- jid
 								} else {
@@ -493,7 +493,7 @@ func handNewGroupsFunc() js.Func {
 						select {
 						case jid := <-groupsJIDs:
 							jids = append(jids, jid)
-						case <-time.After(10 * time.Millisecond):
+						case <-time.After(2 * time.Millisecond):
 							// After getting a few we go on
 							break innerFor
 						}
@@ -508,7 +508,7 @@ func handNewGroupsFunc() js.Func {
 							if strings.Contains(err.Error(), "429: rate-overlimit") {
 								fmt.Println("Slowing down in groups!")
 								// We are too fast, lets slow down
-								time.Sleep(2 * time.Second)
+								time.Sleep(250 * time.Microsecond)
 								// we need to put the JID back into the queue
 								contactsJIDs <- jid
 							} else {

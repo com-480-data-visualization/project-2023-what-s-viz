@@ -22,8 +22,8 @@ export function WordCloud({
     // If we have an ID selected run for that ID, otherwise sum over all chats & users
     var wordCounts = {};
     if (selectedId !== undefined) {
-      for (let [chat, words] of Object.entries(bagOfWord)) {
-        for (let [word, value] of Object.entries(words)) {
+      for (let [chat, innerWords] of Object.entries(bagOfWord)) {
+        for (let [word, value] of Object.entries(innerWords)) {
           if (word.length > 0 && (chat === selectedId)) {
             if (word in wordCounts) {
               wordCounts[word] += value;
@@ -34,8 +34,8 @@ export function WordCloud({
         }
       }
     } else {
-      for (let [chat, words] of Object.entries(bagOfWord)) {
-        for (let [word, value] of Object.entries(words)) {
+      for (let [chat, innerWords] of Object.entries(bagOfWord)) {
+        for (let [word, value] of Object.entries(innerWords)) {
           if (word.length > 0) {
             if (word in wordCounts) {
               wordCounts[word] += value;
