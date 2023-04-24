@@ -16,6 +16,7 @@ const Navigation = () => {
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav>
               <Nav.Link href="/">Home</Nav.Link>
+              <Nav.Link href="/testing">Testing</Nav.Link>
               <Nav.Link href="/about">About</Nav.Link>
             </Nav>
           </Navbar.Collapse>

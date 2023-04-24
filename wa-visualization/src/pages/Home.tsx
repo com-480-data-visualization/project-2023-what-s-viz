@@ -1,13 +1,14 @@
-import { useState, useEffect, useCallback } from 'react';
-import QRCode from "react-qr-code";
+import { useState, useEffect } from 'react';
 import initSqlJs from '../sql-wasm-debug.js';
 import exportFromJSON from 'export-from-json';
-import { Histogram } from '../components/Histogram.js';
 import { NetworkGraph } from '../components/NetworkGraph.js';
 import AuthModule from '../components/Authentification.js';
 import styles from './Home.module.css'
+import { WordCloud } from '../components/WordCloud.js';
+import { updateBagOfWord } from '../utils/Utils';
 
-import {contactStatsDict, messageStats, groupDict, messageDict, contactDict, stringDict, counter} from '../state/types'
+import {contactStatsDict, messageStats, groupDict,
+  messageDict, contactDict, stringDict, bagWords} from '../state/types'
 
 // We need SQL to be global, otherwise the js.Global() in Go won't find it
 declare global {
@@ -34,14 +35,15 @@ function Home() {
   const [idToContact, setIdToContact] = useState<contactDict>({})
 
   // Number of occurrence of each word accross all messages
-  const [bagOfWord, setBagOfWord] = useState<counter>({})
+  const [bagOfWord, setBagOfWord] = useState<bagWords>({})
 
   // Number of messages sent by each user in each chat
   const [messageStatsPerChat, setMessageStatsPerChat] = useState<messageStats>({})
   // Number of messages sent by each user
   const [messageStatsPerContact, setMessageStatsPerContact] = useState<contactStatsDict>({})
   
-  const [selectedId, setSelectedId] = useState<number>()
+  const [selectedId, setSelectedId] = useState<string>()
+  const [selected, setSelected] = useState<string>()
 
 
   // =============================================================== //
@@ -59,28 +61,17 @@ function Home() {
     return { ...prevCount, ...summed}
   }
 
-  function updateBagOfWOrd(messages: any) {
-    let filters = ["the"]
-    let updated_value_bag: { [index: string]: any } = {}
-
-    //let count_words = 0
-    Object.keys(messages).forEach((key) => {
-      let words = messages[key].message.split(" ")
-        .map((token: string) => token.toLowerCase())
-        .filter((token: string) => filters.indexOf(token) === -1)
-      
-      //count_words += words.length
-
-      words.forEach((w: string) => {
-        if (!updated_value_bag[w]) {
-          updated_value_bag[w] = 0//bagOfWord.hasOwnProperty(key) ? bagOfWord[key] : 0;
-        }
-        updated_value_bag[w] += 1;
-      })
-    })
-    
-    setBagOfWord(bag => (reduceCounter(bag, updated_value_bag)))
-  }
+  useEffect(() => {
+    if (selectedId === undefined) {
+      setSelected('All messages ever.')
+    } else {
+      if (idToGroup.hasOwnProperty(selectedId)) {
+        setSelected(idToGroup[selectedId].name)
+      } else {
+        setSelected(idToContact[selectedId].name)
+      }
+    }
+  }, [selectedId])
 
   function updateMessageStatsPerContact(messages: any) {
 
@@ -100,7 +91,7 @@ function Home() {
       updated_stats[chat_id].idSendCount[sender] += 1;
     })
 
-    console.log("updated_stats: ", updated_stats)
+    //console.log("updated_stats: ", updated_stats)
 
     function reduceMessageStats(prev: messageStats, updated_stats: messageStats) {
       let merged: messageStats = {}
@@ -113,11 +104,11 @@ function Home() {
         }
       }
       let res = {...prev, ...merged}
-      console.log("merged_stats: ", res)
+      //console.log("merged_stats: ", res)
       return {...prev, ...merged}
     }
     setMessageStatsPerChat(prev => (reduceMessageStats(prev, updated_stats)))
-    console.log("Message stats: ", messageStatsPerChat)
+    //console.log("Message stats: ", messageStatsPerChat)
   }
 
   function updateMessageStatsPerChat(messages: any) {
@@ -152,70 +143,10 @@ function Home() {
   // =============================================================== //
 
 
-  // ====================== Display functions ====================== //
-
-  function topWords() {
-    // Create items array
-    let items: [string, number][] = Object.keys(bagOfWord).map(function (key) {
-      return [key, bagOfWord[key]];
-    });
-
-    // Sort the array based on the second element
-    items.sort(function(first:[string, number], second:[string, number]) {
-      return second[1] - first[1];
-    });
-
-    return items.slice(0, 5)
-  }
-
-  function disaplyAvergaeMessageLength() {
-    let totalWords = 0
-    let totalMessages = 0
-    for (let [id, stats] of Object.entries(messageStatsPerContact)) {
-      totalWords += stats.numWords
-      totalMessages += stats.numMessages
-    }
-    return <p>Average message length: {totalMessages === 0 ? 0: totalWords / totalMessages} words</p>
-  }
-
-  function disaplyMessagePerChat() {
-    let res = []
-    for (let [chat_id, chat_stats] of Object.entries(messageStatsPerChat)) {
-      let temp = []
-      let sortedMembers = Object.entries(chat_stats.idSendCount).sort(function (first: [string, number], second: [string, number]) {
-        return second[1] - first[1];
-      })
-      for (let [id, count] of sortedMembers) {
-        temp.push(<p>{id in idToContact ? idToContact[id].name: id} sent {count} messages</p>)
-      }
-      let name = chat_id in idToContact ? idToContact[chat_id].name + "- PM": (chat_id in idToGroup ? idToGroup[chat_id].name  : "Unknown")
-      res.push(<div><h4>{name}</h4>{temp}</div>)
-    }
-    return res
-  }
-
-  function computeAverageMessageLengthPerContact() {
-    let averageLengthPerContact = []
-    for (let [id, stats] of Object.entries(messageStatsPerContact)) {
-      averageLengthPerContact.push(stats.numMessages === 0 ? 0 : stats.numWords / stats.numMessages)
-    }
-    return averageLengthPerContact
-  }
-
-  function computeNumberMessagePerContact() {
-    let averageNumMessagePerContact = []
-    for (let [id, stats] of Object.entries(messageStatsPerContact)) {
-      averageNumMessagePerContact.push(stats.numMessages)
-    }
-    return averageNumMessagePerContact
-  }
-
-  // =============================================================== //
-
   // ====================== Setup function ====================== //
 
   function doMsg(messages: any) {
-    updateBagOfWOrd(messages)
+    updateBagOfWord(messages, setBagOfWord, bagOfWord)
     updateMessageStatsPerContact(messages)
     updateMessageStatsPerChat(messages)
 
@@ -224,17 +155,14 @@ function Home() {
     setStats(prevStats => ({ ...prevStats, messages: prevStats.messages + num_message}))
     setUpdate(prevUpdate => (prevUpdate + 1))
     setIdToMessage(prev => ({ ...prev, ...messages }))
-    //console.log(messages)
   }
 
   function doContacts(contacts:any) {
     setIdToContact(prev => ({ ...prev, ...contacts }))
-    //console.log(contacts)
   }
 
   function doGroups(groups:any) {
     setIdToGroup(prev => ({ ...prev, ...groups }))
-    //console.log(groups)
   }
 
   function doSetup() {
@@ -319,9 +247,10 @@ function Home() {
       </div>
       <div className={styles.sideContainer}>
         <AuthModule isLoading={isLoading} doSetup={doSetup} />
-        <p>Selected id: {selectedId}</p>
-        <Histogram data={computeAverageMessageLengthPerContact()} title={"Average length of message per contact"} width={200} height={200} />
-        <Histogram data={computeNumberMessagePerContact()} title={"Average number of message per contact"} width={200} height={200} />
+        <p>Selected: {selected}</p>
+        <WordCloud bagOfWord={bagOfWord}
+            selectedId={selectedId}
+          />
       </div>
     </div>
   );
@@ -330,6 +259,8 @@ function Home() {
 export default Home;
 
 /*
+        <Histogram data={computeAverageMessageLengthPerContact()} title={"Average length of message per contact"} width={200} height={200} />
+        <Histogram data={computeNumberMessagePerContact()} title={"Average number of message per contact"} width={200} height={200} />
 <div className="container">
         <h3>Message overview per chat:</h3>
         {disaplyMessagePerChat()}

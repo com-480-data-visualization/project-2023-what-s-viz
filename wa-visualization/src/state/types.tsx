@@ -2,6 +2,8 @@
   interface stringDict { [index: string]: any }
   interface counter { [index: string]: number }
 
+  interface bagWords { [index: string]: { [index: string]: number } }
+
   interface contact{
     name: string,
     avatar: string,
@@ -38,6 +40,6 @@
   }
 interface contactStatsDict{ [index: string]: contactStats }
   
-export type {contactStatsDict, contactStats, messageStats, group, groupDict, message, messageDict, contact, contactDict, stringDict, counter}
+export type {contactStatsDict, contactStats, messageStats, group, groupDict, message, messageDict, contact, contactDict, stringDict, counter, bagWords}
 
   // =============================================================== //

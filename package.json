@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "d3-cloud": "^1.2.5",
+    "natural": "^6.2.0",
+    "os-browserify": "^0.3.0",
+    "util": "^0.12.5"
+  }
+}
