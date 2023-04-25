@@ -81,7 +81,7 @@
     "watch:ts": "node scripts/start.js",
     "watch:wasm": "watch \"npm run build:wasm\" ./wasm",
     "build:ts": "node scripts/build.js",
-    "build:wasm": "cd wasm && GOOS=js GOARCH=wasm go build -o ../public/main.wasm && cd .. && echo \"\\033[0;32mcompiled wasm successfully!\\033[0m\""
+    "build:wasm": "cd wasm && GOOS=js GOARCH=wasm go build -o ../public/main.wasm -ldflags=\"-s -w\" && cd .. && echo \"\\033[0;32mcompiled wasm successfully!\\033[0m\""
   },
   "eslintConfig": {
     "extends": [

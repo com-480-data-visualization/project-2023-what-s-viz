@@ -1,11 +1,3 @@
-# Project of Data Visualization (COM-480)
-
-| Student's name | SCIPER |
-| -------------- | ------ |
-| Tobias Oberdoerfer | 367487 |
-| Hugo Lanfranchi | 300585 |
-| Jonas Blanc | 287508 |
-
 ## Milestone 1 (23rd April, 5 pm)
 
 **10% of the final grade**
