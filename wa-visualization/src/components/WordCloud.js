@@ -59,8 +59,6 @@ export function WordCloud({
     let amount = -0.00215694*dimensions.width
       -0.10104737*dimensions.height
       + 0.00094683*dimensions.width*dimensions.height;
-    if (newWords.length == 0)
-      return;
     //console.log("WordCloud useEffect done with ", newWords.length, "words, min: ", newWords[newWords.length-1].value, ", max: ", newWords[0].value)
     if (newWords.length > amount) {
       // only keep the top amount words by size of value
