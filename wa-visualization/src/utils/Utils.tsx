@@ -1,17 +1,8 @@
 import {bagWords} from '../state/types'
+import { stopwords } from './Stopwords'
   
   // ============================= Utility fcts ============================ //
 function updateBagOfWord(messages: any, setBagOfWord: any, bagOfWord: any) {
-    // Smartly move this filter to another file
-    // TODO add https://github.com/RalphGL/fuellwoerter/blob/master/fuellwoerter.txt
-    let filters = ["the","of","and","a","to","in","is","you","that","it","he","was",
-        "for","on","are","as","with","his","they","i","at","be","this","have","from",
-        "or","one","had","by","word","but","not","what","all","were","we","when","your",
-        "can","said","there","use","an","each","which","she","do","how","their","if",
-        "will","up","other","about","out","many","then","them","these","so","some","her",
-        "would","make","like","him","into","time","has","look","two","more","write",
-        "go","see","no","way","my","than","first","water", "come","made","may","part", 
-        "been","who","its","now","find","long","down","day","did","get"]
     // The value bag is per chat and user in that chat
     let updated_value_bag: bagWords = {}
 
@@ -25,7 +16,7 @@ function updateBagOfWord(messages: any, setBagOfWord: any, bagOfWord: any) {
         .map((token: string) => token.toLowerCase())
         .filter((token: string) => {
             return token.length > 2
-            && filters.indexOf(token) === -1
+            && !stopwords.includes(token)
             && token.indexOf("http") === -1
         })
 
