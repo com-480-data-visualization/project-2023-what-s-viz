@@ -66,6 +66,7 @@ export function WordCloud({
       newWords = newWords.slice(0, amount);
     } else if (newWords.length == 0) {
       newWords.push({text: '', value: 0});
+      console.log("For", selectedId, "no words after the stopword filter")
     }
     // Use d3 to delete all existing text elements
     setWords(newWords);
