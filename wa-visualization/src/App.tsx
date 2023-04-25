@@ -10,9 +10,9 @@ function App() {
     <div className='App'>
       <Navigation />
       <Routes>                
-          <Route path='/about' element={<About />}/>
-          <Route path='/testing' element={<Testing />}/>
-          <Route path='/' element={<Home />}/>
+          <Route path={process.env.PUBLIC_URL + '/about'} element={<About />}/>
+          <Route path={process.env.PUBLIC_URL + '/testing'} element={<Testing />}/>
+          <Route path={process.env.PUBLIC_URL + '/'} element={<Home />}/>
       </Routes>
     </div>
   );

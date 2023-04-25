@@ -2,6 +2,7 @@
   "name": "wa-visualization",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://com-480-data-visualization.github.io/project-2023-what-s-viz/",
   "dependencies": {
     "@babel/core": "^7.16.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
@@ -79,6 +80,8 @@
     "workbox-webpack-plugin": "^6.4.1"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "concurrently \"npm run watch:ts\" \"npm run watch:wasm\"",
     "build": "npm run build:wasm && npm run build:ts",
     "test": "node scripts/test.js",
@@ -160,5 +163,8 @@
     "presets": [
       "react-app"
     ]
+  },
+  "devDependencies": {
+    "gh-pages": "^5.0.0"
   }
 }
