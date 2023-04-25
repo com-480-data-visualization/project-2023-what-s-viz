@@ -1,5 +1,5 @@
 import {bagWords} from '../state/types'
-import { stopwords } from './Stopwords'
+import {stopwords} from './Stopwords'
   
   // ============================= Utility fcts ============================ //
 function updateBagOfWord(messages: any, setBagOfWord: any, bagOfWord: any) {
@@ -15,11 +15,12 @@ function updateBagOfWord(messages: any, setBagOfWord: any, bagOfWord: any) {
         let words = messages[key].message.split(" ")
         .map((token: string) => token.toLowerCase())
         .filter((token: string) => {
-            return token.length > 2
-            && !stopwords.includes(token)
-            && token.indexOf("http") === -1
-        })
-
+            return token.indexOf("http") === -1 &&
+                !stopwords.includes(token) &&
+                //stopwords.indexOf(token) === -1 &&
+                token.length > 2
+            }
+        )
         // Now build the bagOfWords
         let chat_id:string = messages[key].chat
         let sender = messages[key]["sent-by"]
@@ -38,7 +39,7 @@ function updateBagOfWord(messages: any, setBagOfWord: any, bagOfWord: any) {
             if (!updated_value_bag[sender][w])
                 updated_value_bag[sender][w] = 1;
             else
-                updated_value_bag[chat_id][w] += 1;
+                updated_value_bag[sender][w] += 1;
         })
     })
 
@@ -48,13 +49,12 @@ function updateBagOfWord(messages: any, setBagOfWord: any, bagOfWord: any) {
             for (let [word, value] of Object.entries(words)) {
                 if (prev.hasOwnProperty(chat)) {
                     merged[chat] = prev[chat]
-                    if (merged[chat].hasOwnProperty(word)) {
-                        merged[chat][word] += value
-                    } else {
-                        merged[chat][word] = value
-                    }
-                } else {
+                } else if (!merged.hasOwnProperty(chat)) {
                     merged[chat] = {}
+                }
+                if (merged[chat].hasOwnProperty(word)) {
+                    merged[chat][word] += value
+                } else {
                     merged[chat][word] = value
                 }
             }

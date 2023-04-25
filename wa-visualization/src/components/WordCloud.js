@@ -46,6 +46,7 @@ export function WordCloud({
         }
       }
     }
+    //console.log("WordCloud useEffect starting with ",  Object.keys(wordCounts).length, "words")
     let newWords = [];
     for (let [word, value] of Object.entries(wordCounts)) {
       newWords.push({text: word, value: value});
@@ -58,11 +59,13 @@ export function WordCloud({
     let amount = -0.00215694*dimensions.width
       -0.10104737*dimensions.height
       + 0.00094683*dimensions.width*dimensions.height;
+    if (newWords.length == 0)
+      return;
+    //console.log("WordCloud useEffect done with ", newWords.length, "words, min: ", newWords[newWords.length-1].value, ", max: ", newWords[0].value)
     if (newWords.length > amount) {
       // only keep the top amount words by size of value
       newWords.sort((a, b) => b.value - a.value);
       newWords = newWords.slice(0, amount);
-      //console.log("WordCloud useEffect done with ", newWords.length, "words")
     } else if (newWords.length == 0) {
       newWords.push({text: '', value: 0});
     }
@@ -93,7 +96,6 @@ export function WordCloud({
   const d3Ref = useD3(
     (svg) => {
       function draw(words) {
-        svg.selectAll("g").remove();
         svg.append("g")
             .attr("transform", "translate(" + layout.size()[0] / 2 + "," + layout.size()[1] / 2 + ")")
           .selectAll("text")
@@ -114,6 +116,9 @@ export function WordCloud({
       const word_size = d3.scaleLog()
         .domain([words[0].value, words[words.length-1].value])
         .range([35, 8]);
+      
+      layout.stop();
+      svg.selectAll("g").remove();
 
       layout.size([dimensions.width-50, dimensions.height])
         .words(words)
