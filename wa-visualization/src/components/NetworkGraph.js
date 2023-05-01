@@ -7,8 +7,9 @@ export function NetworkGraph({
   messageStatsPerChat,
   setSelectedId,
 }) {
-  const [nodes, setNodes] = useState([]);
-  const [edges, setEdges] = useState([]);
+  // Simulate new edges/nodes arriving
+  const [count, setCount] = useState(0);
+  let data = createGraphObject(messageStatsPerChat, idToGroup, idToContact);
 
   function createForceGraphNode(idToContact, idToGroup) {
     let nodes = [];
@@ -76,18 +77,37 @@ export function NetworkGraph({
     return edges;
   }
 
-  useEffect(() => {
-    let updatedNodes = createForceGraphNode(idToContact, idToGroup);
-    let updatedEdges = createForceGraphEdge(
-      updatedNodes,
-      messageStatsPerChat,
-      idToGroup
-    );
+  useEffect(() => {}, [count]);
 
-    // TODO check if liste are merged or additively updated with dynmaic data
-    setNodes([...updatedNodes]);
-    setEdges([...updatedEdges]);
-  }, [idToContact, idToGroup, messageStatsPerChat]);
+  function createGraphObject(messageStatsPerChat, idToGroup, idToContact) {
+    let nodes = createForceGraphNode(idToContact, idToGroup);
+    // take online 10 * count nodea
+    nodes = nodes.slice(0, 10 * count);
+    let edges = createForceGraphEdge(nodes, messageStatsPerChat, idToGroup);
+    return { nodes: nodes, edges: edges };
+  }
 
-  return <ForceGraph nodes={nodes} edges={edges} onClickNode={setSelectedId} />;
+  function onClick() {
+    setCount((prev) => prev + 1);
+  }
+
+  function onClickAll() {
+    setCount((prev) => 10000000);
+  }
+
+  return (
+    <div style={{ height: "100%" }}>
+      <button type="button" className="btn btn-primary ml-2" onClick={onClick}>
+        Add new contacts (testing)
+      </button>
+      <button
+        type="button"
+        className="btn btn-primary ml-2"
+        onClick={onClickAll}
+      >
+        Add all contacts (testing)
+      </button>
+      <ForceGraph attributes={data} onClickNode={setSelectedId} />
+    </div>
+  );
 }
