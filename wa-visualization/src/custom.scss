@@ -9,3 +9,9 @@ $theme-colors: (
 
 // Import Bootstrap and its default variables
 @import '~bootstrap/scss/bootstrap.scss';
+
+.modal-body > .svg-responsive {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
