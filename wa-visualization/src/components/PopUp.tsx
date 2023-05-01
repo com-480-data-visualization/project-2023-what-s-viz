@@ -13,7 +13,7 @@ function PopUp({
   
     return (
       <>
-        <Modal show={show} onHide={handleClose}>
+        <Modal show={show} onHide={handleClose} className='modal-lg'>
           <Modal.Header closeButton>
             <Modal.Title>{heading}</Modal.Title>
           </Modal.Header>
