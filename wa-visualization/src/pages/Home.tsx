@@ -6,6 +6,7 @@ import AuthModule from '../components/Authentification.js';
 import styles from './Home.module.css'
 import { WordCloud } from '../components/WordCloud.js';
 import { updateBagOfWord } from '../utils/Utils';
+import PopUp from '../components/PopUp'
 
 import {contactStatsDict, messageStats, groupDict,
   messageDict, contactDict, stringDict, bagWords} from '../state/types'
@@ -15,6 +16,7 @@ declare global {
   interface Window {
       SQL:any;
       WAdb: any;
+      bootstrap: any;
   }
 }
 
@@ -224,7 +226,7 @@ function Home() {
     };
   }
   // =============================================================== //
-
+  
   return (
     <div className={styles.container} >
       <div className={styles.graphContainer}>
@@ -252,6 +254,11 @@ function Home() {
             selectedId={selectedId}
           />
       </div>
+      <PopUp heading='Disclaimer Regarding Use of WhatsApp API' body="We want to be transparent with our users; Please note that using the WhatsApp API, like this page does, may go against its terms of service, but it is a common practice.
+
+We advise our users to not run the whole login multiple times within an hour, as this may trigger security measures by WhatsApp. We are not responsible for any consequences that may arise from the use of this page and disclaim all liability for any damages, losses, or costs.
+
+By using our website, you acknowledge that you have read, understood, and agreed to this disclaimer regarding the use of WhatsApp API."></PopUp>
     </div>
   );
 }

@@ -1,5 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import QRCode from "react-qr-code";
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
+import { Container } from "react-bootstrap";
 
 export default function Home({ isLoading, doSetup }) {
   // ============================= State ============================ //
@@ -48,6 +51,17 @@ export default function Home({ isLoading, doSetup }) {
       });
   };
 
+  const [showQR, setShowQR] = useState(false);
+  
+  const handleClose = () => setShowQR(false);
+
+  useEffect(() => {
+    if (res !== "not logged in" && res !== "timeout" && res !== "success" && loggedIn)
+      setShowQR(true);
+    else
+      setShowQR(false);
+  }, [res, loggedIn]);
+
   return (
     <div>
       <p>Login to your WhatApp and see the message in the console for now.</p>
@@ -69,12 +83,6 @@ export default function Home({ isLoading, doSetup }) {
       </div>
       <div className="container fill">
         {res === "not logged in" ? <p>Need to login!</p> : null}
-        {res !== "not logged in" &&
-        res !== "timeout" &&
-        res !== "success" &&
-        loggedIn ? (
-          <QRCode value={res} fgColor="#022224ff" />
-        ) : null}
         {res !== "success" && res !== "not logged in" && !loggedIn ? (
           <p>Some error: {res}</p>
         ) : null}
@@ -85,6 +93,15 @@ export default function Home({ isLoading, doSetup }) {
           <p>Timeout, reload and scan faster!</p>
         ) : null}
       </div>
+      <>
+        <Modal show={showQR} onHide={handleClose}>
+          <Modal.Body>
+            <Container className="display: flex;   justify-content: center;">
+              <QRCode value={res} fgColor="#022224ff" />
+            </Container>
+          </Modal.Body>
+        </Modal>
+      </>
     </div>
   );
 }
