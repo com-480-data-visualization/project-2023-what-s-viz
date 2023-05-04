@@ -9,3 +9,5 @@
 
 Functional project prototype review.
 * You should have an initial website running with the basic skeleton of the visualization/widgets.
+
+Our hand-in can be found in the [Milestone2.pdf](./Milestone2.pdf).
