@@ -59,7 +59,7 @@ export function ForceGraph({ attributes, onClickNode }) {
     updateEdges();
   });
 
-  simulation.alpha(1);
+  simulation.alpha(0.1);
 
   function updateEdges() {
     d3.select(".links")

@@ -77,8 +77,6 @@ export function NetworkGraph({
     return edges;
   }
 
-  useEffect(() => {}, [count]);
-
   function createGraphObject(messageStatsPerChat, idToGroup, idToContact) {
     let nodes = createForceGraphNode(idToContact, idToGroup);
     // take online 10 * count nodea
@@ -92,7 +90,7 @@ export function NetworkGraph({
   }
 
   function onClickAll() {
-    setCount((prev) => 10000000);
+    setCount(10000000);
   }
 
   return (
