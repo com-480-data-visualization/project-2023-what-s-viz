@@ -44,10 +44,10 @@ function Home() {
   // Number of messages sent by each user
   const [messageStatsPerContact, setMessageStatsPerContact] = useState<contactStatsDict>({})
   
-  const [selectedId, setSelectedId] = useState<string>()
+  // Selected group or contact node id in the graph
+  const [selectedId, setSelectedId] = useState<string>() // No group or contact will ever have ID 0
   const [selected, setSelected] = useState<string>()
-
-
+ 
   // =============================================================== //
   
   // ==================== State update function ==================== //
@@ -143,7 +143,6 @@ function Home() {
   }
 
   // =============================================================== //
-
 
   // ====================== Setup function ====================== //
 
