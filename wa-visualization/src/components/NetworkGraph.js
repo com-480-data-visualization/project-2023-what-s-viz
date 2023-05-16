@@ -98,7 +98,6 @@ export function NetworkGraph({
     <>
     {/* Rewrite the following using bootstrap rows */}
     <Container>
-      { /*
       <Row>
         <Col>
         <button
@@ -119,7 +118,6 @@ export function NetworkGraph({
         </button>
         </Col>
       </Row>
-      */}
       <Row style={{ paddingTop: '20px', paddingBottom: '20px', height: '100%' }}>
         <ForceGraph attributes={data} onClickNode={setSelectedId} />
       </Row>

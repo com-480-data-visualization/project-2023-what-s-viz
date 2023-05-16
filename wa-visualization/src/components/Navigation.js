@@ -5,7 +5,7 @@ const Navigation = () => {
     <>
       <Navbar bg="dark" variant="dark" expand="sm" fixed="top">
         <Container>
-          <Navbar.Brand href="/">
+          <Navbar.Brand href={process.env.PUBLIC_URL + '/'}>
             <img
               src={require("../../public/logo.png")}
               width="30"
@@ -16,7 +16,6 @@ const Navigation = () => {
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav>
               <Nav.Link href={process.env.PUBLIC_URL + '/'}>Home</Nav.Link>
-              <Nav.Link href={process.env.PUBLIC_URL + '/testing'} >Testing</Nav.Link>
               <Nav.Link href={process.env.PUBLIC_URL + '/about'} >About</Nav.Link>
             </Nav>
           </Navbar.Collapse>
@@ -27,3 +26,7 @@ const Navigation = () => {
 };
 
 export default Navigation;
+
+/* 
+              <Nav.Link href={process.env.PUBLIC_URL + '/testing'} >Testing</Nav.Link>
+*/
