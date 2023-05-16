@@ -8,7 +8,7 @@ import { Container } from "react-bootstrap";
 
 export function WordCloud({ bagOfWord, selectedId }) {
   const refContainer = useRef();
-  const [dimensions, setDimensions] = useState({ width: 500, height: 500 });
+  const [dimensions, setDimensions] = useState({ width: 500, height: 300 });
 
   // The cloud layout function
   var layout = cloud();

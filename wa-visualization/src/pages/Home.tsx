@@ -3,7 +3,6 @@ import initSqlJs from '../sql-wasm.js';
 import { NetworkGraph } from '../components/NetworkGraph.js';
 import AuthModule from '../components/Authentification.js';
 import SearchField from '../components/SearchField.js';
-import styles from './Home.module.css'
 import { WordCloud } from '../components/WordCloud.js';
 import { updateBagOfWord } from '../utils/Utils';
 import PopUp from '../components/PopUp'
@@ -194,30 +193,39 @@ function Home() {
   return (
     <Container fluid className="h-100" >
       <Row className="h-100" style={{ backgroundColor: "rgb(204, 211, 209)" }}>
-        <Col sm={8} style={{ display: 'flex' }}>
+        <Col xs={8} style={{ display: 'flex' }}>
               <NetworkGraph idToContact ={idToContact}
                   idToGroup = {idToGroup}
                 messageStatsPerChat={messageStatsPerChat}
                 setSelectedId={setSelectedId}
                 />
         </Col>
-        <Col sm={4}>
-          <Container className="p-2 rounded border border-secondary">
-            <Row className="p-2" ><AuthModule isLoading={isLoading} doSetup={doSetup} /></Row>    
-            <Row className="p-2" >
-              <DebugSaveLoad
-                idToMessage={idToMessage} idToContact={idToContact} idToGroup={idToGroup}
-                doMsg={doMsg} doContacts={doContacts} doGroups={doGroups}/>
-            </Row>
-            <Row className="p-2" ><SearchField selected={selectedId} setSelected={setSelectedId} idToGroup={idToGroup} idToContact={idToContact} /> </Row>
-            <Row className="p-2" >
+        <Col xs={4} className='rightPadding30'>
+          <Row className='topPadding20'>
+            <Container className="p-2 rounded border border-secondary">
+              <Row className="p-2" ><AuthModule isLoading={isLoading} doSetup={doSetup} /></Row>    
+              <Row className="p-2" >
+                <DebugSaveLoad
+                  idToMessage={idToMessage} idToContact={idToContact} idToGroup={idToGroup}
+                  doMsg={doMsg} doContacts={doContacts} doGroups={doGroups}/>
+              </Row>
+              <Row className="p-2" >
+                <Row>
+                  <Col style={{ display: 'flex', alignItems: 'center' }}>
+                    Some simple numbers about your data:
+                  </Col>
+                </Row>
+                <Row>
+                  <Col>Messages: {stats.messages}</Col>
+                  <Col>Contacts: {Object.keys(idToContact).length}</Col>
+                  <Col>Groups: {Object.keys(idToGroup).length}</Col>
+                </Row>
+              </Row>
+              <Row className="p-2" ><SearchField selected={selectedId} setSelected={setSelectedId} idToGroup={idToGroup} idToContact={idToContact} /> </Row>
               {/* TODO make the nice plots of this! */}
-              <Col>Contacts: {Object.keys(idToContact).length}</Col>
-              <Col>Messages: {stats.messages}</Col>
-              <Col>Groups: {Object.keys(idToGroup).length}</Col>
-            </Row>
-            <Row className="p-2" ><WordCloud bagOfWord={bagOfWord} selectedId={selectedId} /></Row>
-          </Container>
+              <Row className="p-2" ><WordCloud bagOfWord={bagOfWord} selectedId={selectedId} /></Row>
+            </Container>
+          </Row>
         </Col>
       </Row>
       <PopUp heading='Disclaimer Regarding Use of WhatsApp API' body="We want to be transparent with our users; Please note that using the WhatsApp API, like this page does, may go against its terms of service, but it is a common practice.
