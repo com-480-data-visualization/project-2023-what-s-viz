@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ForceGraph } from "./ForceGraph.js";
+import { Container, Row, Col } from "react-bootstrap";
 
 export function NetworkGraph({
   idToContact,
@@ -94,8 +95,12 @@ export function NetworkGraph({
   }
 
   return (
-    <div style={{ height: "100%" }}>
-      <div style={{ height: "5%" }}>
+    <>
+    {/* Rewrite the following using bootstrap rows */}
+    <Container>
+      { /*
+      <Row>
+        <Col>
         <button
           type="button"
           className="btn btn-primary ml-2"
@@ -103,6 +108,8 @@ export function NetworkGraph({
         >
           Add new contacts (testing)
         </button>
+        </Col>
+        <Col>
         <button
           type="button"
           className="btn btn-primary ml-2"
@@ -110,10 +117,13 @@ export function NetworkGraph({
         >
           Add all contacts (testing)
         </button>
-      </div>
-      <div style={{ height: "95%" }}>
+        </Col>
+      </Row>
+      */}
+      <Row style={{ paddingTop: '20px', paddingBottom: '20px', height: '100%' }}>
         <ForceGraph attributes={data} onClickNode={setSelectedId} />
-      </div>
-    </div>
+      </Row>
+    </Container>
+    </>
   );
 }

@@ -17,12 +17,12 @@ export default function Suggestions({
     if (ref.current) {
       // mouseenter instead of focus, because focus doesn't apply when hovering
       ref.current.addEventListener('mouseenter', () => setFocus(true));
-      //ref.current.addEventListener('mouseleave', () => setFocus(false));
+      ref.current.addEventListener('mouseleave', () => setFocus(false));
     }
     return () => {
       if (ref.current) {
         ref.current.removeEventListener('mouseenter', () => setFocus(true));
-        //ref.current.removeEventListener('mouseleave', () => setFocus(false));
+        ref.current.removeEventListener('mouseleave', () => setFocus(false));
       }
     };
   }, [ref.current]);

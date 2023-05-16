@@ -155,6 +155,7 @@ export function WordCloud({ bagOfWord, selectedId }) {
 
   return (
     <Container>
+      { words.length == 1 && <p>Currently no words to show in the wordcloud.</p> }
       <div
         className="row"
         id="content"

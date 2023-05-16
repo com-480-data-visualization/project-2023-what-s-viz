@@ -36,7 +36,7 @@ export default function SearchField({selected, setSelected, idToGroup, idToConta
       let search = ref.current.value;
       // Should the search be empty, unset the selected
       if (search === "") {
-        setSelected(null);
+        setSelected(undefined);
         return;
       }
 
@@ -50,7 +50,7 @@ export default function SearchField({selected, setSelected, idToGroup, idToConta
         setTimeout(() => {
           ref.current.value = "";
           setCurValue(ref.current.value);
-          setSelected(null);
+          setSelected(undefined);
           ref.current.style.backgroundColor = "white";
         }, 1000);
       } else {
@@ -61,7 +61,7 @@ export default function SearchField({selected, setSelected, idToGroup, idToConta
     useEffect(() => {
       // set the value of the search field to the name of the selected item
       if (ref.current !== undefined) {
-        if (selected !== null) {
+        if (selected !== undefined) {
           let item = items.find((item) => item.key === selected);
           if (item !== undefined) {
             ref.current.value = item.value;

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import QRCode from "react-qr-code";
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
-import { Container } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 
 export default function Home({ isLoading, doSetup }) {
   // ============================= State ============================ //
@@ -63,37 +63,39 @@ export default function Home({ isLoading, doSetup }) {
   }, [res, loggedIn]);
 
   return (
-    <div>
-      <p>Login to your WhatApp and see the message in the console for now.</p>
-      <div className="container">
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={loginHandler}
-        >
-          Login
-        </button>
-        <button
-          type="button"
-          className="btn btn-primary ml-2"
-          onClick={logoutHandler}
-        >
-          Logout
-        </button>
-      </div>
-      <div className="container fill">
-        {res === "not logged in" ? <p>Need to login!</p> : null}
-        {res !== "success" && res !== "not logged in" && !loggedIn ? (
-          <p>Some error: {res}</p>
-        ) : null}
-        {res === "success" && loggedIn ? (
-          <p>Logged you in now! Keep app open to do sync.</p>
-        ) : null}
-        {res === "timeout" && loggedIn ? (
-          <p>Timeout, reload and scan faster!</p>
-        ) : null}
-      </div>
       <>
+      <Container>
+        <Row>
+          <Col xs="9" style={{ display: 'flex', alignItems: 'center' }}>
+            {res === "not logged in" ? "Login to WhatsApp to use What's Viz!" : null}
+            {res !== "success" && res !== "not logged in" && !loggedIn ? (
+              "Some error, please try again!"
+            ) : null}
+            {res === "success" && loggedIn ? (
+              "Logged you in now! Keep app open to do sync."
+            ) : null}
+            {res === "timeout" && loggedIn ? (
+              "Timeout, reload and scan faster!"
+            ) : null}
+          </Col>
+          <Col xs="3">
+            {!loggedIn ? <button
+              type="button"
+              className="btn btn-primary float-end"
+              onClick={loginHandler}
+            >
+              Login
+            </button> : null}
+            {loggedIn ? <button
+              type="button"
+              className="btn btn-primary ml-2 float-end"
+              onClick={logoutHandler}
+            >
+              Logout
+            </button> : null}
+          </Col>
+        </Row>
+      </Container>
         <Modal show={showQR} onHide={handleClose}>
           <Modal.Body>
             <Container className="display: flex;   justify-content: center;">
@@ -102,6 +104,5 @@ export default function Home({ isLoading, doSetup }) {
           </Modal.Body>
         </Modal>
       </>
-    </div>
   );
 }
