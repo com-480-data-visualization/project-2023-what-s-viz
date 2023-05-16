@@ -202,14 +202,14 @@ function Home() {
         </Col>
         <Col xs={4} className='rightPadding30'>
           <Row className='topPadding20'>
-            <Container className="p-2 rounded border border-secondary">
-              <Row className="p-2" ><AuthModule isLoading={isLoading} doSetup={doSetup} /></Row>    
+            <Container>
+              <Row className="p-2 rounded border border-secondary" ><AuthModule isLoading={isLoading} doSetup={doSetup} /></Row>    
               <Row className="p-2" >
                 <DebugSaveLoad
                   idToMessage={idToMessage} idToContact={idToContact} idToGroup={idToGroup}
                   doMsg={doMsg} doContacts={doContacts} doGroups={doGroups}/>
               </Row>
-              <Row className="p-2" >
+              <Row className="p-2 rounded border border-secondary" >
                 <Row>
                   <Col style={{ display: 'flex', alignItems: 'center' }}>
                     Some simple numbers about your data:
@@ -221,9 +221,11 @@ function Home() {
                   <Col>Groups: {Object.keys(idToGroup).length}</Col>
                 </Row>
               </Row>
-              <Row className="p-2" ><SearchField selected={selectedId} setSelected={setSelectedId} idToGroup={idToGroup} idToContact={idToContact} /> </Row>
-              {/* TODO make the nice plots of this! */}
-              <Row className="p-2" ><WordCloud bagOfWord={bagOfWord} selectedId={selectedId} /></Row>
+              <Row className="p-2 topPadding20 rounded border border-secondary" >
+                <Row className="p-2" ><SearchField selected={selectedId} setSelected={setSelectedId} idToGroup={idToGroup} idToContact={idToContact} /> </Row>
+                {/* TODO make the nice plots of this! */}
+                <Row className="p-2" ><WordCloud bagOfWord={bagOfWord} selectedId={selectedId} /></Row>
+              </Row>
             </Container>
           </Row>
         </Col>
