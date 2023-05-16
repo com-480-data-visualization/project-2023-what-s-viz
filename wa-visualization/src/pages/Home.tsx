@@ -203,19 +203,19 @@ function Home() {
         </Col>
         <Col sm={4}>
           <Container className="p-2 rounded border border-secondary">
-            <Row className="p-2" ><AuthModule isLoading={isLoading} doSetup={doSetup} /></Row>
-            <Row className="p-2" >
-              {/* TODO make the nice plots of this! */}
-              <Col>Contacts: {Object.keys(idToContact).length}</Col>
-              <Col>Messages: {stats.messages}</Col>
-              <Col>Groups: {Object.keys(idToGroup).length}</Col>
-            </Row>
+            <Row className="p-2" ><AuthModule isLoading={isLoading} doSetup={doSetup} /></Row>    
             <Row className="p-2" >
               <DebugSaveLoad
                 idToMessage={idToMessage} idToContact={idToContact} idToGroup={idToGroup}
                 doMsg={doMsg} doContacts={doContacts} doGroups={doGroups}/>
             </Row>
             <Row className="p-2" ><SearchField selected={selectedId} setSelected={setSelectedId} idToGroup={idToGroup} idToContact={idToContact} /> </Row>
+            <Row className="p-2" >
+              {/* TODO make the nice plots of this! */}
+              <Col>Contacts: {Object.keys(idToContact).length}</Col>
+              <Col>Messages: {stats.messages}</Col>
+              <Col>Groups: {Object.keys(idToGroup).length}</Col>
+            </Row>
             <Row className="p-2" ><WordCloud bagOfWord={bagOfWord} selectedId={selectedId} /></Row>
           </Container>
         </Col>

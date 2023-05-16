@@ -81,7 +81,7 @@ export function NetworkGraph({
   function createGraphObject(messageStatsPerChat, idToGroup, idToContact) {
     let nodes = createForceGraphNode(idToContact, idToGroup);
     // take online 10 * count nodea
-    nodes = nodes.slice(0, 10 * count);
+    //nodes = nodes.slice(0, 10 * count);
     let edges = createForceGraphEdge(nodes, messageStatsPerChat, idToGroup);
     return { nodes: nodes, edges: edges };
   }
@@ -98,6 +98,7 @@ export function NetworkGraph({
     <>
     {/* Rewrite the following using bootstrap rows */}
     <Container>
+      { /*
       <Row>
         <Col>
         <button
@@ -118,6 +119,7 @@ export function NetworkGraph({
         </button>
         </Col>
       </Row>
+      */}
       <Row style={{ paddingTop: '20px', paddingBottom: '20px', height: '100%' }}>
         <ForceGraph attributes={data} onClickNode={setSelectedId} />
       </Row>
