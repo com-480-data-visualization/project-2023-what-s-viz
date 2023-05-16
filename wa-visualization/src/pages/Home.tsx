@@ -3,6 +3,7 @@ import initSqlJs from '../sql-wasm.js';
 import exportFromJSON from 'export-from-json';
 import { NetworkGraph } from '../components/NetworkGraph.js';
 import AuthModule from '../components/Authentification.js';
+import SearchField from '../components/SearchField.js';
 import styles from './Home.module.css'
 import { WordCloud } from '../components/WordCloud.js';
 import { updateBagOfWord } from '../utils/Utils';
@@ -256,7 +257,7 @@ function Home() {
         <Col bg="success">
           <div className={styles.baseContainer}>
             <Row><AuthModule isLoading={isLoading} doSetup={doSetup} /></Row>
-            <Row><p>Selected: {selected}</p> </Row>
+            <Row><SearchField selected={selected} setSelected={setSelected} idToGroup={idToGroup} idToContact={idToContact} /> </Row>
             <Row><WordCloud bagOfWord={bagOfWord} selectedId={selectedId} /></Row>
           </div>
         </Col>
