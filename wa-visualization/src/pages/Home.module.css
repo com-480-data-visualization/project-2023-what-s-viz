@@ -1,11 +1,9 @@
-.container {
-  display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
-  display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
-  display: -ms-flexbox;      /* TWEENER - IE 10 */
-  display: -webkit-flex;     /* NEW - Chrome */
-  display: flex;  
-  background-color: blue;
-  height: 100%;
+.baseContainer {
+  background-color: white;
+  margin: 1%;
+  width: 99%;
+  border-radius: 25px;
+  padding: 2%;
 }
 
 .globalstatsContainer {

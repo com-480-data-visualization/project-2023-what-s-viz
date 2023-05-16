@@ -95,17 +95,25 @@ export function NetworkGraph({
 
   return (
     <div style={{ height: "100%" }}>
-      <button type="button" className="btn btn-primary ml-2" onClick={onClick}>
-        Add new contacts (testing)
-      </button>
-      <button
-        type="button"
-        className="btn btn-primary ml-2"
-        onClick={onClickAll}
-      >
-        Add all contacts (testing)
-      </button>
-      <ForceGraph attributes={data} onClickNode={setSelectedId} />
+      <div style={{ height: "5%" }}>
+        <button
+          type="button"
+          className="btn btn-primary ml-2"
+          onClick={onClick}
+        >
+          Add new contacts (testing)
+        </button>
+        <button
+          type="button"
+          className="btn btn-primary ml-2"
+          onClick={onClickAll}
+        >
+          Add all contacts (testing)
+        </button>
+      </div>
+      <div style={{ height: "95%" }}>
+        <ForceGraph attributes={data} onClickNode={setSelectedId} />
+      </div>
     </div>
   );
 }

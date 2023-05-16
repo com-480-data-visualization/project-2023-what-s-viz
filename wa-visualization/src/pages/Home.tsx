@@ -8,6 +8,11 @@ import { WordCloud } from '../components/WordCloud.js';
 import { updateBagOfWord } from '../utils/Utils';
 import PopUp from '../components/PopUp'
 
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+
+
 import {contactStatsDict, messageStats, groupDict,
   messageDict, contactDict, stringDict, bagWords} from '../state/types'
 
@@ -227,8 +232,47 @@ function Home() {
   // =============================================================== //
   
   return (
-    <div className={styles.container} >
-      <div className={styles.graphContainer}>
+    <Container fluid className="h-100" >
+      <Row className="h-100" style={{ backgroundColor: "gray" }}>
+        <Col sm={8}>
+          <div className={styles.baseContainer}>
+            <Row>
+
+              <Col><p className={styles.statsItem} > Contacts: {Object.keys(idToContact).length}</p></Col>
+              <Col><p className={styles.statsItem} > Messages: {stats.messages}</p></Col>
+              <Col><p className={styles.statsItem} > Groups: {Object.keys(idToGroup).length}</p></Col>
+              <Col><button type="button" className="btn btn-primary ml-2" onClick={saveHandler}>Save received data</button></Col>
+                <Col><input type="file" className="btn btn-primary ml-2" onChange={loadHandler} /></Col>
+            </Row>
+          </div>
+          <div className={styles.baseContainer}>
+                <NetworkGraph idToContact ={idToContact}
+                    idToGroup = {idToGroup}
+                  messageStatsPerChat={messageStatsPerChat}
+                  setSelectedId={setSelectedId}
+                  />
+            </div>
+        </Col>
+        <Col bg="success">
+          <div className={styles.baseContainer}>
+            <Row><AuthModule isLoading={isLoading} doSetup={doSetup} /></Row>
+            <Row><p>Selected: {selected}</p> </Row>
+            <Row><WordCloud bagOfWord={bagOfWord} selectedId={selectedId} /></Row>
+          </div>
+        </Col>
+      </Row>
+      <PopUp heading='Disclaimer Regarding Use of WhatsApp API' body="We want to be transparent with our users; Please note that using the WhatsApp API, like this page does, may go against its terms of service, but it is a common practice.
+
+We advise our users to not run the whole login multiple times within an hour, as this may trigger security measures by WhatsApp. We are not responsible for any consequences that may arise from the use of this page and disclaim all liability for any damages, losses, or costs.
+
+By using our website, you acknowledge that you have read, understood, and agreed to this disclaimer regarding the use of WhatsApp API."></PopUp>
+      </Container>      
+  );
+}
+
+export default Home;
+/*
+<div className={styles.graphContainer}>
         <div className={styles.globalstatsContainer}>
           <div className={styles.itemsStatsContainer}>
             <p className={styles.statsItem} > Contacts: {Object.keys(idToContact).length}</p>
@@ -253,17 +297,7 @@ function Home() {
             selectedId={selectedId}
           />
       </div>
-      <PopUp heading='Disclaimer Regarding Use of WhatsApp API' body="We want to be transparent with our users; Please note that using the WhatsApp API, like this page does, may go against its terms of service, but it is a common practice.
-
-We advise our users to not run the whole login multiple times within an hour, as this may trigger security measures by WhatsApp. We are not responsible for any consequences that may arise from the use of this page and disclaim all liability for any damages, losses, or costs.
-
-By using our website, you acknowledge that you have read, understood, and agreed to this disclaimer regarding the use of WhatsApp API."></PopUp>
-    </div>
-  );
-}
-
-export default Home;
-
+      */
 /*
         <Histogram data={computeAverageMessageLengthPerContact()} title={"Average length of message per contact"} width={200} height={200} />
         <Histogram data={computeNumberMessagePerContact()} title={"Average number of message per contact"} width={200} height={200} />

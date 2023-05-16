@@ -244,10 +244,10 @@ export function ForceGraph({ attributes, onClickNode }) {
 
   return (
     <div
-      id="content"
+      //id="content"
       style={{
-        height: "100%",
         backgroundColor: "grey",
+        height: "100%",
       }}
       ref={refContainer}
     >
