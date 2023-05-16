@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ForceGraph } from "./ForceGraph.js";
+import { Container, Row, Col } from "react-bootstrap";
 
 export function NetworkGraph({
   idToContact,
@@ -80,7 +81,7 @@ export function NetworkGraph({
   function createGraphObject(messageStatsPerChat, idToGroup, idToContact) {
     let nodes = createForceGraphNode(idToContact, idToGroup);
     // take online 10 * count nodea
-    nodes = nodes.slice(0, 10 * count);
+    //nodes = nodes.slice(0, 10 * count);
     let edges = createForceGraphEdge(nodes, messageStatsPerChat, idToGroup);
     return { nodes: nodes, edges: edges };
   }
@@ -94,18 +95,35 @@ export function NetworkGraph({
   }
 
   return (
-    <div style={{ height: "100%" }}>
-      <button type="button" className="btn btn-primary ml-2" onClick={onClick}>
-        Add new contacts (testing)
-      </button>
-      <button
-        type="button"
-        className="btn btn-primary ml-2"
-        onClick={onClickAll}
-      >
-        Add all contacts (testing)
-      </button>
-      <ForceGraph attributes={data} onClickNode={setSelectedId} />
-    </div>
+    <>
+    {/* Rewrite the following using bootstrap rows */}
+    <Container>
+      { /*
+      <Row>
+        <Col>
+        <button
+          type="button"
+          className="btn btn-primary ml-2"
+          onClick={onClick}
+        >
+          Add new contacts (testing)
+        </button>
+        </Col>
+        <Col>
+        <button
+          type="button"
+          className="btn btn-primary ml-2"
+          onClick={onClickAll}
+        >
+          Add all contacts (testing)
+        </button>
+        </Col>
+      </Row>
+      */}
+      <Row style={{ paddingTop: '20px', paddingBottom: '20px', height: '100%' }}>
+        <ForceGraph attributes={data} onClickNode={setSelectedId} />
+      </Row>
+    </Container>
+    </>
   );
 }

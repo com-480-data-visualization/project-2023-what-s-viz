@@ -234,6 +234,7 @@ export function ForceGraph({ attributes, onClickNode }) {
         width: refContainer.current.offsetWidth,
         height: refContainer.current.offsetHeight,
       });
+      console.log("Dimensions", dimensions);
     }
   }, [refContainer]);
 
@@ -244,10 +245,11 @@ export function ForceGraph({ attributes, onClickNode }) {
 
   return (
     <div
-      id="content"
+      //id="content"
       style={{
-        height: "100%",
         backgroundColor: "grey",
+        width: "100%",
+        height: "100%",
       }}
       ref={refContainer}
     >

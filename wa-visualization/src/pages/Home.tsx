@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react';
 import initSqlJs from '../sql-wasm.js';
-import exportFromJSON from 'export-from-json';
 import { NetworkGraph } from '../components/NetworkGraph.js';
 import AuthModule from '../components/Authentification.js';
-import styles from './Home.module.css'
+import SearchField from '../components/SearchField.js';
 import { WordCloud } from '../components/WordCloud.js';
 import { updateBagOfWord } from '../utils/Utils';
 import PopUp from '../components/PopUp'
+import DebugSaveLoad from '../components/DebugSaveLoad';
+
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+
 
 import {contactStatsDict, messageStats, groupDict,
   messageDict, contactDict, stringDict, bagWords} from '../state/types'
@@ -46,7 +51,6 @@ function Home() {
   
   // Selected group or contact node id in the graph
   const [selectedId, setSelectedId] = useState<string>() // No group or contact will ever have ID 0
-  const [selected, setSelected] = useState<string>()
  
   // =============================================================== //
   
@@ -62,18 +66,6 @@ function Home() {
     }
     return { ...prevCount, ...summed}
   }
-
-  useEffect(() => {
-    if (selectedId === undefined) {
-      setSelected('All messages ever.')
-    } else {
-      if (idToGroup.hasOwnProperty(selectedId)) {
-        setSelected(idToGroup[selectedId].name)
-      } else {
-        setSelected(idToContact[selectedId].name)
-      }
-    }
-  }, [selectedId])
 
   function updateMessageStatsPerContact(messages: any) {
 
@@ -196,86 +188,53 @@ function Home() {
 
   useEffect(doSetup, []); //only run once
 
-  const saveHandler = (e:any) => {
-    e.preventDefault();
-    console.log("Clicked save; export all current data")
-    // Save
-    const data = { messages: idToMessage, contacts: idToContact, groups: idToGroup}
-    const fileName = 'exportOfReceivedRawData'
-    const exportType =  exportFromJSON.types.json
-
-    exportFromJSON({ data, fileName, exportType })
-  }
-
-  const loadHandler = (e:any) => {
-    e.preventDefault();
-    console.log("Clicked load")
-    const fileReader = new FileReader();
-    fileReader.readAsText(e.target.files[0], "UTF-8");
-    fileReader.onload = loaded => {
-      if (loaded === null || loaded.target === null || loaded.target.result === null) {
-        console.log("Error loading file")
-      } else {
-        const data = JSON.parse(loaded.target.result as string)
-        console.log("Was able to read the file, lets run them!")
-        doMsg(data.messages)
-        doContacts(data.contacts)
-        doGroups(data.groups)
-      }
-    };
-  }
   // =============================================================== //
   
   return (
-    <div className={styles.container} >
-      <div className={styles.graphContainer}>
-        <div className={styles.globalstatsContainer}>
-          <div className={styles.itemsStatsContainer}>
-            <p className={styles.statsItem} > Contacts: {Object.keys(idToContact).length}</p>
-            <p className={styles.statsItem} > Messages: {stats.messages}</p>
-            <p className={styles.statsItem} > Groups: {Object.keys(idToGroup).length}</p>
-          </div>
-          <div className={styles.itemsStatsContainer}>
-            <button type="button" className="btn btn-primary ml-2" onClick={saveHandler}>Save received data</button>
-            <input type="file" className="btn btn-primary ml-2" onChange={loadHandler} />
-          </div>
-        </div>
-        <NetworkGraph idToContact ={idToContact}
-            idToGroup = {idToGroup}
-          messageStatsPerChat={messageStatsPerChat}
-          setSelectedId={setSelectedId}
-          />
-      </div>
-      <div className={styles.sideContainer}>
-        <AuthModule isLoading={isLoading} doSetup={doSetup} />
-        <p>Selected: {selected}</p>
-        <WordCloud bagOfWord={bagOfWord}
-            selectedId={selectedId}
-          />
-      </div>
+    <Container fluid className="h-100" >
+      <Row className="h-100" style={{ backgroundColor: "rgb(204, 211, 209)" }}>
+        <Col xs={8} style={{ display: 'flex' }}>
+              <NetworkGraph idToContact ={idToContact}
+                  idToGroup = {idToGroup}
+                messageStatsPerChat={messageStatsPerChat}
+                setSelectedId={setSelectedId}
+                />
+        </Col>
+        <Col xs={4} className='rightPadding30'>
+          <Row className='topPadding20'>
+            <Container className="p-2 rounded border border-secondary">
+              <Row className="p-2" ><AuthModule isLoading={isLoading} doSetup={doSetup} /></Row>    
+              <Row className="p-2" >
+                <DebugSaveLoad
+                  idToMessage={idToMessage} idToContact={idToContact} idToGroup={idToGroup}
+                  doMsg={doMsg} doContacts={doContacts} doGroups={doGroups}/>
+              </Row>
+              <Row className="p-2" >
+                <Row>
+                  <Col style={{ display: 'flex', alignItems: 'center' }}>
+                    Some simple numbers about your data:
+                  </Col>
+                </Row>
+                <Row>
+                  <Col>Messages: {stats.messages}</Col>
+                  <Col>Contacts: {Object.keys(idToContact).length}</Col>
+                  <Col>Groups: {Object.keys(idToGroup).length}</Col>
+                </Row>
+              </Row>
+              <Row className="p-2" ><SearchField selected={selectedId} setSelected={setSelectedId} idToGroup={idToGroup} idToContact={idToContact} /> </Row>
+              {/* TODO make the nice plots of this! */}
+              <Row className="p-2" ><WordCloud bagOfWord={bagOfWord} selectedId={selectedId} /></Row>
+            </Container>
+          </Row>
+        </Col>
+      </Row>
       <PopUp heading='Disclaimer Regarding Use of WhatsApp API' body="We want to be transparent with our users; Please note that using the WhatsApp API, like this page does, may go against its terms of service, but it is a common practice.
 
 We advise our users to not run the whole login multiple times within an hour, as this may trigger security measures by WhatsApp. We are not responsible for any consequences that may arise from the use of this page and disclaim all liability for any damages, losses, or costs.
 
 By using our website, you acknowledge that you have read, understood, and agreed to this disclaimer regarding the use of WhatsApp API."></PopUp>
-    </div>
+      </Container>      
   );
 }
 
 export default Home;
-
-/*
-        <Histogram data={computeAverageMessageLengthPerContact()} title={"Average length of message per contact"} width={200} height={200} />
-        <Histogram data={computeNumberMessagePerContact()} title={"Average number of message per contact"} width={200} height={200} />
-<div className="container">
-        <h3>Message overview per chat:</h3>
-        {disaplyMessagePerChat()}
-      </div>
-
-      <div>{"Number chat : " + Object.keys(messageStatsPerChat).length}</div> 
-      <div>{"Number unique token: " + Object.keys(bagOfWord).length}</div> 
-      <div>{"Most frequent words: "+ topWords() }</div>        
-      <div>{"Number sync update: " + update}</div>   
-      {disaplyAvergaeMessageLength()}
-    
-     */
