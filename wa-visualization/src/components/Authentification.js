@@ -99,7 +99,7 @@ export default function Home({ isLoading, doSetup }) {
       <Modal show={showQR} onHide={handleClose} 
           size="xl"
           aria-labelledby="contained-modal-title-vcenter"
-          centered>
+          centered backdrop="static" keyboard={ false }>
         <Modal.Body style={{display: 'flex', alignItems: 'center' }}>
           <Container>
               <Row>

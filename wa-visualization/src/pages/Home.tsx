@@ -5,7 +5,7 @@ import AuthModule from '../components/Authentification.js';
 import SearchField from '../components/SearchField.js';
 import { WordCloud } from '../components/WordCloud.js';
 import { updateBagOfWord } from '../utils/Utils';
-import PopUp from '../components/PopUp'
+import Disclaimer from '../components/Disclaimer'
 import DebugSaveLoad from '../components/DebugSaveLoad';
 
 import Container from 'react-bootstrap/Container';
@@ -230,11 +230,7 @@ function Home() {
           </Row>
         </Col>
       </Row>
-      <PopUp heading='Disclaimer Regarding Use of WhatsApp API' body="We want to be transparent with our users; Please note that using the WhatsApp API, like this page does, may go against its terms of service, but it is a common practice.
-
-We advise our users to not run the whole login multiple times within an hour, as this may trigger security measures by WhatsApp. We are not responsible for any consequences that may arise from the use of this page and disclaim all liability for any damages, losses, or costs.
-
-By using our website, you acknowledge that you have read, understood, and agreed to this disclaimer regarding the use of WhatsApp API."></PopUp>
+      <Disclaimer />
       </Container>      
   );
 }

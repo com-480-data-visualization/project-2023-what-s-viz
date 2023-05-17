@@ -36,3 +36,8 @@ $theme-colors: (
   margin-top: 20px;
   margin-bottom: 20px;
 }
+
+// To not show the x for modals
+.modal-header > .btn-close {
+  display: none;
+}

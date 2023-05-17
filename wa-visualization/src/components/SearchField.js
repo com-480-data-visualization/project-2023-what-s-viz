@@ -110,8 +110,8 @@ export default function SearchField({selected, setSelected, idToGroup, idToConta
         <InputGroup className="mb-3">
           <Form.Control
             ref={ref}
-            placeholder="Currently no chat selected."
-            aria-label="Currently no chat selected."
+            placeholder="Currently no chat selected, showing all."
+            aria-label="Currently no chat selected, showing all."
             aria-describedby="basic-addon2"
             onChange={changeHandler}
           />
