@@ -162,7 +162,7 @@ function Home() {
     setIsLoading(true);
     // Test run of https://github.com/sql-js/sql.js
     initSqlJs({
-      locateFile: () => 'sql-wasm.wasm'
+      locateFile: () => process.env.PUBLIC_URL + '/sql-wasm.wasm'
     }).then((tSQL: any) => {
       // Set the gloval SQL value, this way Go can access it
       window.SQL = tSQL
