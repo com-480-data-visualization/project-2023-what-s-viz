@@ -11,6 +11,17 @@ $theme-colors: (
 // Import Bootstrap and its default variables
 @import '~bootstrap/scss/bootstrap.scss';
 
+.modal-dialog,
+.modal-content {
+    /* 80% of window height */
+    height: 40%;
+}
+
+.modal-body {
+    max-height: 100%;
+    overflow-y: auto;
+}
+
 .modal-body > .svg-responsive {
   display: block;
   margin-left: auto;

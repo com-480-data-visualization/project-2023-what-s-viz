@@ -13,7 +13,10 @@ function PopUp({
   
     return (
       <>
-        <Modal show={show} onHide={handleClose} className='modal-lg'>
+        <Modal show={show} onHide={handleClose}
+            size='lg'
+            aria-labelledby="contained-modal-title-vcenter"
+            centered>
           <Modal.Header closeButton>
             <Modal.Title>{heading}</Modal.Title>
           </Modal.Header>

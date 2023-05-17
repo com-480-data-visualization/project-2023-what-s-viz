@@ -96,13 +96,37 @@ export default function Home({ isLoading, doSetup }) {
           </Col>
         </Row>
       </Container>
-        <Modal show={showQR} onHide={handleClose}>
-          <Modal.Body>
-            <Container className="display: flex;   justify-content: center;">
-              <QRCode value={res} fgColor="#022224ff" />
-            </Container>
-          </Modal.Body>
-        </Modal>
-      </>
+      <Modal show={showQR} onHide={handleClose} 
+          size="xl"
+          aria-labelledby="contained-modal-title-vcenter"
+          centered>
+        <Modal.Body style={{display: 'flex', alignItems: 'center' }}>
+          <Container>
+              <Row>
+                  <Col xs="8">
+                      <Row className="p-2">
+                          <h3>Using What's Viz</h3>
+                      </Row>
+                      <Row className="m-3">
+                          1. Open WhatsApp on your phone
+                      </Row>
+                      <Row className="m-3">
+                          2. Tap Menu or Settings and select Linked Devices
+                      </Row>
+                      <Row className="m-3">
+                          3. Tab on Link a Device
+                      </Row>
+                      <Row className="m-3">
+                          4. Point your phone to this screen to capture the QR code
+                      </Row>
+                  </Col>
+                  <Col xs="4" className="float-end">
+                    <QRCode value={res} fgColor="#022224ff" />
+                  </Col>
+              </Row>
+          </Container>
+        </Modal.Body>
+      </Modal>
+    </>
   );
 }
