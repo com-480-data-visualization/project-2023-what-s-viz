@@ -53,7 +53,23 @@ export default function Home({ isLoading, doSetup }) {
 
   const [showQR, setShowQR] = useState(false);
   
-  const handleClose = () => setShowQR(false);
+  function handleClose() {
+      setShowQR(false);
+      setLoggedIn(false);
+      window
+        .logoutUser()
+        .then((_) => {
+          setLoggedIn(false);
+          setRes("not logged in");
+          doSetup();
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoggedIn(false);
+          setRes("not logged in");
+          doSetup();
+        });
+    }
 
   useEffect(() => {
     if (res !== "not logged in" && res !== "timeout" && res !== "success" && loggedIn)
@@ -99,7 +115,7 @@ export default function Home({ isLoading, doSetup }) {
       <Modal show={showQR} onHide={handleClose} 
           size="xl"
           aria-labelledby="contained-modal-title-vcenter"
-          centered backdrop="static" keyboard={ false }>
+          centered >
         <Modal.Body style={{display: 'flex', alignItems: 'center' }}>
           <Container>
               <Row>
@@ -130,3 +146,8 @@ export default function Home({ isLoading, doSetup }) {
     </>
   );
 }
+
+/*
+to make it not closable:
+backdrop="static" keyboard={ false }
+*/

@@ -21,7 +21,7 @@ function Disclaimer() {
           <Modal.Body className='white-space: pre-line'  style={{display: 'flex', alignItems: 'center' }}>
             <Container>
               <Row className="m-3">
-                We want to be transparent with our users; Please note that using the WhatsApp API, like this page does, may go against its terms of service, but it is a common practice.
+                Please note that using the WhatsApp multi-device API from an unofficial WhatsApp client, like this page does, may go against WhatsApp' terms of service. Despite this restriction, WhatsApp itself cannot distinguish between a real web client and an unofficial implementation, resulting in no adverse when using What's Viz.
               </Row>
               <Row className="m-3">
                 We advise our users to not run the whole login multiple times within an hour, as this may trigger security measures by WhatsApp. We are not responsible for any consequences that may arise from the use of this page and disclaim all liability for any damages, losses, or costs.
