@@ -1,13 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+import useCookies from '@js-smart/react-cookie-service';
 
 // https://react-bootstrap.github.io/components/modal/
 function Disclaimer() {  
-    const [show, setShow] = useState(true);
+    const [show, setShow] = useState(false);
+    const { getCookie, setCookie } = useCookies();
   
-    const handleClose = () => setShow(false);
+    function handleClose() {
+      setShow(false);
+
+      // Also save the cookie
+      setCookie('disclaimer-accepted', 'true', { path: '/' }); 
+    }
+
+    useEffect(() => {
+      // Check if the cookie is set, otherwise show the disclaimer
+      if (getCookie('disclaimer-accepted') === 'true') {
+        setShow(false);
+      } else {
+        setShow(true);
+      }
+    }, [getCookie]);
   
     return (
       <>
