@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import initSqlJs from '../sql-wasm.js';
 import { NetworkGraph } from '../components/NetworkGraph.js';
 import AuthModule from '../components/Authentification.js';
-import FixModal from '../components/FixModal.js';
 import SearchField from '../components/SearchField.js';
 import { WordCloud } from '../components/WordCloud.js';
 import { updateBagOfWord } from '../utils/Utils';
