@@ -36,14 +36,24 @@ function About() {
       githubUrl: 'https://github.com/tulir/whatsmeow'
     },
     {
+      name: 'Go',
+      description: 'An open source programming language that makes it easy to build simple, reliable, and efficient software',
+      githubUrl: 'https://github.com/golang/go'
+    },
+    {
+      name: 'NodeJS',
+      description: 'A JavaScript runtime built on Chrome\'s V8 JavaScript engine',
+      githubUrl: 'https://github.com/nodejs/node',
+    },
+    {
       name: 'React',
       description: 'A JavaScript library for building user interfaces',
       githubUrl: 'https://github.com/facebook/react'
     },
     {
-      name: 'Bootstrap',
+      name: 'React-Bootstrap',
       description: 'The most popular HTML, CSS, and JS library for responsive, mobile-first web development',
-      githubUrl: 'https://github.com/twbs/bootstrap'
+      githubUrl: 'https://github.com/react-bootstrap/react-bootstrap'
     },
     {
       name: 'D3.js',
@@ -59,6 +69,11 @@ function About() {
       name: 'SQL.js',
       description: 'A port of SQLite to WebAssembly for SQL database functionality in the browser',
       githubUrl: 'https://github.com/sql-js/sql.js'
+    },
+    {
+      name: 'natural',
+      description: 'General natural language processing library for node',
+      githubUrl: 'https://github.com/NaturalNode/natural'
     }
   ];
 
