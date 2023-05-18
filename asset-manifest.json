@@ -1,16 +1,17 @@
 {
   "files": {
     "main.css": "/project-2023-what-s-viz/static/css/main.8f2429df.css",
-    "main.js": "/project-2023-what-s-viz/static/js/main.e6f5cfde.js",
+    "main.js": "/project-2023-what-s-viz/static/js/main.4c5f1151.js",
     "static/js/787.fa024b08.chunk.js": "/project-2023-what-s-viz/static/js/787.fa024b08.chunk.js",
     "static/media/logo.png": "/project-2023-what-s-viz/static/media/logo.2f902580b01490c05282.png",
     "index.html": "/project-2023-what-s-viz/index.html",
+    "static/media/index.cjs": "/project-2023-what-s-viz/static/media/index.88d9c658b5ebd0b9ee47.cjs",
     "main.8f2429df.css.map": "/project-2023-what-s-viz/static/css/main.8f2429df.css.map",
-    "main.e6f5cfde.js.map": "/project-2023-what-s-viz/static/js/main.e6f5cfde.js.map",
+    "main.4c5f1151.js.map": "/project-2023-what-s-viz/static/js/main.4c5f1151.js.map",
     "787.fa024b08.chunk.js.map": "/project-2023-what-s-viz/static/js/787.fa024b08.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.8f2429df.css",
-    "static/js/main.e6f5cfde.js"
+    "static/js/main.4c5f1151.js"
   ]
 }
