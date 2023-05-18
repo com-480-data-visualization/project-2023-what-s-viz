@@ -86,7 +86,7 @@ function DebugSaveLoad({
           const updateID = setInterval(() => {
             console.log("Running chunk")
             doUpdate(data)
-          }, 3000);
+          }, 2000);
           
           // After 30 seconds, stop the interval
           setTimeout(() => {

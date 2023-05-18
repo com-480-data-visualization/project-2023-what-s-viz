@@ -22,6 +22,10 @@ export class ForceGraph {
     // to update run trough the data nodes and add the new ones
     for (let psb_new_node of data.nodes) {
       if (!this.nodes.find((n) => n.id === psb_new_node.id)) {
+        // Give the nodes random initial positions within the graph
+        psb_new_node.x = Math.random() * this.bb.width;
+        psb_new_node.y = Math.random() * this.bb.height;
+
         this.nodes.push(psb_new_node);
         // add all edges from this node
         for (let psb_new_edge of data.edges) {
@@ -32,18 +36,22 @@ export class ForceGraph {
       }
     }
     
-    this.updateGraph();
+    this.updateGraph(0.15);
     return this;
   }
 
   // updated the selected ID
   selectNode(id) {
     this.selectedId = id;
-    this.updateGraph();
+    // Do not change the alpha, i.e. do not move
+    this.updateGraph(0);
   }
 
   // update the graph
-  updateGraph = () => {
+  updateGraph = (alpha) => {
+    if (alpha === undefined) {
+      alpha = 0.1;
+    }
     // update links, nodes and reset the force simulation
     this.drawLinks();
     this.drawNodes();
@@ -51,13 +59,13 @@ export class ForceGraph {
     this.simulation.force(
       "link",
       d3
-        .forceLink() // This force provides links between nodes
+        .forceLink().strength(0.2) // This force provides links between nodes
         .id(function (d) {
           return d.id;
         }) // This provide  the id of a node
         .links(this.edges)
     );
-    this.simulation.alpha(0.1).restart();
+    this.simulation.alpha(alpha).restart();
   };
 
   // resize handler
@@ -68,7 +76,7 @@ export class ForceGraph {
     // center the graph and reset the simulation
     this.simulation.force(
       "center",
-      d3.forceCenter(this.bb.width / 2, this.bb.height / 2)
+      d3.forceCenter(this.bb.width / 2 - 25, this.bb.height / 2 - 25)//.strength(5)
     );
     this.simulation.alpha(0.1).restart();
   };
@@ -110,18 +118,20 @@ export class ForceGraph {
       .force(
         "link",
         d3
-          .forceLink() // This force provides links between nodes
+          .forceLink().strength(0.2) // This force provides links between nodes
           .id(function (d) {
             return d.id;
           }) // This provide the id of a node
           .links(this.edges) // and this the list of links
       )
-      .force("charge", d3.forceManyBody().strength(-200)) // This adds repulsion between nodes
-      .force(
-        "collision",
-        d3.forceCollide((d) => d.r)
-      )
-      .force("center", d3.forceCenter(this.bb.width / 2, this.bb.height / 2)) // This force attracts nodes to the center of the this.svg area
+      .force("charge", d3.forceManyBody().strength((d) => {
+        // calculate the charge based on the node size
+        if (d.edgeCount == 1)
+          return -5;
+        return -30 * this.calcNodeSize(d);
+      })) // This adds repulsion between nodes
+      .force('collide', d3.forceCollide().radius(function(d){ return d.r + 1 }).strength(function(d){ return -1 * d.r }))
+      .force("center", d3.forceCenter(this.bb.width / 2 - 25, this.bb.height / 2 - 25).strength(0.5)) // This force attracts nodes to the center of the this.svg area
       .on("tick", this.ticked);
   }
 
