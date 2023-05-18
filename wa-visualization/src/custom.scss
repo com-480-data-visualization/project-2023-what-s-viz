@@ -15,11 +15,25 @@ $theme-colors: (
 .modal-content {
     /* 80% of window height */
     height: 40%;
+    overflow:hidden;
 }
 
 .modal-body {
     max-height: 100%;
     overflow-y: auto;
+}
+
+// To fix the modal container position with scroling
+@media screen and (max-height: 1100px) {
+  .modal-body > .container {
+    margin-top:90px;
+  }
+}
+
+@media screen and (max-height: 850px) {
+  .modal-body > .container {
+    margin-top:220px;
+  }
 }
 
 .modal-body > .svg-responsive {
