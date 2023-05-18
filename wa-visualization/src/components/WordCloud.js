@@ -154,10 +154,10 @@ export function WordCloud({ bagOfWord, selectedId }) {
   );
 
   return (
-    <Container className="p-0 m-0">
+    <Container>
       { words.length < 10 && <p>Currently not enough words for a word-cloud.</p> }
       <div
-        className={"row " + (words.length < 10 ? 'hidden' : 'show')}
+        className={"row p-0 m-0" + (words.length < 10 ? 'hidden' : 'show')}
         id="content"
         style={{
           height: "100%",
