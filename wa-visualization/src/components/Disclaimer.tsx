@@ -35,7 +35,7 @@ function Disclaimer() {
             <Modal.Title>Disclaimer Regarding Use of WhatsApp API</Modal.Title>
           </Modal.Header>
           <Modal.Body className='white-space: pre-line'  style={{display: 'flex', alignItems: 'center' }}>
-            <Container>
+            <Container className='disclaimer-container'>
               <Row className="m-3">
                 Please note that using the WhatsApp multi-device API from an unofficial WhatsApp client, like this page does, may go against WhatsApp' terms of service. Despite this restriction, WhatsApp itself cannot distinguish between a real web client and an unofficial implementation, resulting in no adverse when using What's Viz.
               </Row>

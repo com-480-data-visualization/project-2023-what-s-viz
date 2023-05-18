@@ -107,7 +107,7 @@ export default function SearchField({selected, setSelected, idToGroup, idToConta
   
     return (
       <>
-        <InputGroup className="mb-3">
+        <InputGroup>
           <Form.Control
             ref={ref}
             placeholder="Currently no chat selected, showing all."
