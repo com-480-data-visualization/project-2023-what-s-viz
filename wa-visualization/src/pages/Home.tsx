@@ -8,6 +8,7 @@ import { updateBagOfWord } from '../utils/Utils';
 import Disclaimer from '../components/Disclaimer'
 import DebugSaveLoad from '../components/DebugSaveLoad';
 import Container from 'react-bootstrap/Container';
+import LanguageStats from '../components/LanguageStats.js';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
@@ -251,6 +252,9 @@ function Home() {
                   <Col>Messages: {stats.messages}</Col>
                   <Col>Contacts: {Object.keys(idToContact).length}</Col>
                   <Col>Groups: {Object.keys(idToGroup).length}</Col>
+                </Row>
+                <Row>
+                  <LanguageStats idToMessage={idToMessage} selectedId={selectedId} />
                 </Row>
               </Row>
               <Row className="p-2 topPadding20 rounded border border-secondary greenish" >

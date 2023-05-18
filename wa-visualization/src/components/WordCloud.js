@@ -110,7 +110,6 @@ export function WordCloud({ bagOfWord, selectedId }) {
 
   const d3Ref = useD3(
     (svg) => {
-      console.log(dimensions);
       function draw(words) {
         svg
           .append("g")
