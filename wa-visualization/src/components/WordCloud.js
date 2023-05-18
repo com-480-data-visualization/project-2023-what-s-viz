@@ -4,7 +4,7 @@ import * as d3 from "d3";
 import * as cloud from "d3-cloud";
 import { useD3 } from "../hooks/useD3";
 import { useLayoutEffect, useState, useEffect, useRef } from "react";
-import { Container } from "react-bootstrap";
+import { Container, Row } from "react-bootstrap";
 
 export function WordCloud({ bagOfWord, selectedId }) {
   const refContainer = useRef();
@@ -13,31 +13,48 @@ export function WordCloud({ bagOfWord, selectedId }) {
   // The cloud layout function
   var layout = cloud();
 
+  // Languages again
+  const browserLanguages = navigator.languages.map((lan) => lan.slice(0, 2));
+  const shornames = new Set([ ...["unk", "en", "de", "fr", "it"], ...browserLanguages]);
+  const fullnames = ["Unknown", "English", "German", "French", "Italian"]
+  const lanColorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(shornames)
+
+  console.log("Scale", fullnames, lanColorScale.domain(), lanColorScale.range())
+
   const [words, setWords] = useState([]);
   // Build the words with size depending on the frequency in this conversation
   useEffect(() => {
     // If we have an ID selected run for that ID, otherwise sum over all chats & users
     var wordCounts = {};
+    var wordColor = {};
     if (selectedId !== undefined) {
       for (let [chat, innerWords] of Object.entries(bagOfWord)) {
-        for (let [word, value] of Object.entries(innerWords)) {
+        for (let [word, wordObj] of Object.entries(innerWords)) {
+          let value = wordObj['c'];
+          // choose color according to the language of the word
+          // TODO 
+          let color = lanColorScale(wordObj['lan']);
           if (word.length > 0 && chat === selectedId) {
             if (word in wordCounts) {
               wordCounts[word] += value;
             } else {
               wordCounts[word] = value;
+              wordColor[word] = color;
             }
           }
         }
       }
     } else {
       for (let [chat, innerWords] of Object.entries(bagOfWord)) {
-        for (let [word, value] of Object.entries(innerWords)) {
+        for (let [word, wordObj] of Object.entries(innerWords)) {
+          let value = wordObj['c'];
+          let color = lanColorScale(wordObj['lan']);
           if (word.length > 0) {
             if (word in wordCounts) {
               wordCounts[word] += value;
             } else {
               wordCounts[word] = value;
+              wordColor[word] = color;
             }
           }
         }
@@ -46,7 +63,7 @@ export function WordCloud({ bagOfWord, selectedId }) {
     //console.log("WordCloud useEffect starting with ",  Object.keys(wordCounts).length, "words")
     let newWords = [];
     for (let [word, value] of Object.entries(wordCounts)) {
-      newWords.push({ text: word, value: value });
+      newWords.push({ text: word, value: value, color: wordColor[word] });
     }
     // amount fitted for:
     // 100 for 370, 500
@@ -111,6 +128,9 @@ export function WordCloud({ bagOfWord, selectedId }) {
             return d.size + "px";
           })
           .style("font-family", "Impact")
+          .style("fill", function (d, id) {
+            return d.color;
+          })
           .attr("text-anchor", "middle")
           .attr("transform", function (d) {
             return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
@@ -155,7 +175,8 @@ export function WordCloud({ bagOfWord, selectedId }) {
 
   return (
     <Container>
-      { words.length < 10 && <p>Currently not enough words for a word-cloud.</p> }
+      { words.length < 10 && <Row><p>Currently not enough words for a word-cloud.</p></Row> }
+      { words.length >= 10 && <Row><p>Legend TODO</p></Row> }
       <div
         className={"row p-0 m-0" + (words.length < 10 ? 'hidden' : 'show')}
         id="content"

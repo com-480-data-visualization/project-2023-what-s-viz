@@ -137,23 +137,39 @@ function Home() {
   // ====================== Setup function ====================== //
 
   // Use NLP to guess the language of each message  
-  /*
   const { Language } = require('node-nlp');
   const language = new Language();
+
+  // get browser languages
+  const browserLanguages = navigator.languages;
+  const allow_list = [ ...["en", "de", "fr", "it"], ...browserLanguages];
+
   function addLanguage(messages: any) {
     let updated_messages: any = {};
     Object.keys(messages).forEach((key) => {
       let message = messages[key].message
-      let guess = language.guessBest(message);
-      messages[key].language = guess[0].language;
-      console.log("Language: ", guess[0].language, " for message: ", message, " with score: ", guess[0].score)
+      if (message.split(" ").length > 3) {
+        let guesses = language.guess(message, allow_list);
+        //console.log("message: ", message)
+        //console.log("guesses: ", guesses)
+        if (guesses.length > 0 && guesses[0].score > 0.9) {
+          messages[key].language = guesses[0].language;
+          messages[key].lan = guesses[0].alpha2;
+        } else {
+          messages[key].language = "Unknown";
+          messages[key].lan = "unk";
+        }
+      } else {
+        messages[key].language = "Unknown";
+        messages[key].lan = "unk";
+      }
       updated_messages[key] = messages[key]
     })
     return updated_messages;
-  }*/
+  }
 
   function doMsg(messages: any) {
-    //messages = addLanguage(messages)
+    messages = addLanguage(messages)
     updateBagOfWord(messages, setBagOfWord, bagOfWord)
     updateMessageStatsPerContact(messages)
     updateMessageStatsPerChat(messages)

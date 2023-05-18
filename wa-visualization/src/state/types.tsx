@@ -2,7 +2,7 @@
   interface stringDict { [index: string]: any }
   interface counter { [index: string]: number }
 
-  interface bagWords { [index: string]: { [index: string]: number } }
+  interface bagWords { [index: string]: { [index: string]: { [index: string]: any } } }
 
   interface contact{
     name: string,

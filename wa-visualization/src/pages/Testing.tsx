@@ -84,7 +84,6 @@ function Testing() {
   }
   // =============================================================== //
 
-  /*
   const { Language } = require('node-nlp');
   const language = new Language();
   // Read the browser languages
@@ -104,7 +103,6 @@ function Testing() {
     );
     console.log(guess[0]);
   }, [])
-  */
   
   return (
     <Container>

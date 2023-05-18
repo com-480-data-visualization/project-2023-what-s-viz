@@ -30,32 +30,33 @@ function updateBagOfWord(messages: any, setBagOfWord: any, bagOfWord: any) {
             if (!updated_value_bag[chat_id])
                 updated_value_bag[chat_id] = {}
             if (!updated_value_bag[chat_id][w])
-                updated_value_bag[chat_id][w] = 1;
+                updated_value_bag[chat_id][w] = {'c': 1, 'lang': messages[key].language, 'lan':messages[key].lan};
             else
-                updated_value_bag[chat_id][w] += 1;
+                updated_value_bag[chat_id][w]['c'] += 1;
             // Update sender
             if (!updated_value_bag[sender])
                 updated_value_bag[sender] = {}
             if (!updated_value_bag[sender][w])
-                updated_value_bag[sender][w] = 1;
+                updated_value_bag[sender][w] = {'c': 1, 'lang': messages[key].language, 'lan':messages[key].lan};
             else
-                updated_value_bag[sender][w] += 1;
+                updated_value_bag[sender][w]['c'] += 1;
         })
     })
 
     function reduceBagOfWord(prev: bagWords, updated_stats: bagWords) {
         let merged: bagWords = {}
         for (let [chat, words] of Object.entries(updated_stats)) {
-            for (let [word, value] of Object.entries(words)) {
+            for (let [word, wordObj] of Object.entries(words)) {
                 if (prev.hasOwnProperty(chat)) {
                     merged[chat] = prev[chat]
                 } else if (!merged.hasOwnProperty(chat)) {
                     merged[chat] = {}
                 }
                 if (merged[chat].hasOwnProperty(word)) {
-                    merged[chat][word] += value
+                    let value = wordObj['c'];
+                    merged[chat][word]['c'] += value;
                 } else {
-                    merged[chat][word] = value
+                    merged[chat][word] = wordObj;
                 }
             }
         }
