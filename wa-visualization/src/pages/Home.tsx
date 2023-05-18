@@ -254,12 +254,15 @@ function Home() {
                   <Col>Groups: {Object.keys(idToGroup).length}</Col>
                 </Row>
                 <Row>
-                  <LanguageStats idToMessage={idToMessage} selectedId={selectedId} />
+                  <LanguageStats idToMessage={idToMessage} selectedId={undefined} />
                 </Row>
               </Row>
               <Row className="p-2 topPadding20 rounded border border-secondary greenish" >
                 <Row className="p-2" ><SearchField selected={selectedId} setSelected={setSelectedId} idToGroup={idToGroup} idToContact={idToContact} /> </Row>
                 {/* TODO make the nice plots of this! */}
+                <Row>
+                  <LanguageStats idToMessage={idToMessage} selectedId={selectedId} />
+                </Row>
                 <Row className="p-2" ><WordCloud bagOfWord={bagOfWord} selectedId={selectedId} /></Row>
               </Row>
             </Container>
