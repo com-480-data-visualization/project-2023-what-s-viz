@@ -20,6 +20,7 @@ export class ForceGraph {
   // update the data (add nodes and edges), we never remove nodes or edges
   update(data) {
     // to update run trough the data nodes and add the new ones
+    this.simulation.stop();
     for (let psb_new_node of data.nodes) {
       if (!this.nodes.find((n) => n.id === psb_new_node.id)) {
         // Give the nodes random initial positions within the graph

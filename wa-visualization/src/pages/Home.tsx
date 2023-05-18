@@ -7,11 +7,9 @@ import { WordCloud } from '../components/WordCloud.js';
 import { updateBagOfWord } from '../utils/Utils';
 import Disclaimer from '../components/Disclaimer'
 import DebugSaveLoad from '../components/DebugSaveLoad';
-
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-
 
 import {contactStatsDict, messageStats, groupDict,
   messageDict, contactDict, stringDict, bagWords} from '../state/types'
@@ -138,7 +136,24 @@ function Home() {
 
   // ====================== Setup function ====================== //
 
+  // Use NLP to guess the language of each message  
+  /*
+  const { Language } = require('node-nlp');
+  const language = new Language();
+  function addLanguage(messages: any) {
+    let updated_messages: any = {};
+    Object.keys(messages).forEach((key) => {
+      let message = messages[key].message
+      let guess = language.guessBest(message);
+      messages[key].language = guess[0].language;
+      console.log("Language: ", guess[0].language, " for message: ", message, " with score: ", guess[0].score)
+      updated_messages[key] = messages[key]
+    })
+    return updated_messages;
+  }*/
+
   function doMsg(messages: any) {
+    //messages = addLanguage(messages)
     updateBagOfWord(messages, setBagOfWord, bagOfWord)
     updateMessageStatsPerContact(messages)
     updateMessageStatsPerChat(messages)

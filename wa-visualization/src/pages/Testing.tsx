@@ -83,7 +83,29 @@ function Testing() {
     };
   }
   // =============================================================== //
-// TODO add a custom clicker for JID
+
+  /*
+  const { Language } = require('node-nlp');
+  const language = new Language();
+  // Read the browser languages
+  let browser_languages = navigator.languages
+
+  function addLanguage(messages: any) {
+    let updated_messages: any = {};
+    console.log("Browser languages: ", browser_languages);
+    return messages;
+  }
+
+  useEffect(() => {
+    // Add the browser language to the messages
+    console.log(browser_languages);
+    const guess = language.guess(
+      'When the night has come And the land is dark And the moon is the only light we see',
+    );
+    console.log(guess[0]);
+  }, [])
+  */
+  
   return (
     <Container>
       <Container>
@@ -97,11 +119,12 @@ function Testing() {
           <input type="file" className="btn btn-primary col-sm ml-1" onChange={loadHandler} />
         </div>
       </Container>
-      <WordCloud bagOfWord={bagOfWord}
-          selectedId={selectedId}
-        />
     </Container>
   );
 }
 
 export default Testing;
+
+/*
+      <WordCloud bagOfWord={bagOfWord} selectedId={selectedId}/>
+*/
