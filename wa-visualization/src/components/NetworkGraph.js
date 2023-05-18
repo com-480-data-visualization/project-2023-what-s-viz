@@ -93,6 +93,7 @@ export function NetworkGraph({
   idToContact,
   idToGroup,
   messageStatsPerChat,
+  selectedId,
   setSelectedId,
 }) {
   const [network, setNetwork] = useState(null);
@@ -107,6 +108,12 @@ export function NetworkGraph({
       }
     });
   }, [messageStatsPerChat, idToGroup, idToContact]);
+
+  useEffect(() => {
+    if (network !== null) {
+      network.selectNode(selectedId);
+    }
+  }, [selectedId]);
 
   return (
     <>

@@ -22,6 +22,13 @@ export class ForceGraph {
     this.nodes = data.nodes;
     this.edges = data.edges;
     this.updateGraph();
+    return this;
+  }
+
+  // updated the selected ID
+  selectNode(id) {
+    this.selectedId = id;
+    this.updateGraph();
   }
 
   // update the graph

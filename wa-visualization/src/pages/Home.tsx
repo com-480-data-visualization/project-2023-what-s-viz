@@ -195,8 +195,9 @@ function Home() {
       <Row className="h-100" style={{ backgroundColor: "rgb(204, 211, 209)" }}>
         <Col xs={8} style={{ display: 'flex' }}>
               <NetworkGraph idToContact ={idToContact}
-                  idToGroup = {idToGroup}
+                idToGroup = {idToGroup}
                 messageStatsPerChat={messageStatsPerChat}
+                selectedId={selectedId}
                 setSelectedId={setSelectedId}
                 />
         </Col>
