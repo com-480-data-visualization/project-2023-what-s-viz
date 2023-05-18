@@ -17,10 +17,21 @@ export class ForceGraph {
     this.draw();
   }
 
-  // update the data (add nodes and edges)
+  // update the data (add nodes and edges), we never remove nodes or edges
   update(data) {
-    this.nodes = data.nodes;
-    this.edges = data.edges;
+    // to update run trough the data nodes and add the new ones
+    for (let psb_new_node of data.nodes) {
+      if (!this.nodes.find((n) => n.id === psb_new_node.id)) {
+        this.nodes.push(psb_new_node);
+        // add all edges from this node
+        for (let psb_new_edge of data.edges) {
+          if (psb_new_edge.source === psb_new_node.id || psb_new_edge.target === psb_new_node.id) {
+            this.edges.push(psb_new_edge);
+          }
+        }
+      }
+    }
+    
     this.updateGraph();
     return this;
   }
@@ -102,10 +113,10 @@ export class ForceGraph {
           .forceLink() // This force provides links between nodes
           .id(function (d) {
             return d.id;
-          }) // This provide  the id of a node
+          }) // This provide the id of a node
           .links(this.edges) // and this the list of links
       )
-      .force("charge", d3.forceManyBody().strength(-100)) // This adds repulsion between nodes
+      .force("charge", d3.forceManyBody().strength(-200)) // This adds repulsion between nodes
       .force(
         "collision",
         d3.forceCollide((d) => d.r)
@@ -114,6 +125,15 @@ export class ForceGraph {
       .on("tick", this.ticked);
   }
 
+  calcNodeSize(node) {
+    let size = 5;
+    if (node.isGroup)
+      size += node.edgeCount/3
+    else
+      size += node.edgeCount/2
+    return size;
+  }
+  
   // nodes
   drawNodes() {
     const that = this;
@@ -177,9 +197,7 @@ export class ForceGraph {
           // add node circle
           node
             .append("circle")
-            .attr("r", (d) => {
-              return 10;
-            })
+            .attr("r", this.calcNodeSize)
             .style("fill", (d) => {
               if (d.id === this.selectedId) {
                 return "red";
@@ -208,9 +226,7 @@ export class ForceGraph {
           // when updating a node
           update
             .select("circle")
-            .attr("r", (d) => {
-              return 10;
-            })
+            .attr("r", this.calcNodeSize)
             .style("fill", (d) => {
               if (d.id === this.selectedId) {
                 return "red";

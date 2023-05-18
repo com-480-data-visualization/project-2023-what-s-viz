@@ -64,15 +64,6 @@ function createForceGraphEdge(nodes, messageStatsPerChat, idToGroup) {
     return edges;
   }
 
-  function createGraphObject(messageStatsPerChat, idToGroup, idToContact) {
-    let nodes = createForceGraphNode(idToContact, idToGroup);
-    // take online 10 * count nodea
-    //nodes = nodes.slice(0, 10 * count);
-    let edges = createForceGraphEdge(nodes, messageStatsPerChat, idToGroup);
-
-    return { nodes: nodes, edges: edges };
-  }
-
   // scale strength between 0 and 1
   for (let edge of edges) {
     edge.strength = edge.strength / totalCount;
@@ -85,6 +76,31 @@ function createGraphObject(messageStatsPerChat, idToGroup, idToContact) {
   // take online 10 * count nodea
   //nodes = nodes.slice(0, 10 * count);
   let edges = createForceGraphEdge(nodes, messageStatsPerChat, idToGroup);
+
+  // run over all nodes and remove those that are not part of a single edge
+  let nodeIds = new Set();
+  edges.forEach((edge) => {
+    nodeIds.add(edge.source);
+    nodeIds.add(edge.target);
+  });
+  nodes = nodes.filter((node) => nodeIds.has(node.id));
+
+  // add to each node the number of edges it is part of
+  // useful for force graph to adjust node size
+  let nodeToEdgeCount = {};
+  edges.forEach((edge) => {
+    if (nodeToEdgeCount[edge.source] === undefined) {
+      nodeToEdgeCount[edge.source] = 0;
+    }
+    if (nodeToEdgeCount[edge.target] === undefined) {
+      nodeToEdgeCount[edge.target] = 0;
+    }
+    nodeToEdgeCount[edge.source] += 1;
+    nodeToEdgeCount[edge.target] += 1;
+  });
+  nodes.forEach((node) => {
+    node.edgeCount = nodeToEdgeCount[node.id];
+  });
 
   return { nodes: nodes, edges: edges };
 }

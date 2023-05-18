@@ -21,7 +21,7 @@ function DebugSaveLoad({
   function doUpdate(data) {
     if (Object.keys(data.messages).length > 0) {
       // Lets not add all of them at the same time, but in chunks
-      let chunk_keys = Object.keys(data.messages).splice(0, 500);
+      let chunk_keys = Object.keys(data.messages).splice(0, 1000);
       
       // create a single chunk object from the keys
       let chunk = {};
@@ -81,7 +81,6 @@ function DebugSaveLoad({
         } else {
           const data = JSON.parse(loaded.target.result)
           console.log("Was able to read the file, lets run them!")
-          console.log(data.messages)
           doUpdate(data)
           // Run every n seconds a chunk adding
           const updateID = setInterval(() => {
