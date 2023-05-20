@@ -1,17 +1,17 @@
 {
   "files": {
-    "main.css": "/project-2023-what-s-viz/static/css/main.31e3e418.css",
-    "main.js": "/project-2023-what-s-viz/static/js/main.2252bb3a.js",
+    "main.css": "/project-2023-what-s-viz/static/css/main.38eb2af4.css",
+    "main.js": "/project-2023-what-s-viz/static/js/main.885adcb4.js",
     "static/js/787.fa024b08.chunk.js": "/project-2023-what-s-viz/static/js/787.fa024b08.chunk.js",
     "static/media/logo.png": "/project-2023-what-s-viz/static/media/logo.2f902580b01490c05282.png",
     "index.html": "/project-2023-what-s-viz/index.html",
     "static/media/index.cjs": "/project-2023-what-s-viz/static/media/index.88d9c658b5ebd0b9ee47.cjs",
-    "main.31e3e418.css.map": "/project-2023-what-s-viz/static/css/main.31e3e418.css.map",
-    "main.2252bb3a.js.map": "/project-2023-what-s-viz/static/js/main.2252bb3a.js.map",
+    "main.38eb2af4.css.map": "/project-2023-what-s-viz/static/css/main.38eb2af4.css.map",
+    "main.885adcb4.js.map": "/project-2023-what-s-viz/static/js/main.885adcb4.js.map",
     "787.fa024b08.chunk.js.map": "/project-2023-what-s-viz/static/js/787.fa024b08.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.31e3e418.css",
-    "static/js/main.2252bb3a.js"
+    "static/css/main.38eb2af4.css",
+    "static/js/main.885adcb4.js"
   ]
 }
