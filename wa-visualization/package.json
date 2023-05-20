@@ -48,6 +48,7 @@
     "natural": "^6.2.0",
     "node-nlp": "^3.10.2",
     "os-browserify": "^0.3.0",
+    "patch-package": "^7.0.0",
     "path-browserify": "^1.0.1",
     "postcss": "^8.4.4",
     "postcss-flexbugs-fixes": "^5.0.2",
@@ -94,7 +95,8 @@
     "watch:ts": "node scripts/start.js",
     "watch:wasm": "watch \"npm run build:wasm\" ./wasm",
     "build:ts": "node scripts/build.js",
-    "build:wasm": "cd wasm && GOOS=js GOARCH=wasm go build -o ../public/main.wasm -ldflags=\"-s -w\" && cd .. && echo \"\\033[0;32mcompiled wasm successfully!\\033[0m\""
+    "build:wasm": "cd wasm && GOOS=js GOARCH=wasm go build -o ../public/main.wasm -ldflags=\"-s -w\" && cd .. && echo \"\\033[0;32mcompiled wasm successfully!\\033[0m\"",
+    "postinstall": "patch-package"
   },
   "eslintConfig": {
     "extends": [

@@ -1,0 +1,40 @@
+diff --git a/node_modules/node-nlp/lib/classifiers/neural-network.js b/node_modules/node-nlp/lib/classifiers/neural-network.js
+index 51de3f7..a1f875b 100644
+--- a/node_modules/node-nlp/lib/classifiers/neural-network.js
++++ b/node_modules/node-nlp/lib/classifiers/neural-network.js
+@@ -29,16 +29,6 @@ const {
+   getTypedArrayFn,
+ } = require('../util/helper');
+ 
+-let performance;
+-// eslint-disable-next-line
+-if (typeof window === 'undefined') {
+-  // eslint-disable-next-line
+-  performance = require('perf_hooks').performance;
+-} else {
+-  // eslint-disable-next-line
+-  performance = window.performance;
+-}
+-
+ /**
+  * Class for a dense neural network, with an input and output layers fully connected,
+  * using a leaky-relu activation
+@@ -181,7 +171,6 @@ class NeuralNetwork {
+       this.status.error > minError &&
+       this.status.deltaError > minDelta
+     ) {
+-      const hrstart = performance.now();
+       this.status.iterations += 1;
+       const lastError = this.status.error;
+       this.status.error = 0;
+@@ -195,10 +184,6 @@ class NeuralNetwork {
+       }
+       this.status.error /= data.length;
+       this.status.deltaError = Math.abs(this.status.error - lastError);
+-      const hrend = performance.now();
+-      if (this.logFn) {
+-        this.logFn(this.status, hrend - hrstart);
+-      }
+     }
+     return this.status;
+   }
