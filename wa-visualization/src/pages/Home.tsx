@@ -268,6 +268,9 @@ function Home() {
                 </Row>
               }
               <Row className="p-2 mb-2 rounded border border-secondary greenish" >
+                <Legend />
+              </Row>
+              <Row className="p-2 mb-2 rounded border border-secondary greenish" >
                 <Row>
                   <Col style={{ display: 'flex', alignItems: 'center' }}>
                     Some statistics about your total data:
@@ -281,9 +284,6 @@ function Home() {
                 <Row>
                   <LanguageStats idToMessage={idToMessage} selectedId={undefined} />
                 </Row>
-              </Row>
-              <Row className="p-2 mb-2 rounded border border-secondary greenish" >
-                <Legend />
               </Row>
               <Row className="p-2 mb-2 rounded border border-secondary greenish" >
                 <Row className="p-2" ><SearchField selected={selectedId} setSelected={setSelectedId} idToGroup={idToGroup} idToContact={idToContact} /> </Row>
