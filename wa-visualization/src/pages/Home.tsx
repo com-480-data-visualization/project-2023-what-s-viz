@@ -25,6 +25,7 @@ declare global {
 }
 
 function Home() {
+  const debug = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
   
   // ============================= State ============================ //
   const [update, setUpdate] = useState(0);
@@ -32,6 +33,7 @@ function Home() {
     messages: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [loggedIn, setLoggedIn] = useState(false);
 
   // Messages for export
   const [idToMessage, setIdToMessage] = useState<messageDict>({})
@@ -52,7 +54,18 @@ function Home() {
   const [selectedId, setSelectedId] = useState<string>() // No group or contact will ever have ID 0
  
   // =============================================================== //
-  
+ 
+  function resetData() {
+    setStats({ messages: 0 })
+    setIdToMessage({})
+    setIdToGroup({})
+    setIdToContact({})
+    setBagOfWord({})
+    setMessageStatsPerChat({})
+    setMessageStatsPerContact({})
+    setSelectedId(undefined)
+  }
+
   // ==================== State update function ==================== //
   function reduceCounter(prevCount:stringDict, changed_value:stringDict){
     let summed: { [index: string]: any }= {}
@@ -192,6 +205,7 @@ function Home() {
 
   function doSetup() {
     setIsLoading(true);
+    setLoggedIn(false);
     // Test run of https://github.com/sql-js/sql.js
     initSqlJs({
       locateFile: () => process.env.PUBLIC_URL + '/sql-wasm.wasm'
@@ -236,16 +250,26 @@ function Home() {
         <Col xs={4} className='leftPadding30 rightPadding30'>
           <Row className='topPadding20'>
             <Container>
-              <Row className="p-2 rounded border border-secondary greenish" ><AuthModule isLoading={isLoading} doSetup={doSetup} /></Row>    
-              <Row className="p-2" >
-                <DebugSaveLoad
-                  idToMessage={idToMessage} idToContact={idToContact} idToGroup={idToGroup}
-                  doMsg={doMsg} doContacts={doContacts} doGroups={doGroups}/>
+              <Row className="p-2 mb-2 rounded border border-secondary greenish" >
+                <AuthModule isLoading={isLoading}
+                  loginHook={() => {
+                    resetData();
+                    setLoggedIn(true);
+                  }}
+                  logoutHook={() => doSetup()} />
               </Row>
-              <Row className="p-2 rounded border border-secondary greenish" >
+              { (!loggedIn || debug ) &&
+                <Row className="p-2 mb-2 rounded border border-secondary greenish" >
+                  <DebugSaveLoad
+                    idToMessage={idToMessage} idToContact={idToContact} idToGroup={idToGroup}
+                    resetData={resetData}
+                    doMsg={doMsg} doContacts={doContacts} doGroups={doGroups}/>
+                </Row>
+              }
+              <Row className="p-2 mb-2 rounded border border-secondary greenish" >
                 <Row>
                   <Col style={{ display: 'flex', alignItems: 'center' }}>
-                    Some simple numbers about your data:
+                    Some statistics about your total data:
                   </Col>
                 </Row>
                 <Row>
@@ -257,7 +281,7 @@ function Home() {
                   <LanguageStats idToMessage={idToMessage} selectedId={undefined} />
                 </Row>
               </Row>
-              <Row className="p-2 topPadding20 rounded border border-secondary greenish" >
+              <Row className="p-2 mb-2 rounded border border-secondary greenish" >
                 <Row className="p-2" ><SearchField selected={selectedId} setSelected={setSelectedId} idToGroup={idToGroup} idToContact={idToContact} /> </Row>
                 {/* TODO make the nice plots of this! */}
                 <Row>

@@ -119,6 +119,9 @@ export function NetworkGraph({
     setNetwork((prev) => {
       if (prev === null) {
         return new ForceGraph("#network", data, setSelectedId);
+      } else if (data.nodes.length === 0) {
+        prev.clear();
+        return new ForceGraph("#network", data, setSelectedId);
       } else {
         return prev.update(data);
       }
@@ -133,7 +136,6 @@ export function NetworkGraph({
 
   return (
     <>
-      {/* Rewrite the following using bootstrap rows */}
       <Container>
         {/*
       <Row>

@@ -1,0 +1,65 @@
+{
+    "messages": {
+        "3A96E69BDD85B45CB304": {
+            "chat": "41787219500-1611921516",
+            "sent-by": "41799070797",
+            "message": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            "id": "3A96E69BDD85B45CB304",
+            "timestamp": "2023-05-17 19:05:16 +0200 UTC+2"
+        },
+        "3AD6914A40BEC09E3F70": {
+            "message": "Nulla aliquet lacus sit amet dolor consectetur semper.",
+            "id": "3AD6914A40BEC09E3F70",
+            "timestamp": "2023-05-17 17:01:14 +0200 UTC+2",
+            "chat": "41796400000",
+            "sent-by": "41796400000"
+        },
+        "7D7946EFEA66AD89D08D2F2656E83816": {
+            "id": "7D7946EFEA66AD89D08D2F2656E83816",
+            "timestamp": "2023-05-18 09:39:38 +0200 UTC+2",
+            "chat": "120363056893641466",
+            "sent-by": "33670997406",
+            "message": "Phasellus dapibus purus id nisl faucibus, quis auctor tellus condimentum."
+        },
+        "3EB016A23AA343DB24D1": {
+            "id": "3EB016A23AA343DB24D1",
+            "timestamp": "2023-04-27 18:27:54 +0200 UTC+2",
+            "chat": "120363040788573962",
+            "sent-by": "41796400000",
+            "message": "Quisque sed mi in nibh egestas aliquet."
+        }
+    },
+    "groups": {
+        "120363040788573962": {
+            "topic": "Phasellus dapibus purus id nisl faucibus, quis auctor tellus condimentum.",
+            "participants": [
+                "41796400000",
+                "393468200000",
+                "393478600000"
+            ],
+            "avatar": "",
+            "name": "Suspendisse sed nisi",
+            "owner_id": "41794564471"
+        }
+    },
+    "contacts": {
+        "41796400000": {
+            "registered": true,
+            "name": "Test 1",
+            "avatar": "https://cataas.com/cat?width=100&height=100",
+            "status": "Aliquam a mauris ultricies, lobortis risus vitae, scelerisque metus."
+        },
+        "393468200000": {
+            "registered": true,
+            "name": "Test 2",
+            "avatar": "https://cataas.com/cat?width=100&height=100",
+            "status": "♥"
+        },
+        "393478600000": {
+            "status": "Cras euismod lorem sed maximus auctor.",
+            "registered": true,
+            "name": "Test 3",
+            "avatar": "https://cataas.com/cat?width=100&height=100"
+        }
+    }
+}

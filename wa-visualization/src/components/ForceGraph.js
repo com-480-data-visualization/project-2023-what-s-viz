@@ -250,6 +250,11 @@ export class ForceGraph {
       );
   }
 
+  clear() {
+    this.nodes = [];
+    this.container.selectAll("*").remove();
+  }
+
   // links
   drawLinks() {
     const that = this;

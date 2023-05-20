@@ -4,7 +4,7 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import { Container, Row, Col } from "react-bootstrap";
 
-export default function Home({ isLoading, doSetup }) {
+export default function Home({ isLoading, loginHook, logoutHook }) {
   // ============================= State ============================ //
   // Hand the setRes func to go to run the create Data
   const [res, setRes] = useState("not logged in");
@@ -14,6 +14,7 @@ export default function Home({ isLoading, doSetup }) {
   const loginHandler = (e) => {
     e.preventDefault();
     console.log("Clicked login");
+    loginHook();
     if (!isLoading) {
       // Login the user
       new Promise((resolve, reject) => {
@@ -38,13 +39,13 @@ export default function Home({ isLoading, doSetup }) {
   const logoutHandler = (e) => {
     e.preventDefault();
     console.log("Clicked logout");
-    // Logout the user and reset if it is a sucess
+      logoutHook();
+      // Logout the user and reset if it is a sucess
     window
       .logoutUser()
       .then((_) => {
         setLoggedIn(false);
         setRes("not logged in");
-        doSetup();
       })
       .catch((err) => {
         console.log(err);
@@ -56,18 +57,17 @@ export default function Home({ isLoading, doSetup }) {
   function handleClose() {
       setShowQR(false);
       setLoggedIn(false);
+      logoutHook();
       window
         .logoutUser()
         .then((_) => {
           setLoggedIn(false);
           setRes("not logged in");
-          doSetup();
         })
         .catch((err) => {
           console.log(err);
           setLoggedIn(false);
           setRes("not logged in");
-          doSetup();
         });
     }
 
@@ -139,6 +139,13 @@ export default function Home({ isLoading, doSetup }) {
                   <Col xs="4" className="float-end">
                     <QRCode value={res} fgColor="#022224ff" />
                   </Col>
+              </Row>
+              <Row className="p-2 m-3">
+                <b>Note:</b>
+                <p>All data is stored and used locally in your browser memory.
+                None of your WhatsApp data is sent to any server.
+                This also means that you have to login every time you leave this tab!
+                </p>
               </Row>
           </Container>
         </Modal.Body>
