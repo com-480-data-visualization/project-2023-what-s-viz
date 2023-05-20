@@ -167,7 +167,7 @@ function Home() {
         let guesses = language.guess(message, allow_list);
         //console.log("message: ", message)
         //console.log("guesses: ", guesses)
-        if (guesses.length > 0 && guesses[0].score > 0.9) {
+        if (guesses.length > 0 && guesses[0].score == 1) {
           messages[key].language = guesses[0].language;
           messages[key].lan = guesses[0].alpha2;
         } else {
@@ -267,9 +267,12 @@ function Home() {
                     doMsg={doMsg} doContacts={doContacts} doGroups={doGroups}/>
                 </Row>
               }
-              <Row className="p-2 mb-2 rounded border border-secondary greenish" >
-                <Legend />
-              </Row>
+              { Object.keys(idToMessage).length > 0 &&
+                <Row className="p-2 mb-2 rounded border border-secondary greenish" >
+                  <Legend />
+                </Row>
+              }
+              { Object.keys(idToMessage).length > 0 &&
               <Row className="p-2 mb-2 rounded border border-secondary greenish" >
                 <Row>
                   <Col style={{ display: 'flex', alignItems: 'center' }}>
@@ -285,6 +288,7 @@ function Home() {
                   <LanguageStats idToMessage={idToMessage} selectedId={undefined} />
                 </Row>
               </Row>
+              }
               <Row className="p-2 mb-2 rounded border border-secondary greenish" >
                 <Row className="p-2" ><SearchField selected={selectedId} setSelected={setSelectedId} idToGroup={idToGroup} idToContact={idToContact} /> </Row>
                 {/* TODO make the nice plots of this! */}
@@ -293,7 +297,7 @@ function Home() {
                 </Row>
                 <Row className="p-2" ><WordCloud bagOfWord={bagOfWord} selectedId={selectedId} /></Row>
               </Row>
-            </Container>
+              </Container>
           </Row>
         </Col>
       </Row>

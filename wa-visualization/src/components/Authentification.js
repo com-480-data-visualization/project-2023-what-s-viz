@@ -136,8 +136,8 @@ export default function Home({ isLoading, loginHook, logoutHook }) {
                           4. Point your phone to this screen to capture the QR code
                       </Row>
                   </Col>
-                  <Col xs="4" className="float-end">
-                    <QRCode value={res} fgColor="#022224ff" />
+                  <Col xs="4 mt-5" style={{ display: 'flex', alignItems: 'center' }}>
+                    <QRCode value={res} fgColor="#022224ff" size={200} />
                   </Col>
               </Row>
               <Row className="p-2 m-3">

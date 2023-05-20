@@ -145,6 +145,13 @@ export class ForceGraph {
     return size;
   }
   
+  nodeColor(d) {
+    if (d.id === this.selectedId) {
+      return "#1F7A8C";
+    }
+    return d.isGroup ? "#DAA03DFF" : "#616247FF";
+  }
+
   // nodes
   drawNodes() {
     const that = this;
@@ -209,12 +216,7 @@ export class ForceGraph {
           node
             .append("circle")
             .attr("r", this.calcNodeSize)
-            .style("fill", (d) => {
-              if (d.id === this.selectedId) {
-                return "red";
-              }
-              return d.isGroup ? "green" : "blue";
-            });
+            .style("fill", this.nodeColor);
 
           // add node text
           node
@@ -238,12 +240,7 @@ export class ForceGraph {
           update
             .select("circle")
             .attr("r", this.calcNodeSize)
-            .style("fill", (d) => {
-              if (d.id === this.selectedId) {
-                return "red";
-              }
-              return d.isGroup ? "green" : "blue";
-            });
+            .style("fill", this.nodeColor);
 
           return update;
         }
@@ -267,9 +264,9 @@ export class ForceGraph {
           d.source.id === this.selectedId ||
           d.target.id === this.selectedId
         ) {
-          return "rgba(255,0,0,0.2)";
+          return "#117a56de";
         } else {
-          return "rgba(0,0,0,0.05)";
+          return "rgba(0,0,0,0.04)";
         }
       })
       .style("stroke-width", function (d) {

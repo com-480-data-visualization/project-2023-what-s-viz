@@ -1,7 +1,7 @@
 // change the theme
 $theme-colors: (
-  "primary":    #077952ff,
-  "secondary":  #03CB89ff,
+  "primary":    rgba(7, 121, 81, 0.851),
+  "secondary":  #117a56de,
   "background":  rgb(204, 211, 209),
   "success":    #09D495ff,
   "light":      #FBFCFEff,
@@ -26,13 +26,13 @@ $theme-colors: (
 // To fix the modal container position with scroling
 @media screen and (max-height: 1100px) {
   .modal-body > .disclaimer-container {
-    margin-top:90px;
+    margin-top:140px;
   }
 }
 
 @media screen and (max-height: 850px) {
   .modal-body > .disclaimer-container {
-    margin-top:220px;
+    margin-top:260px;
   }
 }
 

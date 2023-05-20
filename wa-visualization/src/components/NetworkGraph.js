@@ -113,6 +113,8 @@ export function NetworkGraph({
   setSelectedId,
 }) {
   const [network, setNetwork] = useState(null);
+  const [empty, setEmpty] = useState(true);
+
   useEffect(() => {
     let data = createGraphObject(messageStatsPerChat, idToGroup, idToContact);
 
@@ -134,37 +136,29 @@ export function NetworkGraph({
     }
   }, [selectedId]);
 
+  useEffect(() => {
+    if (Object.keys(idToGroup).length == 0 || Object.keys(idToContact).length == 0) {
+      setEmpty(true);
+    } else {
+      setEmpty(false);
+    }
+  }, [idToGroup, idToContact]);
+
   return (
     <>
       <Container>
-        {/*
-      <Row>
-        <Col>
-        <button
-          type="button"
-          className="btn btn-primary ml-2"
-          onClick={onClick}
-        >
-          Add new contacts (testing)
-        </button>
-        </Col>
-        <Col>
-        <button
-          type="button"
-          className="btn btn-primary ml-2"
-          onClick={onClickAll}
-        >
-          Add all contacts (testing)
-        </button>
-        </Col>
-      </Row>
-      */}
+        { empty &&
+          <Row style={{ paddingTop: "20px", paddingBottom: "20px" }}>
+            There is currently no data to show a network graph for.
+            Either log in to your WhatsApp account or load dummy data to look at the visualizations.
+          </Row>
+        }
         <Row
-          style={{ paddingTop: "20px", paddingBottom: "20px", height: "100%" }}
+          style={{ paddingTop: "20px", paddingBottom: "20px", height: "100%"}}
         >
           <div
             id="network"
-            style={{ height: "100%", backgroundColor: "white" }}
+            style={{ height: "100%", backgroundColor: "white"}}
           ></div>
         </Row>
       </Container>

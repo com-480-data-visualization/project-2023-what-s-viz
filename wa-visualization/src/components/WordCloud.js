@@ -178,12 +178,12 @@ export function WordCloud({ bagOfWord, selectedId }) {
         }}
         ref={refContainer}
       >
-        <div className={(words.length < 10 ? 'hiddenNot' : 'show')}>
-        <svg
-          ref={d3Ref}
-          width={dimensions.width}
-          height={dimensions.height}
-        ></svg>
+        <div style={{ height: "100%", display: words.length < 10 ? "hidden" : "block" }}>
+          <svg
+            ref={d3Ref}
+            width={dimensions.width}
+            height={dimensions.height}
+          />
         </div>
       </Row>
     </Container>
