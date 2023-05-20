@@ -4,7 +4,8 @@ import * as d3 from "d3";
 import * as cloud from "d3-cloud";
 import { useD3 } from "../hooks/useD3";
 import { useLayoutEffect, useState, useEffect, useRef } from "react";
-import { Container, Row, Col, Table } from "react-bootstrap";
+import { Container, Row } from "react-bootstrap";
+import LanguageLists from "../utils/LanguageLists.js";
 
 export function WordCloud({ bagOfWord, selectedId }) {
   const refContainer = useRef();
@@ -13,14 +14,7 @@ export function WordCloud({ bagOfWord, selectedId }) {
   // The cloud layout function
   var layout = cloud();
 
-  // Languages again
-  const browserLanguages = navigator.languages.map((lan) => lan.slice(0, 2));
-  const shornames = Array.from(new Set([ ...["en", "de", "fr", "it", "unk"], ...browserLanguages]));
-  const fullnames = ["English", "German", "French", "Italian", "Unknown"];
-  var combinednames = fullnames.map(function(e, i) {
-    return [e, shornames[i]];
-  });
-  const lanColorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(shornames);
+  const [shornames, fullnames, combinednames, lanColorScale] = LanguageLists();
 
   const [words, setWords] = useState([]);
   // Build the words with size depending on the frequency in this conversation
@@ -177,27 +171,6 @@ export function WordCloud({ bagOfWord, selectedId }) {
   return (
     <Container fluid className="h-100">
       { words.length < 10 && <Row className="p-2">Currently not enough words for a word-cloud.</Row> }
-      { words.length >= 10 && <Row className="">
-        <Table responsive className="m-0">
-          <thead>
-           <tr>
-            {
-              // For each of the fullnames create a col with this name and its color
-              combinednames.map((lan, i) => (
-                <th key={i} className="p-0 m-0"
-                  style={{
-                    color: lanColorScale(lan[1]),
-                    height: "1em",
-                    width: "1em",
-                  }}>
-                  {lan[0]}
-                </th>
-              ))
-            }
-            </tr>
-          </thead>
-        </Table>
-      </Row> }
       <Row
         className={"p-0 m-0 h-100"}
         style={{

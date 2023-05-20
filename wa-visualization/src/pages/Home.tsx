@@ -11,6 +11,7 @@ import Container from 'react-bootstrap/Container';
 import LanguageStats from '../components/LanguageStats.js';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Legend from '../components/Legend.js';
 
 import {contactStatsDict, messageStats, groupDict,
   messageDict, contactDict, stringDict, bagWords} from '../state/types'
@@ -247,8 +248,8 @@ function Home() {
                 setSelectedId={setSelectedId}
                 />
         </Col>
-        <Col xs={4} className='leftPadding30 rightPadding30'>
-          <Row className='topPadding20'>
+        <Col xs={4} className='leftPadding20 topPadding20 rightPadding30'>
+          <Row>
             <Container>
               <Row className="p-2 mb-2 rounded border border-secondary greenish" >
                 <AuthModule isLoading={isLoading}
@@ -280,6 +281,9 @@ function Home() {
                 <Row>
                   <LanguageStats idToMessage={idToMessage} selectedId={undefined} />
                 </Row>
+              </Row>
+              <Row className="p-2 mb-2 rounded border border-secondary greenish" >
+                <Legend />
               </Row>
               <Row className="p-2 mb-2 rounded border border-secondary greenish" >
                 <Row className="p-2" ><SearchField selected={selectedId} setSelected={setSelectedId} idToGroup={idToGroup} idToContact={idToContact} /> </Row>
