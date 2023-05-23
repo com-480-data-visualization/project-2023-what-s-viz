@@ -147,9 +147,9 @@ export class ForceGraph {
   
   nodeColor(d) {
     if (d.id === this.selectedId) {
-      return "#1F7A8C";
+      return "#AA5656";
     }
-    return d.isGroup ? "#D7C79E" : "#616247FF";
+    return d.isGroup ? "#B99B6B" : "#698269";
   }
 
   // nodes
@@ -264,7 +264,7 @@ export class ForceGraph {
           d.source.id === this.selectedId ||
           d.target.id === this.selectedId
         ) {
-          return "#BA7967";
+          return "#AA5656";
         } else {
           return "rgba(0,0,0,0.04)";
         }

@@ -38,3 +38,25 @@ index 51de3f7..a1f875b 100644
      }
      return this.status;
    }
+diff --git a/node_modules/node-nlp/lib/nlp/stemmers/ukrainian-stemmer.js b/node_modules/node-nlp/lib/nlp/stemmers/ukrainian-stemmer.js
+index 280fa02..d97dd04 100644
+--- a/node_modules/node-nlp/lib/nlp/stemmers/ukrainian-stemmer.js
++++ b/node_modules/node-nlp/lib/nlp/stemmers/ukrainian-stemmer.js
+@@ -32,7 +32,7 @@ class UkrainianStemmer extends BaseStemmer {
+   }
+ 
+   step1(word) {
+-    if (!this.match(word, /(?:[иы]в(?:ши(?:сь)?)?|(?<=[ая])(?:в(?:ши(?:сь)?)?))$/)) {
++    if (!this.match(word, /(?:[иы]в(?:ши(?:сь)?)?|(?:[ая])(?:в(?:ши(?:сь)?)?))$/)) {
+       this.match(word, /с[яьи]$/);
+       if (this.match(word, /(?:[аеєуюя]|еє|ем|єє|ий|их|іх|ів|ій|ім|їй|ім|им|ими|іми|йми|ої|ою|ова|ове|ого|ому)$/)) {
+         this.match(word, /(?:[аіу]|ій|ий|им|ім|их|йми|ого|ому|ою)$/);
+@@ -49,7 +49,7 @@ class UkrainianStemmer extends BaseStemmer {
+   }
+ 
+   step3(word) {
+-    if ((/[^аеиоуюяіїє][аеиоуюяіїє]+[^аеиоуюяіїє]+[аеиоуюяіїє].*(?<=о)сть?$/g).test(word.str)) {
++    if ((/[^аеиоуюяіїє][аеиоуюяіїє]+[^аеиоуюяіїє]+[аеиоуюяіїє].*(?:о)сть?$/g).test(word.str)) {
+       this.match(word, /ость$/);
+     }
+   }
