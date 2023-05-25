@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import useFetch from "../hooks/useFetch";
 
 /*
  * Network graph class to show contacts landscape
@@ -30,13 +31,16 @@ export class ForceGraph {
         this.nodes.push(psb_new_node);
         // add all edges from this node
         for (let psb_new_edge of data.edges) {
-          if (psb_new_edge.source === psb_new_node.id || psb_new_edge.target === psb_new_node.id) {
+          if (
+            psb_new_edge.source === psb_new_node.id ||
+            psb_new_edge.target === psb_new_node.id
+          ) {
             this.edges.push(psb_new_edge);
           }
         }
       }
     }
-    
+
     this.updateGraph(0.15);
     return this;
   }
@@ -60,7 +64,8 @@ export class ForceGraph {
     this.simulation.force(
       "link",
       d3
-        .forceLink().strength(0.2) // This force provides links between nodes
+        .forceLink()
+        .strength(0.2) // This force provides links between nodes
         .id(function (d) {
           return d.id;
         }) // This provide  the id of a node
@@ -77,7 +82,7 @@ export class ForceGraph {
     // center the graph and reset the simulation
     this.simulation.force(
       "center",
-      d3.forceCenter(this.bb.width / 2 - 25, this.bb.height / 2 - 25)//.strength(5)
+      d3.forceCenter(this.bb.width / 2 - 25, this.bb.height / 2 - 25) //.strength(5)
     );
     this.simulation.alpha(0.1).restart();
   };
@@ -119,32 +124,48 @@ export class ForceGraph {
       .force(
         "link",
         d3
-          .forceLink().strength(0.2) // This force provides links between nodes
+          .forceLink()
+          .strength(0.2) // This force provides links between nodes
           .id(function (d) {
             return d.id;
           }) // This provide the id of a node
           .links(this.edges) // and this the list of links
       )
-      .force("charge", d3.forceManyBody().strength((d) => {
-        // calculate the charge based on the node size
-        if (d.edgeCount == 1)
-          return -5;
-        return -30 * this.calcNodeSize(d);
-      })) // This adds repulsion between nodes
-      .force('collide', d3.forceCollide().radius(function(d){ return d.r + 1 }).strength(function(d){ return -1 * d.r }))
-      .force("center", d3.forceCenter(this.bb.width / 2 - 25, this.bb.height / 2 - 25).strength(0.5)) // This force attracts nodes to the center of the this.svg area
+      .force(
+        "charge",
+        d3.forceManyBody().strength((d) => {
+          // calculate the charge based on the node size
+          if (d.edgeCount == 1) return -5;
+          return -30 * this.calcNodeSize(d);
+        })
+      ) // This adds repulsion between nodes
+      .force(
+        "collide",
+        d3
+          .forceCollide()
+          .radius(function (d) {
+            return d.r + 1;
+          })
+          .strength(function (d) {
+            return -1 * d.r;
+          })
+      )
+      .force(
+        "center",
+        d3
+          .forceCenter(this.bb.width / 2 - 25, this.bb.height / 2 - 25)
+          .strength(0.5)
+      ) // This force attracts nodes to the center of the this.svg area
       .on("tick", this.ticked);
   }
 
   calcNodeSize(node) {
     let size = 5;
-    if (node.isGroup)
-      size += node.edgeCount/3
-    else
-      size += node.edgeCount/2
+    if (node.isGroup) size += node.edgeCount / 3;
+    else size += node.edgeCount / 2;
     return size;
   }
-  
+
   nodeColor(d) {
     if (d.id === this.selectedId) {
       return "#AA5656";
@@ -174,11 +195,29 @@ export class ForceGraph {
               // show tooltip
               that.tooltip.transition().duration(50).style("opacity", 1);
 
-              that.tooltip.html(
-                //"<img width='10' height='10' src='n.image'/><b>" +
-                n.name + "</b>"
-              );
+              let defaultImg =
+                process.env.PUBLIC_URL +
+                "/no-profile-picture-icon-" +
+                (n.isGroup ? "group" : "contact") +
+                ".png";
 
+              let imgLink = "";
+              if (n.img) {
+                imgLink = n.img;
+              } else {
+                imgLink = defaultImg;
+              }
+              console.log(n);
+              console.log(imgLink);
+              that.tooltip.html(
+                "<style> #main {display: flex;flex-direction: column;}</style><div id='main'><img height=200 width=200 src='" +
+                  imgLink +
+                  "' onerror='this.onerror=null; this.src='" +
+                  defaultImg +
+                  "'/><b>" +
+                  n.name +
+                  "</b></div>"
+              );
               // set tooltip position
               const { width, height } = that.tooltip
                 .node()
