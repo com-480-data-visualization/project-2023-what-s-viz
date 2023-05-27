@@ -11,7 +11,7 @@ function fetchToBase64(obj: any) {
       if (obj[key].avatar && !isDataURL(obj[key].avatar)) {
         // Not loaded from json which was stored
         // so fetch the image and convert it to a base64 data string
-        fetch(obj[key].avatar, {mode: 'cors'})
+        fetch(obj[key].avatar, {mode: 'no-cors'})
           .then(res => res.blob())
           .then(blob => {
             let reader = new FileReader();
