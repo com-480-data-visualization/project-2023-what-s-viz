@@ -198,15 +198,15 @@ function Home() {
   }
 
   function doContacts(contacts:any) {
-    Promise.allSettled(fetchToBase64(contacts)).then(() => {
+    //Promise.allSettled(fetchToBase64(contacts)).then(() => {
       setIdToContact(prev => ({ ...prev, ...contacts }))
-    })
+    //})
   }
 
   function doGroups(groups:any) {
-    Promise.allSettled(fetchToBase64(groups)).then(() => {
+    //Promise.allSettled(fetchToBase64(groups)).then(() => {
       setIdToGroup(prev => ({ ...prev, ...groups }))
-    })
+    //})
   }
 
   function doSetup() {

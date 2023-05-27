@@ -200,7 +200,7 @@ func StartMeow(doneClient chan *whatsmeow.Client) {
 		}
 
 		// Lets modify the protoBuf store properties to get more history
-		store.DeviceProps.RequireFullSync = proto.Bool(false)
+		store.DeviceProps.RequireFullSync = proto.Bool(true)
 		// For info about these check: https://github.com/mautrix/whatsapp/blob/6df2ff725999ff82d0f3b171b44d748533bf34ee/example-config.yaml#L141
 		days_of_history := uint32(365 * 15)
 		config := &waproto.DeviceProps_HistorySyncConfig{
@@ -375,7 +375,7 @@ func handNewMsgsFunc() js.Func {
 func getAvatar(jid types.JID) string {
 	//fmt.Printf("Doing jid picture %v\n", jid)
 	pic, err := client.GetProfilePictureInfo(jid, &whatsmeow.GetProfilePictureParams{
-		Preview: true,
+		Preview: false,
 		//IsCommunity: false,
 		//ExistingID: "",
 	})
@@ -399,19 +399,18 @@ func handNewContactsFunc() js.Func {
 			for {
 				if clientLoaded.Load() && client.Store.Contacts != nil {
 					aggregate := make(map[string]interface{})
-					jids := make([]types.JID, 0)
-				innerFor:
-					for {
+					var jids []types.JID
+					timeout := time.After(time.Second) // Adjust the timeout duration as per your requirements
+
+				Loop:
+					for i := 0; i < 15; i++ {
 						select {
 						case jid := <-contactsJIDs:
 							jids = append(jids, jid)
-						case <-time.After(2 * time.Millisecond):
-							// After getting a few we go on
-							break innerFor
+						case <-timeout:
+							break Loop
 						}
 					}
-
-					//fmt.Printf("Getting contact info for jids: %v\n", jids)
 
 					// Actually get the user information for the new users
 					resp, err := client.GetUserInfo(jids)
@@ -471,7 +470,7 @@ func handNewContactsFunc() js.Func {
 
 				// Lets send at least every 5 seconds data to the JS side
 				// Getting profile pictures is super slow
-				time.Sleep(5000 * time.Millisecond)
+				time.Sleep(1000 * time.Millisecond)
 			}
 		}()
 		return nil
@@ -487,19 +486,18 @@ func handNewGroupsFunc() js.Func {
 				if clientLoaded.Load() && client.Store.Contacts != nil {
 					//groups, err := cli.GetJoinedGroups()
 					aggregate := make(map[string]interface{})
-					jids := make([]types.JID, 0)
-				innerFor:
-					for {
+					var jids []types.JID
+					timeout := time.After(time.Second) // Adjust the timeout duration as per your requirements
+
+				Loop:
+					for i := 0; i < 15; i++ {
 						select {
 						case jid := <-groupsJIDs:
 							jids = append(jids, jid)
-						case <-time.After(2 * time.Millisecond):
-							// After getting a few we go on
-							break innerFor
+						case <-timeout:
+							break Loop
 						}
 					}
-
-					//fmt.Printf("Getting group info for jids: %v\n", jids)
 
 					// Actually get the group information for the new users
 					for _, jid := range jids {
@@ -547,7 +545,7 @@ func handNewGroupsFunc() js.Func {
 
 				// Lets send at least every 5 seconds data to the JS side
 				// Getting profile pictures is super slow & rate limiting
-				time.Sleep(5000 * time.Millisecond)
+				time.Sleep(2000 * time.Millisecond)
 			}
 		}()
 
