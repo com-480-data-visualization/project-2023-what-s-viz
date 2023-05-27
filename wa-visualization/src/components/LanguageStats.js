@@ -12,28 +12,32 @@ var combinednames = fullnames.map(function(e, i) {
 
 export default function LanguageStats({ idToMessage, selectedId }) {
     
-    const [langStats, setLangStats] = useState(shornames.map((lan) => {return {lan: lan, count: 0}}));
+    const [langStats, setLangStats] = useState(shornames.map((lan) => {return {lan: lan, count: 0, total: 0}}));
 
     useEffect(() => {
         // Whenever the messages change, run through them and count the languages
-        var newLangStats = shornames.map((lan) => {return {lan: lan, count: 0}});
-        for (let [id, message] of Object.entries(idToMessage)) {
+        var newLangStats = shornames.map((lan) => {return {lan: lan, count: 0, total: 0}});
+        var total = 0;
+        for (let [_, message] of Object.entries(idToMessage)) {
             let idx = -1;
             if (selectedId !== undefined) {
                 if (message.lan !== undefined && (message.chat === selectedId || message['sent-by'] === selectedId)) {
                     idx = shornames.indexOf(message.lan);
+                    total += 1;
+                    newLangStats[idx].count += 1;
                 }
             } else {
                 if (message.lan !== undefined) {
                     idx = shornames.indexOf(message.lan);
                 }
+                if (idx === -1) {
+                    idx = shornames.indexOf("unk");
+                }
+                total += 1;
+                newLangStats[idx].count += 1;
             }
-
-            if (idx === -1) {
-                idx = shornames.indexOf("unk");
-            }
-            newLangStats[idx].count += 1;
         }
+        newLangStats.total = total;
         setLangStats(newLangStats);
     }, [idToMessage, selectedId]);
 
@@ -44,11 +48,11 @@ export default function LanguageStats({ idToMessage, selectedId }) {
                 langStats.filter((lanStat) => lanStat.count > 0).length > 0 &&
                 // Write the percentages of each language per row
                 langStats.map((lanStat) => {
-                    if (lanStat === undefined || Math.round(lanStat.count / Object.keys(idToMessage).length * 100) === 0) return (<></>);
+                    if (lanStat === undefined || Math.round(lanStat.count / langStats.total * 100) === 0) return (<></>);
                     return (
                         <Row>
                             <Col>{fullnames[shornames.indexOf(lanStat.lan)]}</Col>
-                            <Col>{Math.round(lanStat.count / Object.keys(idToMessage).length * 100)}%</Col>
+                            <Col>{Math.round(lanStat.count / langStats.total * 100)}%</Col>
                         </Row>
                     );
                 })

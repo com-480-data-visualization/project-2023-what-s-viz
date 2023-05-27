@@ -3,6 +3,7 @@ import Col from 'react-bootstrap/Col';
 import { Container } from "react-bootstrap";
 import exportFromJSON from 'export-from-json';
 import { useState, useEffect } from 'react';
+import fetchToBase64 from '../utils/fetchImages';
 
 function DebugSaveLoad({
   idToMessage, idToGroup, idToContact, resetData,
@@ -23,6 +24,14 @@ function DebugSaveLoad({
   const saveHandler = (e) => {
     e.preventDefault();
     console.log("Clicked save; export all current data")
+
+    Promise.allSettled(fetchToBase64(idToContact)).then(() => {
+      console.log("All contacts fetched")
+    })
+    Promise.allSettled(fetchToBase64(idToGroup)).then(() => {
+      console.log("All groups fetched")
+    })
+
     // Save
     const data = { messages: idToMessage, contacts: idToContact, groups: idToGroup}
     const fileName = 'exportOfReceivedRawData'
