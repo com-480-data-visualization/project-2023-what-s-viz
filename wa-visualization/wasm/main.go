@@ -200,7 +200,7 @@ func StartMeow(doneClient chan *whatsmeow.Client) {
 		}
 
 		// Lets modify the protoBuf store properties to get more history
-		store.DeviceProps.RequireFullSync = proto.Bool(false)
+		store.DeviceProps.RequireFullSync = proto.Bool(true)
 		// For info about these check: https://github.com/mautrix/whatsapp/blob/6df2ff725999ff82d0f3b171b44d748533bf34ee/example-config.yaml#L141
 		days_of_history := uint32(365 * 15)
 		config := &waproto.DeviceProps_HistorySyncConfig{

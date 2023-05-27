@@ -12,6 +12,7 @@ import LanguageStats from '../components/LanguageStats.js';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Legend from '../components/Legend.js';
+import fetchToBase64 from '../utils/fetchImages';
 
 import {contactStatsDict, messageStats, groupDict,
   messageDict, contactDict, stringDict, bagWords} from '../state/types'
@@ -167,7 +168,7 @@ function Home() {
         let guesses = language.guess(message, allow_list);
         //console.log("message: ", message)
         //console.log("guesses: ", guesses)
-        if (guesses.length > 0 && guesses[0].score == 1) {
+        if (guesses.length > 0 && guesses[0].score === 1) {
           messages[key].language = guesses[0].language;
           messages[key].lan = guesses[0].alpha2;
         } else {
@@ -197,11 +198,15 @@ function Home() {
   }
 
   function doContacts(contacts:any) {
-    setIdToContact(prev => ({ ...prev, ...contacts }))
+    Promise.allSettled(fetchToBase64(contacts)).then(() => {
+      setIdToContact(prev => ({ ...prev, ...contacts }))
+    })
   }
 
   function doGroups(groups:any) {
-    setIdToGroup(prev => ({ ...prev, ...groups }))
+    Promise.allSettled(fetchToBase64(groups)).then(() => {
+      setIdToGroup(prev => ({ ...prev, ...groups }))
+    })
   }
 
   function doSetup() {
