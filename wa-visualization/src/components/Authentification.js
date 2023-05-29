@@ -144,10 +144,7 @@ export default function Home({ isLoading, loginHook, logoutHook }) {
               </Row>
               <Row className="p-2 m-3">
                 <b>Note:</b>
-                <p>All data is stored and used locally in your browser memory.
-                None of your WhatsApp data is sent to any server.
-                This also means that you have to login every time you leave this tab!
-                </p>
+                <p>Your loaded WhatApp data of the last three years is only stored locally in browser memory and not sent to any server. This also means that you have to login every time you leave this site!</p>
               </Row>
           </Container>
         </Modal.Body>
