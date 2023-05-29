@@ -17,6 +17,9 @@ export default function LanguageStats({ title, idToMessage, selectedId, useSelec
                 if (message.lan !== undefined && (message.chat === selectedId || message['sent-by'] === selectedId)) {
                     idx = shortnames.indexOf(message.lan);
                     total += 1;
+                    if (idx === -1) {
+                        idx = shortnames.indexOf("unk");
+                    }
                     newLangStats[idx].count += 1;
                 }
             } else {

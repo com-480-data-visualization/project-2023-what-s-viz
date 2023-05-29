@@ -87,6 +87,7 @@ export default function SearchField({selected, setSelected, idToGroup, idToConta
       ref.current.addEventListener('focus', () => setFocus(true));
       ref.current.addEventListener('blur', () => setFocus(false));
       return () => {
+        if (ref === undefined || ref.current === undefined) return;
         ref.current.removeEventListener('focus', () => setFocus(true));
         ref.current.removeEventListener('blur', () => setFocus(false));
       };
