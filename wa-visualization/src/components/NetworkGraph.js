@@ -1,6 +1,6 @@
 import { ForceGraph } from "./ForceGraph.js";
 import { useEffect, useState } from "react";
-import { Container, Row, Col } from "react-bootstrap";
+import { Container, Row, Col, Table } from "react-bootstrap";
 
 function createForceGraphNode(idToContact, idToGroup) {
   let nodes = [];
@@ -148,10 +148,22 @@ export function NetworkGraph({
     <>
       <Container>
         { empty &&
-          <Row style={{ paddingTop: "20px", paddingBottom: "20px" }}>
-            There is currently no data to show a network graph for.
-            Either log in to your WhatsApp account or load dummy data to look at the visualizations.
-          </Row>
+        <>
+        <Row style={{ paddingTop: "20px", paddingBottom: "20px" }}>
+            <Col style={{ display: 'flex', alignItems: 'center' }}>
+              There is currently no data to show a network graph for.
+              Either log in to your WhatsApp account or load dummy data to look at the visualizations.
+            </Col>
+        </Row>
+        <Row>
+          <Col style={{ display: 'flex', alignItems: 'center' }}>
+            <p class="text-justify m-0">As soon as contacts and groups to show are available, they will be displayed here.
+              <span style={{ fontWeight: 'bold', color: '#9d00ff' }}> Groups</span> will have the node color violet, 
+              and <span style={{ fontWeight: 'bold', color: '#698269' }}>contacts</span> will have the node color green.
+            </p>
+          </Col>
+        </Row>
+        </>
         }
         <Row
           style={{ paddingTop: "20px", paddingBottom: "20px", height: "100%"}}

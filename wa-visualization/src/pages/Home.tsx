@@ -279,18 +279,11 @@ function Home() {
               }
               { Object.keys(idToMessage).length > 0 &&
               <Row className="p-2 mb-2 rounded border border-secondary greenish" >
-                <Row>
                   <Col style={{ display: 'flex', alignItems: 'center' }}>
-                    Some statistics about your total data:
+                    Loaded {stats.messages} messages from {Object.keys(idToContact).length} contacts and {Object.keys(idToGroup).length} groups.
                   </Col>
-                </Row>
                 <Row>
-                  <Col>Messages: {stats.messages}</Col>
-                  <Col>Contacts: {Object.keys(idToContact).length}</Col>
-                  <Col>Groups: {Object.keys(idToGroup).length}</Col>
-                </Row>
-                <Row>
-                  <LanguageStats title="Language distribution" idToMessage={idToMessage} selectedId={undefined} />
+                  <LanguageStats title="Overall communication happens in the following languages" idToMessage={idToMessage} selectedId={undefined} useSelecedId={false}/>
                 </Row>
               </Row>
               }
@@ -298,7 +291,7 @@ function Home() {
                 <Row className="p-2" ><SearchField selected={selectedId} setSelected={setSelectedId} idToGroup={idToGroup} idToContact={idToContact} /> </Row>
                 {/* TODO make the nice plots of this! */}
                 <Row>
-                  <LanguageStats title="Language dist. of selected" idToMessage={idToMessage} selectedId={selectedId} />
+                  <LanguageStats title={"Langague distribution in all messages of selected chat"} idToMessage={idToMessage} selectedId={selectedId} useSelecedId={true} />
                 </Row>
                 <Row className="p-2" ><WordCloud bagOfWord={bagOfWord} selectedId={selectedId} /></Row>
               </Row>

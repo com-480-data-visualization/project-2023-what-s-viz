@@ -328,7 +328,7 @@ export class ForceGraph {
         // show tooltip
         that.tooltip.transition().duration(50).style("opacity", 1);
         that.tooltip.html(
-          "<b>" + l.source.name + " and " + l.target.name + "</b><br>"
+          "<b>" + l.source.name + " and " + l.target.name + "</b>"
         );
 
         // set tooltip position
