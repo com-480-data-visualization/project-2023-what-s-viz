@@ -11,8 +11,8 @@ function About() {
     const fetchGitHubProfiles = async () => {
       const members = [
         { name: 'Tobias Oberdoerfer', username: 'Toroto006' },
-        { name: 'Hugo Lanfranchi', username: 'hugolan' },
-        { name: 'Jonas Blanc', username: 'jonasblanc' }
+        { name: 'Jonas Blanc', username: 'jonasblanc' },
+        //{ name: 'Hugo Lanfranchi', username: 'hugolan' },
       ];
 
       const updatedMembers = await Promise.all(
