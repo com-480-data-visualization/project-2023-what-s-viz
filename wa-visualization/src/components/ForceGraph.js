@@ -169,7 +169,7 @@ export class ForceGraph {
     if (d.id === this.selectedId) {
       return "#AA5656";
     }
-    return d.isGroup ? "#B99B6B" : "#698269";
+    return d.isGroup ? "#9d00ff" : "#698269";
   }
 
   // nodes
@@ -302,7 +302,7 @@ export class ForceGraph {
           d.source.id === this.selectedId ||
           d.target.id === this.selectedId
         ) {
-          return "#AA5656";
+          return "#858383";
         } else {
           return "rgba(0,0,0,0.04)";
         }
