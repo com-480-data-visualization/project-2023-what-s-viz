@@ -291,7 +291,7 @@ function Home() {
                 <Row className="p-2" ><SearchField selected={selectedId} setSelected={setSelectedId} idToGroup={idToGroup} idToContact={idToContact} /> </Row>
                 {/* TODO make the nice plots of this! */}
                 <Row>
-                  <LanguageStats title={"Langague distribution in all messages of selected chat"} idToMessage={idToMessage} selectedId={selectedId} useSelecedId={true} />
+                  <LanguageStats title={"Language distribution in all messages of selected chat"} idToMessage={idToMessage} selectedId={selectedId} useSelecedId={true} />
                 </Row>
                 <Row className="p-2" ><WordCloud bagOfWord={bagOfWord} selectedId={selectedId} /></Row>
               </Row>

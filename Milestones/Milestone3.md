@@ -5,14 +5,14 @@
 For the final milestone, you need to create a cool, interactive, and sufficiently complex D3.js (and other) data viz on the dataset you chose. Tell a data story and explain it to the targeted audience. Create a process book that details how you got there, from the original idea to the final product.
 
 You need to deliver the following things:
-1. Github repository with a README
-* Host the code and data on Github (if data is too big, link to a cloud storage) with your process book as a PDF file
-* Add a README file that explains the technical setup and intended usage
+1. Github repository with a [README](../README.md)
+* Host the code and data on Github with your process book as a PDF file [here](./process_book.pdf)
+* Add a [README](../wa-visualization/README.md) file that explains the technical setup and intended usage
 * Code should be clean, manageable, and using the latest practices
 2. Screencast
 * Demonstrate what you can do with your viz in a fun, engaging and impactful manner
 * Talk about your main contributions rather than on technical details
-* 2 min video (not more)
+* The 2 min video (not more) can be found [here](./screencast.mp4)
 3. Process book (max 8 pages)
 * Describe the path you took to obtain the final result
 * Explain challenges that you faced and design decisions that you took
