@@ -1,0 +1,30 @@
+[data-tooltip]::before {
+    position : absolute;
+    content : attr(data-tooltip);
+    opacity : 0;
+
+    /*transition: all 0.15s ease;*/
+    font-size: 12px;
+    line-height: 10px;
+    background: white;
+    /* border: "1px solid black"; */
+    border-radius: "5px";
+    border-color: aqua;
+    border-width: 5px;
+    border-radius: "5px";
+    padding: 5px;
+    box-shadow: 2px 2px 1px silver;
+}
+
+[data-tooltip]:hover::before {
+    opacity : 1;
+    margin-top: 25px;
+    /* border: "10px solid black"; */
+    border-radius: "5px";
+    border-color: aqua;
+    border-width: 5px;
+}
+
+[data-tooltip]:not([data-tooltip-persistent])::before {
+    pointer-events: none;
+}
