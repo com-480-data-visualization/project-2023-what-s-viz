@@ -1,5 +1,4 @@
 import * as d3 from "d3";
-import useFetch from "../hooks/useFetch";
 
 /*
  * Network graph class to show contacts landscape
@@ -136,7 +135,7 @@ export class ForceGraph {
         "charge",
         d3.forceManyBody().strength((d) => {
           // calculate the charge based on the node size
-          if (d.edgeCount == 1) return -5;
+          if (d.edgeCount === 1) return -5;
           return -30 * this.calcNodeSize(d);
         })
       ) // This adds repulsion between nodes
@@ -171,7 +170,7 @@ export class ForceGraph {
     if (d.id === this.selectedId) {
       return "#AA5656";
     }
-    return d.isGroup ? "#B99B6B" : "#698269";
+    return d.isGroup ? "#9d00ff" : "#698269";
   }
 
   // nodes
@@ -333,7 +332,7 @@ export class ForceGraph {
           d.source.id === this.selectedId ||
           d.target.id === this.selectedId
         ) {
-          return "#AA5656";
+          return "#858383";
         } else {
           return "rgba(0,0,0,0.04)";
         }
@@ -359,7 +358,7 @@ export class ForceGraph {
         // show tooltip
         that.tooltip.transition().duration(50).style("opacity", 1);
         that.tooltip.html(
-          "<b>" + l.source.name + " and " + l.target.name + ":</b><br>"
+          "<b>" + l.source.name + " and " + l.target.name + "</b>"
         );
 
         // set tooltip position

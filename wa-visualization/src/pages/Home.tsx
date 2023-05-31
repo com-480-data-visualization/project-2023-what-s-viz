@@ -12,6 +12,7 @@ import LanguageStats from '../components/LanguageStats.js';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Legend from '../components/Legend.js';
+import fetchToBase64 from '../utils/fetchImages';
 
 import {contactStatsDict, messageStats, groupDict,
   messageDict, contactDict, stringDict, bagWords} from '../state/types'
@@ -167,7 +168,7 @@ function Home() {
         let guesses = language.guess(message, allow_list);
         //console.log("message: ", message)
         //console.log("guesses: ", guesses)
-        if (guesses.length > 0 && guesses[0].score == 1) {
+        if (guesses.length > 0 && guesses[0].score === 1) {
           messages[key].language = guesses[0].language;
           messages[key].lan = guesses[0].alpha2;
         } else {
@@ -197,11 +198,15 @@ function Home() {
   }
 
   function doContacts(contacts:any) {
-    setIdToContact(prev => ({ ...prev, ...contacts }))
+    //Promise.allSettled(fetchToBase64(contacts)).then(() => {
+      setIdToContact(prev => ({ ...prev, ...contacts }))
+    //})
   }
 
   function doGroups(groups:any) {
-    setIdToGroup(prev => ({ ...prev, ...groups }))
+    //Promise.allSettled(fetchToBase64(groups)).then(() => {
+      setIdToGroup(prev => ({ ...prev, ...groups }))
+    //})
   }
 
   function doSetup() {
@@ -274,18 +279,11 @@ function Home() {
               }
               { Object.keys(idToMessage).length > 0 &&
               <Row className="p-2 mb-2 rounded border border-secondary greenish" >
-                <Row>
                   <Col style={{ display: 'flex', alignItems: 'center' }}>
-                    Some statistics about your total data:
+                    Loaded {stats.messages} messages from {Object.keys(idToContact).length} contacts and {Object.keys(idToGroup).length} groups.
                   </Col>
-                </Row>
                 <Row>
-                  <Col>Messages: {stats.messages}</Col>
-                  <Col>Contacts: {Object.keys(idToContact).length}</Col>
-                  <Col>Groups: {Object.keys(idToGroup).length}</Col>
-                </Row>
-                <Row>
-                  <LanguageStats idToMessage={idToMessage} selectedId={undefined} />
+                  <LanguageStats title="Overall communication happens in the following languages" idToMessage={idToMessage} selectedId={undefined} useSelecedId={false}/>
                 </Row>
               </Row>
               }
@@ -293,7 +291,7 @@ function Home() {
                 <Row className="p-2" ><SearchField selected={selectedId} setSelected={setSelectedId} idToGroup={idToGroup} idToContact={idToContact} /> </Row>
                 {/* TODO make the nice plots of this! */}
                 <Row>
-                  <LanguageStats idToMessage={idToMessage} selectedId={selectedId} />
+                  <LanguageStats title={"Language distribution in all messages of selected chat"} idToMessage={idToMessage} selectedId={selectedId} useSelecedId={true} />
                 </Row>
                 <Row className="p-2" ><WordCloud bagOfWord={bagOfWord} selectedId={selectedId} /></Row>
               </Row>

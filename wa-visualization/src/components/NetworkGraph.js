@@ -1,6 +1,6 @@
 import { ForceGraph } from "./ForceGraph.js";
 import { useEffect, useState } from "react";
-import { Container, Row, Col } from "react-bootstrap";
+import { Container, Row, Col, Table } from "react-bootstrap";
 
 function createForceGraphNode(idToContact, idToGroup) {
   let nodes = [];
@@ -162,6 +162,17 @@ export function NetworkGraph({
             <p>
               Log in to your WhatsApp account to explore your network <br /> or{" "}
               <br /> load dummy data to preview the visualizations.
+            </p>
+            <p>
+              <span style={{ fontWeight: "bold", color: "#9d00ff" }}>
+                {" "}
+                Groups
+              </span>{" "}
+              will have the node color violet, and{" "}
+              <span style={{ fontWeight: "bold", color: "#698269" }}>
+                contacts
+              </span>{" "}
+              will have the node color green.
             </p>
             <h3>Data Privacy</h3>
             <p>

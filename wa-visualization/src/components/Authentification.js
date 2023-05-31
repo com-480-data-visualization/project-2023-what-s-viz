@@ -9,6 +9,7 @@ export default function Home({ isLoading, loginHook, logoutHook }) {
   // Hand the setRes func to go to run the create Data
   const [res, setRes] = useState("not logged in");
   const [loggedIn, setLoggedIn] = useState(false);
+  const [userJID, setUserJID] = useState(null);
 
   // Now that we are setup do the actual handling
   const loginHandler = (e) => {
@@ -24,10 +25,11 @@ export default function Home({ isLoading, loginHook, logoutHook }) {
 
         setLoggedIn(true);
         resolve(
-          window.loginUser(setRes, (loggedIn) => {
+          window.loginUser(setRes, (loggedInJID) => {
             // Logged in is a list of JIDs
             console.log("Logged in sucessfully with following number:");
-            console.log(loggedIn);
+            console.log(loggedInJID);
+            setUserJID(loggedInJID);
           })
         );
       }).catch((err) => console.log(err));

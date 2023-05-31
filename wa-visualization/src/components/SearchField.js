@@ -87,6 +87,7 @@ export default function SearchField({selected, setSelected, idToGroup, idToConta
       ref.current.addEventListener('focus', () => setFocus(true));
       ref.current.addEventListener('blur', () => setFocus(false));
       return () => {
+        if (ref === undefined || ref.current === undefined) return;
         ref.current.removeEventListener('focus', () => setFocus(true));
         ref.current.removeEventListener('blur', () => setFocus(false));
       };
@@ -105,6 +106,13 @@ export default function SearchField({selected, setSelected, idToGroup, idToConta
       }
     }, [hasFocus]);*/
   
+
+    function handleKeyDown(event) {
+      if (event.key === 'Enter') {
+        handleSearch();
+      }
+    }
+
     return (
       <>
         <InputGroup>
@@ -114,6 +122,7 @@ export default function SearchField({selected, setSelected, idToGroup, idToConta
             aria-label="Currently no chat selected, showing all."
             aria-describedby="basic-addon2"
             onChange={changeHandler}
+            onKeyDown={handleKeyDown}
           />
           {ref.current !== undefined
             ? <Suggestions show={hasFocus} curValue={curValue} startFiltered={true} selected={selected} setSelected={setSelected} items={items} />
