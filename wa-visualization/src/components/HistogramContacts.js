@@ -118,7 +118,7 @@ useLayoutEffect(()=>{
   var arcGenerator = d3.arc().innerRadius(0).outerRadius(radius);
  
 
-  var color = d3.scaleOrdinal().domain(data).range(d3.schemeSet2);
+  var color = d3.scaleOrdinal().domain(chats).range(d3.schemeSet2);
 
   // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
   svg

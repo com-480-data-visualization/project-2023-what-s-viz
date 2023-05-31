@@ -9,6 +9,7 @@ import Disclaimer from '../components/Disclaimer'
 import DebugSaveLoad from '../components/DebugSaveLoad';
 import Container from 'react-bootstrap/Container';
 import LanguageStats from '../components/LanguageStats.js';
+import HistogramContacts from '../components/HistogramContacts.js';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Legend from '../components/Legend.js';
@@ -271,7 +272,18 @@ function Home() {
                     resetData={resetData}
                     doMsg={doMsg} doContacts={doContacts} doGroups={doGroups}/>
                 </Row>
+              } 
+              { /*Object.keys(idToMessage).length > 0 &&
+              <Row className="p-2 mb-2 rounded border border-secondary greenish" >
+                  <Col style={{ display: 'flex', alignItems: 'center' }}>
+                    Histogram of messages 
+                  </Col>
+                <Row>
+                  <HistogramContacts title="Histogram of messages" messageStatsPerChat={messageStatsPerChat} selectedId={selectedId}/>
+                </Row>
+              </Row>*/
               }
+             
               { Object.keys(idToMessage).length > 0 &&
                 <Row className="p-2 mb-2 rounded border border-secondary greenish" >
                   <Legend />
@@ -283,7 +295,7 @@ function Home() {
                     Loaded {stats.messages} messages from {Object.keys(idToContact).length} contacts and {Object.keys(idToGroup).length} groups.
                   </Col>
                 <Row>
-                  <LanguageStats title="Overall communication happens in the following languages" idToMessage={idToMessage} selectedId={undefined} useSelecedId={false}/>
+                  <LanguageStats title="Overall communication happens in the following languages!" idToMessage={idToMessage} selectedId={undefined} useSelecedId={false}/>
                 </Row>
               </Row>
               }
