@@ -11,8 +11,13 @@ export class ForceGraph {
     this.edges = data.edges;
     this.selectedId = "";
     this.onClickNode = (id) => {
-      this.selectedId = id;
-      onClickNode(id);
+      if (id === this.selectedId) {
+        this.selectedId = "";
+        onClickNode(undefined);
+      } else {
+        this.selectedId = id;
+        onClickNode(id);
+      }
       this.updateGraph();
     };
     this.draw();
@@ -47,7 +52,12 @@ export class ForceGraph {
 
   // updated the selected ID
   selectNode(id) {
-    this.selectedId = id;
+    if (id === undefined) {
+      this.selectedId = "";
+    } else {
+      this.selectedId = id;
+    }
+
     // Do not change the alpha, i.e. do not move
     this.updateGraph(0);
   }
