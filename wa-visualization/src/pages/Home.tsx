@@ -53,7 +53,7 @@ function Home() {
   const [messageStatsPerContact, setMessageStatsPerContact] = useState<contactStatsDict>({})
   
   // Selected group or contact node id in the graph
-  const [selectedId, setSelectedId] = useState<string>() // No group or contact will ever have ID 0
+  const [selectedId, setSelectedId] = useState<string>()
  
   // =============================================================== //
  
@@ -272,29 +272,36 @@ function Home() {
                     doMsg={doMsg} doContacts={doContacts} doGroups={doGroups}/>
                 </Row>
               }
-              { Object.keys(idToMessage).length > 0 &&
+              {/* { Object.keys(idToMessage).length > 0 &&
                 <Row className="p-2 mb-2 rounded border border-secondary greenish" >
                   <Legend />
                 </Row>
-              }
-              { Object.keys(idToMessage).length > 0 &&
+              } */}
+              {Object.keys(idToMessage).length > 0 &&
+                <>
               <Row className="p-2 mb-2 rounded border border-secondary greenish" >
                   <Col style={{ display: 'flex', alignItems: 'center' }}>
                     Loaded {stats.messages} messages from {Object.keys(idToContact).length} contacts and {Object.keys(idToGroup).length} groups.
                   </Col>
-                <Row>
+                {/* <Row>
                   <LanguageStats title="Overall communication happens in the following languages" idToMessage={idToMessage} selectedId={undefined} useSelecedId={false}/>
-                </Row>
+                </Row> */}
               </Row>
-              }
               <Row className="p-2 mb-2 rounded border border-secondary greenish" >
                 <Row className="p-2" ><SearchField selected={selectedId} setSelected={setSelectedId} idToGroup={idToGroup} idToContact={idToContact} /> </Row>
-                {/* TODO make the nice plots of this! */}
                 <Row>
-                  <LanguageStats title={"Language distribution in all messages of selected chat"} idToMessage={idToMessage} selectedId={selectedId} useSelecedId={true} />
+                  <LanguageStats title={"Language distribution of selected chat"} idToMessage={idToMessage} selectedId={selectedId} useSelecedId={true} />
                 </Row>
                 <Row className="p-2" ><WordCloud bagOfWord={bagOfWord} selectedId={selectedId} /></Row>
-              </Row>
+                
+                  <Row >
+                    <Legend />
+                  </Row>
+              
+                </Row>
+                </>
+              }
+
               </Container>
           </Row>
         </Col>
