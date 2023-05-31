@@ -114,6 +114,9 @@ export function NetworkGraph({
     let data = createGraphObject(messageStatsPerChat, idToGroup, idToContact);
 
     setNetwork((prev) => {
+      if (empty) {
+        return null;
+      }
       if (prev === null) {
         return new ForceGraph("#network", data, setSelectedId);
       } else if (data.nodes.length === 0) {
@@ -123,7 +126,7 @@ export function NetworkGraph({
         return prev.update(data);
       }
     });
-  }, [messageStatsPerChat, idToGroup, idToContact]);
+  }, [messageStatsPerChat, idToGroup, idToContact, empty]);
 
   useEffect(() => {
     if (network !== null) {
@@ -171,14 +174,27 @@ export function NetworkGraph({
             </p>
           </Row>
         )}
-        <Row
-          style={{ paddingTop: "20px", paddingBottom: "20px", height: "100%" }}
-        >
+        {!empty && (
           <div
-            id="network"
-            style={{ height: "100%", backgroundColor: "white" }}
-          ></div>
-        </Row>
+            style={{
+              height: "100%",
+              paddingTop: "20px",
+            }}
+          >
+            <Row
+              style={{
+                paddingTop: "20px",
+                paddingBottom: "20px",
+                height: "100%",
+              }}
+            >
+              <div
+                id="network"
+                style={{ height: "100%", backgroundColor: "white" }}
+              ></div>
+            </Row>
+          </div>
+        )}
       </Container>
     </>
   );
