@@ -218,7 +218,7 @@ export class ForceGraph {
                 imgLink = defaultImg;
               }
               that.tooltip.html(
-                "<style> #main {display: flex;flex-direction: column;}</style><div id='main'><img height=200 src='" +
+                "<style> #main {display: flex;flex-direction: column;}</style><div id='main'><img height=200 width=200 style='object-fit: cover;' src='" +
                   imgLink +
                   "' onerror='this.onerror=null; this.src='" +
                   defaultImg +

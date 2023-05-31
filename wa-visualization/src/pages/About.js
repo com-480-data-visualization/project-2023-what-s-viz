@@ -12,7 +12,7 @@ function About() {
       const members = [
         { name: 'Tobias Oberdoerfer', username: 'Toroto006' },
         { name: 'Jonas Blanc', username: 'jonasblanc' },
-        //{ name: 'Hugo Lanfranchi', username: 'hugolan' },
+        { name: 'Hugo Lanfranchi', username: 'hugolan' },
       ];
 
       const updatedMembers = await Promise.all(
