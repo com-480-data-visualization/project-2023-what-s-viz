@@ -281,7 +281,7 @@ function Home() {
               <>
                 <Row className="p-2 mb-2 rounded border border-secondary greenish" >
                     <Col style={{ display: 'flex', alignItems: 'center' }}>
-                      {stats.messages} messages in {Object.keys(idToContact).length} contacts and {Object.keys(idToGroup).length} groups.
+                      Loaded {stats.messages} messages in {Object.keys(idToContact).length} contacts and {Object.keys(idToGroup).length} groups.
                     </Col>
                   {/* <Row>
                     <LanguageStats title="Overall communication happens in the following languages" idToMessage={idToMessage} selectedId={undefined} useSelecedId={false}/>
