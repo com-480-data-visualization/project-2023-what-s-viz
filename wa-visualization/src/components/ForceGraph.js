@@ -4,14 +4,20 @@ import * as d3 from "d3";
  * Network graph class to show contacts landscape
  */
 export class ForceGraph {
-  constructor(container, data, onClickNode) {
+  constructor(container, data, onClickNode, withNodePictures = false) {
+    this.withNodePictures = withNodePictures;
     this.container = d3.select(container);
     this.nodes = data.nodes;
     this.edges = data.edges;
     this.selectedId = "";
     this.onClickNode = (id) => {
-      this.selectedId = id;
-      onClickNode(id);
+      if (id === this.selectedId) {
+        this.selectedId = "";
+        onClickNode(undefined);
+      } else {
+        this.selectedId = id;
+        onClickNode(id);
+      }
       this.updateGraph();
     };
     this.draw();
@@ -46,7 +52,12 @@ export class ForceGraph {
 
   // updated the selected ID
   selectNode(id) {
-    this.selectedId = id;
+    if (id === undefined) {
+      this.selectedId = "";
+    } else {
+      this.selectedId = id;
+    }
+
     // Do not change the alpha, i.e. do not move
     this.updateGraph(0);
   }
@@ -101,7 +112,7 @@ export class ForceGraph {
       .append("div")
       .attr("class", "tooltip")
       .style("position", "absolute")
-      .style("trasnform", "translateX(-50%)")
+      .style("transform", "translateX(-50%)")
       .style("pointer-events", "none")
       .style("background-color", "white")
       .style("border-radius", "5px")
@@ -206,10 +217,8 @@ export class ForceGraph {
               } else {
                 imgLink = defaultImg;
               }
-              //console.log(n);
-              //console.log(imgLink);
               that.tooltip.html(
-                "<style> #main {display: flex;flex-direction: column;}</style><div id='main'><img height=200 width=200 src='" +
+                "<style> #main {display: flex;flex-direction: column;}</style><div id='main'><img height=200 width=200 style='object-fit: cover;' src='" +
                   imgLink +
                   "' onerror='this.onerror=null; this.src='" +
                   defaultImg +
@@ -250,11 +259,35 @@ export class ForceGraph {
               this.onClickNode(n.id);
             });
 
-          // add node circle
-          node
-            .append("circle")
-            .attr("r", this.calcNodeSize)
-            .style("fill", this.nodeColor);
+          // add node representation
+          if (this.withNodePictures) {
+            node
+              .append("image")
+              .attr("xlink:href", function (d) {
+                // TODO adapt
+                let defaultImg =
+                  process.env.PUBLIC_URL +
+                  "/no-profile-picture-icon-" +
+                  (d.isGroup ? "group" : "contact") +
+                  ".png";
+
+                let imgLink = "";
+                if (d.img) {
+                  imgLink = d.img;
+                } else {
+                  imgLink = defaultImg;
+                }
+                return imgLink;
+              })
+              .attr("width", (d) => this.calcNodeSize(d) * 2)
+              .attr("x", (d) => -this.calcNodeSize(d))
+              .attr("y", (d) => -this.calcNodeSize(d));
+          } else {
+            node
+              .append("circle")
+              .attr("r", this.calcNodeSize)
+              .style("fill", this.nodeColor);
+          }
 
           // add node text
           node
@@ -263,7 +296,7 @@ export class ForceGraph {
               return ""; //d.name;
             })
             .attr("dy", (d) => {
-              // in accordnace with the radius of the circle
+              // in accordnace with the size of the node
               return 20 + "px";
             })
             .style("font-size", "12px")
@@ -275,11 +308,18 @@ export class ForceGraph {
         },
         (update) => {
           // when updating a node
-          update
-            .select("circle")
-            .attr("r", this.calcNodeSize)
-            .style("fill", this.nodeColor);
-
+          if (this.withNodePictures) {
+            update
+              .select("image")
+              .attr("width", (d) => this.calcNodeSize(d) * 2)
+              .attr("x", (d) => -this.calcNodeSize(d))
+              .attr("y", (d) => -this.calcNodeSize(d));
+          } else {
+            update
+              .select("circle")
+              .attr("r", this.calcNodeSize)
+              .style("fill", this.nodeColor);
+          }
           return update;
         }
       );
@@ -312,14 +352,14 @@ export class ForceGraph {
       })
       .on("mouseover", function (ev, l) {
         // decrease brightness of connected nodes and the link
-        that.node
-          .filter((n) => {
-            return n.id === l.source.id || n.id === l.target.id;
-          })
-          .select("circle")
-          .transition()
-          .duration("50")
-          .attr("filter", "brightness(60%)");
+        // that.node
+        //   .filter((n) => {
+        //     return n.id === l.source.id || n.id === l.target.id;
+        //   })
+        //   .select("circle")
+        //   .transition()
+        //   .duration("50")
+        //   .attr("filter", "brightness(60%)");
         d3.select(this)
           .transition()
           .duration("50")
@@ -350,14 +390,14 @@ export class ForceGraph {
           .transition()
           .duration("50")
           .style("stroke", "rgba(0,0,0,0.05)");
-        that.node
-          .filter((n) => {
-            return n.id === l.source.id || n.id === l.target.id;
-          })
-          .select("circle")
-          .transition()
-          .duration("50")
-          .attr("filter", "brightness(100%)");
+        // that.node
+        //   .filter((n) => {
+        //     return n.id === l.source.id || n.id === l.target.id;
+        //   })
+        //   .select("circle")
+        //   .transition()
+        //   .duration("50")
+        //   .attr("filter", "brightness(100%)");
         // hide tooltip
         that.tooltip.transition().duration("50").style("opacity", 0);
       });

@@ -34,6 +34,7 @@ function createForceGraphEdge(nodes, messageStatsPerChat, idToGroup) {
     for (let [contact_id, count] of Object.entries(chatsStats.idSendCount)) {
       // Chat ID is either a group or a contact
       // Check that source and target are not the same node and check both are in the nodes
+      // TODO: eddge (or add count) for people sending you PMs
       if (
         chat_id !== contact_id &&
         nodes.find((node) => node.id === chat_id) &&
@@ -43,25 +44,19 @@ function createForceGraphEdge(nodes, messageStatsPerChat, idToGroup) {
         totalCount += count;
       }
     }
-    // Add link for group members
-    // What if pair already exists?
-    for (let [group_id, group] of Object.entries(idToGroup)) {
-      group.participants.forEach((contact_id) => {
-        if (
-          nodes.find((node) => node.id === group_id) &&
-          nodes.find((node) => node.id === contact_id)
-        ) {
-          edges.push({ source: group_id, target: contact_id, strength: 1 });
-          totalCount += 1;
-        }
-      });
-    }
-
-    // scale strength between 0 and 1
-    for (let edge of edges) {
-      edge.strength = edge.strength / totalCount;
-    }
-    return edges;
+  }
+  // Add link for group members
+  // What if pair already exists?
+  for (let [group_id, group] of Object.entries(idToGroup)) {
+    group.participants.forEach((contact_id) => {
+      if (
+        nodes.find((node) => node.id === group_id) &&
+        nodes.find((node) => node.id === contact_id)
+      ) {
+        edges.push({ source: group_id, target: contact_id, strength: 1 });
+        totalCount += 1;
+      }
+    });
   }
 
   // scale strength between 0 and 1
@@ -119,6 +114,9 @@ export function NetworkGraph({
     let data = createGraphObject(messageStatsPerChat, idToGroup, idToContact);
 
     setNetwork((prev) => {
+      if (empty) {
+        return null;
+      }
       if (prev === null) {
         return new ForceGraph("#network", data, setSelectedId);
       } else if (data.nodes.length === 0) {
@@ -128,7 +126,7 @@ export function NetworkGraph({
         return prev.update(data);
       }
     });
-  }, [messageStatsPerChat, idToGroup, idToContact]);
+  }, [messageStatsPerChat, idToGroup, idToContact, empty]);
 
   useEffect(() => {
     if (network !== null) {
@@ -137,7 +135,10 @@ export function NetworkGraph({
   }, [selectedId]);
 
   useEffect(() => {
-    if (Object.keys(idToGroup).length == 0 || Object.keys(idToContact).length == 0) {
+    if (
+      Object.keys(idToGroup).length == 0 ||
+      Object.keys(idToContact).length == 0
+    ) {
       setEmpty(true);
     } else {
       setEmpty(false);
@@ -147,32 +148,64 @@ export function NetworkGraph({
   return (
     <>
       <Container>
-        { empty &&
-        <>
-        <Row style={{ paddingTop: "20px", paddingBottom: "20px" }}>
-            <Col style={{ display: 'flex', alignItems: 'center' }}>
-              There is currently no data to show a network graph for.
-              Either log in to your WhatsApp account or load dummy data to look at the visualizations.
-            </Col>
-        </Row>
-        <Row>
-          <Col style={{ display: 'flex', alignItems: 'center' }}>
-            <p class="text-justify m-0">As soon as contacts and groups to show are available, they will be displayed here.
-              <span style={{ fontWeight: 'bold', color: '#9d00ff' }}> Groups</span> will have the node color violet, 
-              and <span style={{ fontWeight: 'bold', color: '#698269' }}>contacts</span> will have the node color green.
+        {empty && (
+          <Row
+            style={{
+              paddingTop: "20px",
+              paddingBottom: "20px",
+              paddingRight: "40px",
+              paddingLeft: "40px",
+              textAlign: "center",
+            }}
+          >
+            <h1>Welcome to What’viz ! </h1>
+            <p>
+              Log in to your WhatsApp account to explore your network <br /> or{" "}
+              <br /> load dummy data to preview the visualizations.
             </p>
-          </Col>
-        </Row>
-        </>
-        }
-        <Row
-          style={{ paddingTop: "20px", paddingBottom: "20px", height: "100%"}}
-        >
+            <p>
+              <span style={{ fontWeight: "bold", color: "#9d00ff" }}>
+                {" "}
+                Groups
+              </span>{" "}
+              will have the node color violet, and{" "}
+              <span style={{ fontWeight: "bold", color: "#698269" }}>
+                contacts
+              </span>{" "}
+              will have the node color green.
+            </p>
+            <h3>Data Privacy</h3>
+            <p>
+              This website runs locally in your web browser. Your encrypted data
+              is shared from WhatsApp servers to your computer, stored locally
+              in browser memory while you’re browsing this website. Your data
+              remains exclusively between WhatsApp and you. Once you exited this
+              page, all data retrieved by this website is no longer maintained
+              on your computer.
+            </p>
+          </Row>
+        )}
+        {!empty && (
           <div
-            id="network"
-            style={{ height: "100%", backgroundColor: "white"}}
-          ></div>
-        </Row>
+            style={{
+              height: "100%",
+              paddingTop: "20px",
+            }}
+          >
+            <Row
+              style={{
+                paddingTop: "20px",
+                paddingBottom: "20px",
+                height: "100%",
+              }}
+            >
+              <div
+                id="network"
+                style={{ height: "100%", backgroundColor: "white" }}
+              ></div>
+            </Row>
+          </div>
+        )}
       </Container>
     </>
   );
