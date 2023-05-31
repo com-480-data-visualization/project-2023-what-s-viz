@@ -112,7 +112,7 @@ export class ForceGraph {
       .append("div")
       .attr("class", "tooltip")
       .style("position", "absolute")
-      .style("trasnform", "translateX(-50%)")
+      .style("transform", "translateX(-50%)")
       .style("pointer-events", "none")
       .style("background-color", "white")
       .style("border-radius", "5px")
