@@ -112,8 +112,10 @@ function createGraphObject(messageStatsPerChat, idToGroup, idToContact) {
   });
 
   edges.forEach((edge) => {
-    edge.isOnlyConnection =
-      nodeToEdgeCount[edge.source] === 1 || nodeToEdgeCount[edge.target] === 1;
+    edge.minLinkSourceTarget = Math.min(
+      nodeToEdgeCount[edge.source],
+      nodeToEdgeCount[edge.target]
+    );
   });
 
   return { nodes: nodes, edges: edges };

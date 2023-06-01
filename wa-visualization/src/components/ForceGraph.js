@@ -49,8 +49,8 @@ export class ForceGraph {
             this.edges.push(psb_new_edge);
           } else {
             if (edgeDict[psb_new_edge.id]) {
-              edgeDict[psb_new_edge.id].isOnlyConnection =
-                psb_new_edge.isOnlyConnection;
+              edgeDict[psb_new_edge.id].minLinkSourceTarget =
+                psb_new_edge.minLinkSourceTarget;
             }
           }
         }
@@ -91,7 +91,7 @@ export class ForceGraph {
       d3
         .forceLink()
         .strength(function (d) {
-          return d.isOnlyConnection ? 3 : 0.2;
+          return (1 - Math.min(d.minLinkSourceTarget, 5) / 5 + 0.1) * 3;
         })
         .id(function (d) {
           return d.id;
@@ -168,7 +168,7 @@ export class ForceGraph {
         d3
           .forceLink()
           .strength(function (d) {
-            return d.isOnlyConnection ? 2 : 0.2;
+            return (1 - Math.min(d.minLinkSourceTarget, 5) / 5 + 0.1) * 3;
           })
           //.strength((d) => Math.log(d.strength) + 1) // This force provides links between nodes
           .id(function (d) {
@@ -180,7 +180,7 @@ export class ForceGraph {
         "charge",
         d3.forceManyBody().strength((d) => {
           // calculate the charge based on the node size
-          return -30 * this.calcNodeSize(d);
+          return -40 * this.calcNodeSize(d);
         })
       ) // This adds repulsion between nodes
       .force(
