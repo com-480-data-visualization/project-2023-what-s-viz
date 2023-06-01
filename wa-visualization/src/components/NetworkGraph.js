@@ -1,6 +1,6 @@
 import { ForceGraph } from "./ForceGraph.js";
 import { useEffect, useState } from "react";
-import { Container, Row } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import ToggleButton from "react-bootstrap/ToggleButton";
 
@@ -239,9 +239,12 @@ export function NetworkGraph({
                 paddingTop: "20px",
               }}
             >
-              <ButtonGroup className="mb-2">
+              <Col/>
+              <Col className="col-6">
+              <ButtonGroup className="d-flex">
                 {withNameButton.map((item, idx) => (
                   <ToggleButton
+                    className="w-100"
                     key={idx}
                     id={`item-${idx}`}
                     type="radio"
@@ -255,6 +258,8 @@ export function NetworkGraph({
                   </ToggleButton>
                 ))}
               </ButtonGroup>
+              </Col>
+              <Col/>
             </Row>
             <div
               style={{
