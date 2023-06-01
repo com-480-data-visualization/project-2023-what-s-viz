@@ -28,6 +28,10 @@ export class ForceGraph {
   update(data) {
     // to update run trough the data nodes and add the new ones
     this.simulation.stop();
+
+    let edgesWithPossibleUpdate = this.edges.filter((e) => {
+      return e.isOnlyConnection === true;
+    });
     for (let psb_new_node of data.nodes) {
       if (!this.nodes.find((n) => n.id === psb_new_node.id)) {
         // Give the nodes random initial positions within the graph
@@ -42,6 +46,20 @@ export class ForceGraph {
             psb_new_edge.target === psb_new_node.id
           ) {
             this.edges.push(psb_new_edge);
+          } else {
+            let edge = edgesWithPossibleUpdate.find((e) => {
+              return (
+                (e.source === psb_new_edge.source &&
+                  e.target === psb_new_edge.target) ||
+                (e.source === psb_new_edge.target &&
+                  e.target === psb_new_edge.source)
+              );
+            });
+            // if the edge already exists, update the isOnlyConnection
+            if (edge !== undefined) {
+              console.log("update edge");
+              edge.isOnlyConnection = psb_new_edge.isOnlyConnection;
+            }
           }
         }
       } else {
