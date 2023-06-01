@@ -55,6 +55,7 @@ function Home() {
   
   // Selected group or contact node id in the graph
   const [selectedId, setSelectedId] = useState<string>()
+  const [usedLanguages, setUsedLanguages] = useState<Set<string>>(new Set([]))
  
   // =============================================================== //
  
@@ -294,16 +295,12 @@ function Home() {
                     <Col style={{ display: 'flex', alignItems: 'center' }}>
                       Loaded {stats.messages} messages in {Object.keys(idToContact).length} contacts and {Object.keys(idToGroup).length} groups.
                     </Col>
-                  {/* <Row>
-                    <LanguageStats title="Overall communication happens in the following languages" idToMessage={idToMessage} selectedId={undefined} useSelecedId={false}/>
-                  </Row> */}
                 </Row>
                 <Row className="p-2 mb-2 rounded border border-secondary greenish" >
                   <Row className="p-2" ><SearchField selected={selectedId} setSelected={setSelectedId} idToGroup={idToGroup} idToContact={idToContact} /> </Row>
-                  <Row><LanguageStats title={"Language distribution of selected chat"} idToMessage={idToMessage} selectedId={selectedId} useSelecedId={true} /></Row>
+                  <Row><LanguageStats title={"Language distribution of selected chat"} idToMessage={idToMessage} selectedId={selectedId} setUsedLanguages={setUsedLanguages} /></Row>
                   <Row className="p-2" ><WordCloud bagOfWord={bagOfWord} selectedId={selectedId} /></Row>
-                  <Row ><Legend /></Row>
-                
+                  <Row ><Legend usedLanguages={usedLanguages} /></Row>
                 </Row>
               </>
               }

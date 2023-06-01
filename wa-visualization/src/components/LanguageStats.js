@@ -7,7 +7,7 @@ export default function LanguageStats({
   title,
   idToMessage,
   selectedId,
-  useSelecedId,
+  setUsedLanguages
 }) {
   const [shortnames, fullnames, combinednames, lanColorScale] = LanguageLists();
   const [langStats, setLangStats] = useState(
@@ -59,6 +59,8 @@ export default function LanguageStats({
       }
     }
     newLangStats.total = total;
+    let usedLans = new Set(newLangStats.filter((lanStat) => lanStat !== undefined && lanStat.count > 0).map((lanStat) => lanStat.lan));
+    setUsedLanguages(usedLans);
     setLangStats(newLangStats);
   }, [idToMessage, selectedId]);
 
