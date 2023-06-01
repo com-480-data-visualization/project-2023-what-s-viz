@@ -25,6 +25,14 @@ function createForceGraphNode(idToContact, idToGroup) {
   return nodes;
 }
 
+function edgeId(source, target) {
+  if (source < target) {
+    return source + "-to-" + target;
+  } else {
+    return target + "-to-" + source;
+  }
+}
+
 function createForceGraphEdge(nodes, messageStatsPerChat, idToGroup) {
   let edges = [];
   // Iterate over every chat and person participating in a chat
@@ -43,6 +51,7 @@ function createForceGraphEdge(nodes, messageStatsPerChat, idToGroup) {
           source: chat_id,
           target: contact_id,
           strength: count * chat_node.isGroup ? 1 : 2, // Take into account message received in PM
+          id: edgeId(chat_id, contact_id),
         });
       }
     }
@@ -58,7 +67,12 @@ function createForceGraphEdge(nodes, messageStatsPerChat, idToGroup) {
           (edge) => edge.source === group_id && edge.target === contact_id
         )
       ) {
-        edges.push({ source: group_id, target: contact_id, strength: 1 });
+        edges.push({
+          source: group_id,
+          target: contact_id,
+          strength: 1,
+          id: edgeId(group_id, contact_id),
+        });
       }
     });
   }
