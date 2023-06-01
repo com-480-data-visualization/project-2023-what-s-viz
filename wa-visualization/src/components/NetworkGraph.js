@@ -1,8 +1,10 @@
 import { ForceGraph } from "./ForceGraph.js";
 import { useEffect, useState } from "react";
-import { Container, Row, Col, Table } from "react-bootstrap";
+import { Container, Row } from "react-bootstrap";
+import ButtonGroup from "react-bootstrap/ButtonGroup";
+import ToggleButton from "react-bootstrap/ToggleButton";
 
-function createForceGraphNode(idToContact, idToGroup) {
+function createForceGraphNode(idToContact, idToGroup, withNodeName) {
   let nodes = [];
   // Add contacts
   for (let [id, contact] of Object.entries(idToContact)) {
@@ -20,6 +22,7 @@ function createForceGraphNode(idToContact, idToGroup) {
       name: group.name,
       isGroup: true,
       img: group.avatar,
+      withNodeName: withNodeName === "on",
     });
   }
   return nodes;
@@ -80,8 +83,13 @@ function createForceGraphEdge(nodes, messageStatsPerChat, idToGroup) {
   return edges;
 }
 
-function createGraphObject(messageStatsPerChat, idToGroup, idToContact) {
-  let nodes = createForceGraphNode(idToContact, idToGroup);
+function createGraphObject(
+  messageStatsPerChat,
+  idToGroup,
+  idToContact,
+  withNodeName
+) {
+  let nodes = createForceGraphNode(idToContact, idToGroup, withNodeName);
   // take online 10 * count nodea
   //nodes = nodes.slice(0, 10 * count);
   let edges = createForceGraphEdge(nodes, messageStatsPerChat, idToGroup);
@@ -131,29 +139,47 @@ export function NetworkGraph({
   const [network, setNetwork] = useState(null);
   const [empty, setEmpty] = useState(true);
 
+  const [withNodeName, setWithNodeName] = useState("off");
+
+  const withNameButton = [
+    { name: "With names", value: "on" },
+    { name: "Without names", value: "off" },
+  ];
+
   useEffect(() => {
-    let data = createGraphObject(messageStatsPerChat, idToGroup, idToContact);
+    let data = createGraphObject(
+      messageStatsPerChat,
+      idToGroup,
+      idToContact,
+      withNodeName
+    );
 
     setNetwork((prev) => {
       if (empty) {
         return null;
       }
       if (prev === null) {
-        return new ForceGraph("#network", data, setSelectedId);
+        return new ForceGraph("#network", data, setSelectedId, false);
       } else if (data.nodes.length === 0) {
         prev.clear();
-        return new ForceGraph("#network", data, setSelectedId);
+        return new ForceGraph("#network", data, setSelectedId, false);
       } else {
         return prev.update(data);
       }
     });
-  }, [messageStatsPerChat, idToGroup, idToContact, empty]);
+  }, [messageStatsPerChat, idToGroup, idToContact, empty, withNodeName]);
 
   useEffect(() => {
     if (network !== null) {
       network.selectNode(selectedId);
     }
   }, [selectedId]);
+
+  useEffect(() => {
+    if (network !== null) {
+      network.updateWithNodeNames(withNodeName === "on");
+    }
+  }, [withNodeName]);
 
   useEffect(() => {
     if (
@@ -207,25 +233,50 @@ export function NetworkGraph({
           </Row>
         )}
         {!empty && (
-          <div
-            style={{
-              height: "100%",
-              paddingTop: "20px",
-            }}
-          >
+          <>
             <Row
               style={{
+                height: "5%",
                 paddingTop: "20px",
-                paddingBottom: "20px",
-                height: "100%",
               }}
             >
-              <div
-                id="network"
-                style={{ height: "100%", backgroundColor: "white" }}
-              ></div>
+              <ButtonGroup className="mb-2">
+                {withNameButton.map((item, idx) => (
+                  <ToggleButton
+                    key={idx}
+                    id={`item-${idx}`}
+                    type="radio"
+                    variant="secondary"
+                    name="names"
+                    value={item.value}
+                    checked={withNodeName === item.value}
+                    onChange={(e) => setWithNodeName(e.currentTarget.value)}
+                  >
+                    {item.name}
+                  </ToggleButton>
+                ))}
+              </ButtonGroup>
             </Row>
-          </div>
+            <div
+              style={{
+                height: "95%",
+                paddingTop: "5px",
+              }}
+            >
+              <Row
+                style={{
+                  paddingTop: "20px",
+                  paddingBottom: "20px",
+                  height: "100%",
+                }}
+              >
+                <div
+                  id="network"
+                  style={{ height: "100%", backgroundColor: "white" }}
+                ></div>
+              </Row>
+            </div>
+          </>
         )}
       </Container>
     </>

@@ -72,9 +72,14 @@ export class ForceGraph {
     } else {
       this.selectedId = id;
     }
-
     // Do not change the alpha, i.e. do not move
     this.updateGraph(0);
+  }
+
+  updateWithNodeNames(withNodeName) {
+    for (let node of this.nodes) {
+      node.withNodeName = withNodeName;
+    }
   }
 
   // update the graph
@@ -313,11 +318,14 @@ export class ForceGraph {
           node
             .append("text")
             .text(function (d) {
-              return ""; //d.name;
+              if (d.withNodeName) {
+                return d.name;
+              }
+              return "";
             })
             .attr("dy", (d) => {
               // in accordnace with the size of the node
-              return 20 + "px";
+              return d.r + "px";
             })
             .style("font-size", "12px")
             .style("font-weight", "bold")
@@ -340,6 +348,23 @@ export class ForceGraph {
               .attr("r", this.calcNodeSize)
               .style("fill", this.nodeColor);
           }
+          update
+            .select("text")
+            .text(function (d) {
+              if (d.withNodeName) {
+                return d.name;
+              }
+              return "";
+            })
+            .attr("dy", (d) => {
+              // in accordnace with the size of the node
+              return d.r + "px";
+            })
+            .style("font-size", "12px")
+            .style("font-weight", "bold")
+            .style("fill", "black")
+            .style("text-anchor", "middle")
+            .style("dominant-baseline", "middle");
           return update;
         }
       );
