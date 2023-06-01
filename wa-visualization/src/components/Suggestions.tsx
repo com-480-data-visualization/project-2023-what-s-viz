@@ -20,7 +20,7 @@ export default function Suggestions({
       ref.current.addEventListener('mouseleave', () => setFocus(false));
     }
     return () => {
-      if (ref.current) {
+      if (!(!ref || !ref.current)) {
         ref.current.removeEventListener('mouseenter', () => setFocus(true));
         ref.current.removeEventListener('mouseleave', () => setFocus(false));
       }
@@ -53,13 +53,25 @@ export default function Suggestions({
 
   function _renderItem(item: any): any {
     const active = isSelectedItem(item);
+
+    let color = "black"
+    if (!active){
+      if (item.type === "group") {
+        color = "#9d00ff"
+      } 
+      if (item.type === "contact") {
+        color = "#698269"
+      }
+    }
+
     return <Dropdown.Item
-        active={active}
+      active={active}
+      style={{color: color}}
         //className={index === this.props.focusedIndex && !active ? 'pseudofocused' : undefined}
         eventKey={item}
         key={item.key}
         onClick={() => {onSelect(item)}}>
-        {item.value}
+      {item.value}
     </Dropdown.Item>
   }
 
