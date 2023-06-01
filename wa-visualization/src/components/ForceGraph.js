@@ -65,6 +65,13 @@ export class ForceGraph {
     return this;
   }
 
+  changeTextView(b) {
+    // iterates over all nodes and changes the view text to the given bool b
+    this.nodes.forEach((node) => {
+      node.textView = b;
+    });
+  }
+
   // updated the selected ID
   selectNode(id) {
     if (id === undefined) {

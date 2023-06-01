@@ -1,6 +1,6 @@
 import { ForceGraph } from "./ForceGraph.js";
 import { useEffect, useState } from "react";
-import { Container, Row } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import ToggleButton from "react-bootstrap/ToggleButton";
 
@@ -223,11 +223,11 @@ export function NetworkGraph({
             </p>
             <h3>Data Privacy</h3>
             <p>
-              This website runs fully local in your web browser. Your private data
-              is only shared from WhatsApp servers to your computer and stored locally
-              in browser memory while you’re on this page. Your data
-              remains exclusively between WhatsApp and you. Once you exit this
-              page, all retrieved data is removed from your computer.
+              This website runs fully local in your web browser. Your private WhatsApp
+              data of the last three years is slowly synchornized from WhatsApp servers
+              to your computer and stored locally in browser memory while you’re on
+              this page. Your data remains exclusively between WhatsApp and you.
+              Once you exit this page, all retrieved data is removed from your computer.
             </p>
           </Row>
         )}
@@ -239,9 +239,12 @@ export function NetworkGraph({
                 paddingTop: "20px",
               }}
             >
-              <ButtonGroup className="mb-2">
+              <Col/>
+              <Col className="col-6">
+              <ButtonGroup className="d-flex">
                 {withNameButton.map((item, idx) => (
                   <ToggleButton
+                    className="w-100"
                     key={idx}
                     id={`item-${idx}`}
                     type="radio"
@@ -255,6 +258,8 @@ export function NetworkGraph({
                   </ToggleButton>
                 ))}
               </ButtonGroup>
+              </Col>
+              <Col/>
             </Row>
             <div
               style={{
