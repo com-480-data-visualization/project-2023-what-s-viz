@@ -9,6 +9,7 @@ export class ForceGraph {
     this.container = d3.select(container);
     this.nodes = data.nodes;
     this.edges = data.edges;
+    // Log scale for the node size
     this.selectedId = "";
     this.onClickNode = (id) => {
       if (id === this.selectedId) {
@@ -43,6 +44,10 @@ export class ForceGraph {
             this.edges.push(psb_new_edge);
           }
         }
+      } else {
+        // update the node
+        let node = this.nodes.find((n) => n.id === psb_new_node.id);
+        node.edgeCount = psb_new_node.edgeCount;
       }
     }
 
@@ -75,7 +80,9 @@ export class ForceGraph {
       "link",
       d3
         .forceLink()
-        .strength(0.2) // This force provides links between nodes
+        .strength(function (d) {
+          return d.isOnlyConnection ? 3 : 0.2;
+        })
         .id(function (d) {
           return d.id;
         }) // This provide  the id of a node
@@ -96,6 +103,21 @@ export class ForceGraph {
     );
     this.simulation.alpha(0.1).restart();
   };
+
+  calcNodeSize(node) {
+    if (node.edgeCount === 1) {
+      return 5;
+    }
+    let size = (Math.log(node.edgeCount) + 1) * 3;
+    return size;
+  }
+
+  nodeColor(d) {
+    if (d.id === this.selectedId) {
+      return "#AA5656";
+    }
+    return d.isGroup ? "#9d00ff" : "#698269";
+  }
 
   // setup graph and draw
   draw() {
@@ -135,7 +157,10 @@ export class ForceGraph {
         "link",
         d3
           .forceLink()
-          .strength(0.2) // This force provides links between nodes
+          .strength(function (d) {
+            return d.isOnlyConnection ? 2 : 0.2;
+          })
+          //.strength((d) => Math.log(d.strength) + 1) // This force provides links between nodes
           .id(function (d) {
             return d.id;
           }) // This provide the id of a node
@@ -145,7 +170,6 @@ export class ForceGraph {
         "charge",
         d3.forceManyBody().strength((d) => {
           // calculate the charge based on the node size
-          if (d.edgeCount === 1) return -5;
           return -30 * this.calcNodeSize(d);
         })
       ) // This adds repulsion between nodes
@@ -167,20 +191,6 @@ export class ForceGraph {
           .strength(0.5)
       ) // This force attracts nodes to the center of the this.svg area
       .on("tick", this.ticked);
-  }
-
-  calcNodeSize(node) {
-    let size = 5;
-    if (node.isGroup) size += node.edgeCount / 3;
-    else size += node.edgeCount / 2;
-    return size;
-  }
-
-  nodeColor(d) {
-    if (d.id === this.selectedId) {
-      return "#AA5656";
-    }
-    return d.isGroup ? "#9d00ff" : "#698269";
   }
 
   // nodes

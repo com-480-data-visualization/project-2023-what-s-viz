@@ -27,21 +27,23 @@ function createForceGraphNode(idToContact, idToGroup) {
 
 function createForceGraphEdge(nodes, messageStatsPerChat, idToGroup) {
   let edges = [];
-  let totalCount = 0;
-
   // Iterate over every chat and person participating in a chat
   for (let [chat_id, chatsStats] of Object.entries(messageStatsPerChat)) {
     for (let [contact_id, count] of Object.entries(chatsStats.idSendCount)) {
       // Chat ID is either a group or a contact
       // Check that source and target are not the same node and check both are in the nodes
       // TODO: eddge (or add count) for people sending you PMs
+      let chat_node = nodes.find((node) => node.id === chat_id);
       if (
         chat_id !== contact_id &&
-        nodes.find((node) => node.id === chat_id) &&
+        chat_node &&
         nodes.find((node) => node.id === contact_id)
       ) {
-        edges.push({ source: chat_id, target: contact_id, strength: count });
-        totalCount += count;
+        edges.push({
+          source: chat_id,
+          target: contact_id,
+          strength: count * chat_node.isGroup ? 1 : 2, // Take into account message received in PM
+        });
       }
     }
   }
@@ -51,18 +53,16 @@ function createForceGraphEdge(nodes, messageStatsPerChat, idToGroup) {
     group.participants.forEach((contact_id) => {
       if (
         nodes.find((node) => node.id === group_id) &&
-        nodes.find((node) => node.id === contact_id)
+        nodes.find((node) => node.id === contact_id) &&
+        !edges.find(
+          (edge) => edge.source === group_id && edge.target === contact_id
+        )
       ) {
         edges.push({ source: group_id, target: contact_id, strength: 1 });
-        totalCount += 1;
       }
     });
   }
 
-  // scale strength between 0 and 1
-  for (let edge of edges) {
-    edge.strength = edge.strength / totalCount;
-  }
   return edges;
 }
 
@@ -95,6 +95,11 @@ function createGraphObject(messageStatsPerChat, idToGroup, idToContact) {
   });
   nodes.forEach((node) => {
     node.edgeCount = nodeToEdgeCount[node.id];
+  });
+
+  edges.forEach((edge) => {
+    edge.isOnlyConnection =
+      nodeToEdgeCount[edge.source] === 1 || nodeToEdgeCount[edge.target] === 1;
   });
 
   return { nodes: nodes, edges: edges };
