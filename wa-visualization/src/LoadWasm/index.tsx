@@ -24,7 +24,7 @@ export const LoadWasm: React.FC<React.PropsWithChildren<{}>> = (props) => {
   if (isLoading) {
     return (
       <div className='LoadWasm'>
-        loading WebAssembly...
+        Please wait, loading page content...
       </div>
     );
   } else {
