@@ -318,20 +318,21 @@ export class ForceGraph {
           node
             .append("text")
             .text(function (d) {
-              if (d.withNodeName) {
+              if (d.withNodeName && d.edgeCount > 5) {
                 return d.name;
               }
               return "";
             })
             .attr("dy", (d) => {
               // in accordnace with the size of the node
-              return d.r + "px";
+              return this.calcNodeSize(d) + 10 + "px";
             })
             .style("font-size", "12px")
             .style("font-weight", "bold")
             .style("fill", "black")
             .style("text-anchor", "middle")
             .style("dominant-baseline", "middle");
+
           return node;
         },
         (update) => {
@@ -351,14 +352,15 @@ export class ForceGraph {
           update
             .select("text")
             .text(function (d) {
-              if (d.withNodeName) {
+              if (d.withNodeName && d.edgeCount > 7) {
                 return d.name;
               }
               return "";
             })
             .attr("dy", (d) => {
               // in accordnace with the size of the node
-              return d.r + "px";
+              //console.log("radisu", d);
+              return this.calcNodeSize(d) + 10 + "px";
             })
             .style("font-size", "12px")
             .style("font-weight", "bold")
@@ -450,12 +452,14 @@ export class ForceGraph {
 
   // prevent nodes to leave the window
   checkBounds(d) {
-    let marginLT = 10;
-    let marginRB = 10;
-    if (d.x < marginLT) d.x = marginLT;
-    if (d.x > this.bb.width - marginRB) d.x = this.bb.width - marginRB;
-    if (d.y < marginLT) d.y = marginLT;
-    if (d.y > this.bb.height - marginRB) d.y = this.bb.height - marginRB;
+    let marginL = 10;
+    let marginT = 10;
+    let marginR = 10;
+    let marginB = 30;
+    if (d.x < marginL) d.x = marginL;
+    if (d.x > this.bb.width - marginR) d.x = this.bb.width - marginR;
+    if (d.y < marginT) d.y = marginT;
+    if (d.y > this.bb.height - marginB) d.y = this.bb.height - marginB;
   }
 
   // This function is run at each iteration of the force algorithm, updating the nodes position.
