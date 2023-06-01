@@ -1,7 +1,7 @@
 import { Container, Row, Col, Table } from "react-bootstrap";
 import LanguageLists from "../utils/LanguageLists.js";
 
-function Legend({}) {
+function Legend({usedLanguages}) {
   const [shornames, fullnames, combinednames, lanColorScale] = LanguageLists();
   
   return (
@@ -16,7 +16,7 @@ function Legend({}) {
         <tr>
             {
             // For each of the fullnames create a col with this name and its color
-            combinednames.map((lan, i) => (
+            combinednames.filter((lan) => usedLanguages.has(lan[1])).map((lan, i) => (
                 <th key={i} className="p-0 m-0"
                 style={{
                     color: lanColorScale(lan[1]),
