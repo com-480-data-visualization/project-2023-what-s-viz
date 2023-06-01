@@ -197,11 +197,11 @@ export function NetworkGraph({
             </p>
             <h3>Data Privacy</h3>
             <p>
-              This website runs fully local in your web browser. Your private data
-              is only shared from WhatsApp servers to your computer and stored locally
-              in browser memory while you’re on this page. Your data
-              remains exclusively between WhatsApp and you. Once you exit this
-              page, all retrieved data is removed from your computer.
+              This website runs fully local in your web browser. Your private WhatsApp
+              data of the last three years is slowly synchornized from WhatsApp servers
+              to your computer and stored locally in browser memory while you’re on
+              this page. Your data remains exclusively between WhatsApp and you.
+              Once you exit this page, all retrieved data is removed from your computer.
             </p>
           </Row>
         )}

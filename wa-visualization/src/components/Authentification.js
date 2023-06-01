@@ -142,10 +142,6 @@ export default function Home({ isLoading, loginHook, logoutHook }) {
                     <QRCode value={res} fgColor="#022224ff" size={200} />
                   </Col>
               </Row>
-              <Row className="p-2 m-3">
-                <b>Note:</b>
-                <p>Your loaded WhatApp data of the last three years is only stored locally in browser memory and not sent to any server. This also means that you have to login every time you leave this site!</p>
-              </Row>
           </Container>
         </Modal.Body>
       </Modal>
