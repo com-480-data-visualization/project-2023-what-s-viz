@@ -2,8 +2,12 @@
 
 A project for the Data Visualization (COM-480) course at EPFL.
 
+Try out our website hosted on github.io under [com-480-data-visualization.github.io/project-2023-what-s-viz/](https://com-480-data-visualization.github.io/project-2023-what-s-viz/). 
+
 For the source code of the final project look at the [readme](wa-visualization/README.md) there.
-The final website is hosted on github.io under [com-480-data-visualization.github.io/project-2023-what-s-viz/](https://com-480-data-visualization.github.io/project-2023-what-s-viz/). 
+
+Click below the watch our presentation video of What's Viz:  
+[<img src="Milestones/figures/video_thumbnail.png" width="50%">](https://drive.google.com/file/d/1nbVBNSENsk2Auo-obHa2WsYavL-OOQFK/view)
 
 ## Milestones
 
