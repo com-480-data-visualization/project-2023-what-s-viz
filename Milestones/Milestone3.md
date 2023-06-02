@@ -12,7 +12,7 @@ You need to deliver the following things:
 2. Screencast
 * Demonstrate what you can do with your viz in a fun, engaging and impactful manner
 * Talk about your main contributions rather than on technical details
-* The 2 min video (not more) can be found [here](./screencast.mp4)
+* The 2 min video can be found [here](https://drive.google.com/file/d/1nbVBNSENsk2Auo-obHa2WsYavL-OOQFK/view).
 3. Process book (max 8 pages)
 * Describe the path you took to obtain the final result
 * Explain challenges that you faced and design decisions that you took
