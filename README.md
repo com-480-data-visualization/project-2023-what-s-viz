@@ -6,7 +6,7 @@ Try out our website hosted on github.io under [com-480-data-visualization.github
 
 For the source code of the final project look at the [readme](wa-visualization/README.md) there.
 
-Click below the watch our presentation video of What's Viz:  
+Click below to watch our presentation video of What's Viz:  
 [<img src="Milestones/figures/video_thumbnail.png" width="50%">](https://drive.google.com/file/d/1nbVBNSENsk2Auo-obHa2WsYavL-OOQFK/view)
 
 ## Milestones
