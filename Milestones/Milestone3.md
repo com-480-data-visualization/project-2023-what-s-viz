@@ -6,7 +6,7 @@ For the final milestone, you need to create a cool, interactive, and sufficientl
 
 You need to deliver the following things:
 1. Github repository with a [README](../README.md)
-* Host the code and data on Github with your process book as a PDF file [here](./process_book.pdf)
+* Host the code and data on Github with your process book as a PDF file [here](./Milestone3.pdf)
 * Add a [README](../wa-visualization/README.md) file that explains the technical setup and intended usage
 * Code should be clean, manageable, and using the latest practices
 2. Screencast
