@@ -205,7 +205,7 @@ export function NetworkGraph({
               textAlign: "center",
             }}
           >
-            <h1>Welcome to What’viz ! </h1>
+            <h1>Welcome to What's Viz! </h1>
             <p>
               Log in to your WhatsApp account to explore your network <br /> or{" "}
               <br /> load dummy data to preview the visualizations.

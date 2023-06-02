@@ -84,7 +84,7 @@ function About() {
           <h2>About Our Project</h2>
           <p>
             Welcome to our DataVisualization project! We are excited to present our innovative approach to utilizing WhatsApp data and providing valuable insights through data science and data visualization. Our project aims to unlock the hidden knowledge within the massive amount of WhatsApp data, allowing users to gain actionable insights without the hassle of manual analysis.
-            An introductory presentation to What'Viz can be found <a href="https://drive.google.com/file/d/1nbVBNSENsk2Auo-obHa2WsYavL-OOQFK/view" target="_blank" rel="noopener noreferrer">here</a>.
+            An introductory presentation to What's Viz can be found <a href="https://drive.google.com/file/d/1nbVBNSENsk2Auo-obHa2WsYavL-OOQFK/view" target="_blank" rel="noopener noreferrer">here</a>.
           </p>
         </Col>
       </Row>
