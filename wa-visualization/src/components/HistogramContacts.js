@@ -1,28 +1,20 @@
 
 import * as d3 from "d3";
-import * as pie from "d3-cloud";
 import { useD3 } from "../hooks/useD3";
 import { useLayoutEffect, useState, useEffect, useRef } from "react";
 import { Container, Row } from "react-bootstrap";
+import { lineRadial } from 'd3';
 
 
-
-export default function HistogramContacts({ title, messageStatsPerChat, selectedId }) {
+export default function HistogramContacts({ title, messageStatsPerChat, selectedId, idToContact, idToGroup }) {
   const refContainer = useRef();
-  const [dimensions, setDimensions] = useState({ width: 500, height: 300 });
-
-
-  // The histogram layout function
-  var layout = pie().value(function (d) {
-    return d.value;
-  });
-
+  const [dimensions, setDimensions] = useState({ width: 500, height: 500 });
   const [chats, setChats] = useState([]);
+  var key = function(d){ return d.data.label; };
   // Build the words with size depending on the frequency in this conversation
   useEffect(() => {
     // If we have an ID selected run for that ID, otherwise sum over all chats & users
     var idCounts = {};
-    var idColor = {};
     if (selectedId !== undefined) {
       // Iterate over every chat and person participating in a chat
       for (let [chat_id, chatsStats] of Object.entries(messageStatsPerChat)) {
@@ -32,7 +24,6 @@ export default function HistogramContacts({ title, messageStatsPerChat, selected
                     idCounts[contact_id] += count;
                 } else {
                     idCounts[contact_id] = count;
-                    //idColor[contact_id] = color;
               }
             }
           }
@@ -46,34 +37,134 @@ export default function HistogramContacts({ title, messageStatsPerChat, selected
                     idCounts[contact_id] += count;
                 } else {
                     idCounts[contact_id] = count;
-                    //idColor[contact_id] = color;
               }
             }
           }
         } 
     }
-    console.log(idCounts);
-    
+
       setChats(idCounts);
 }, [messageStatsPerChat, selectedId]);
 
-useLayoutEffect(()=>{
-  console.log(chats)
-})
+    const createPieChart = (svg) => {
+    var chat_capped = Object.fromEntries(Object
+        .entries(chats)
+        .sort(([, a], [, b]) => b - a)                
+        .filter((s => ([, v]) => s.add(v).size <= 5)(new Set)));
+    
+    var chat_mapped_capped = {};
+    var sum_tot = 0
+    for (const [key, value] of Object.entries(chat_capped)) {
+      if (idToContact[key] !== undefined){
+        chat_mapped_capped[idToContact[key]["name"]] = value;
+        sum_tot += value;
+      }
+      if (idToGroup[key] !== undefined){
+        chat_mapped_capped[idToGroup[key]["name"]] = value;
+        sum_tot += value;
+      }
+    }
 
-  useLayoutEffect(() => {
-    setDimensions({
-      width: refContainer.current.clientWidth,
-      height: refContainer.current.clientHeight,
+   
+    const data = Object.entries(chat_mapped_capped).map(([key, value]) => ({key, value}));
+    const color = d3.scaleOrdinal(d3.schemeCategory10);
+
+    const margin = 40;
+    const width = dimensions.width - margin * 2;
+    const height = dimensions.height - margin * 2;
+
+    const radius = Math.min(width, height) / 2;    
+
+    const pie = d3.pie().value(d => d.value)(data);
+
+  const arc = d3.arc()
+    .innerRadius(0)
+    .outerRadius(radius);
+  
+  const outerArc = d3.arc()
+    .innerRadius(radius * 0.9)
+    .outerRadius(radius * 0.9);
+  
+  const g = svg.append('g')
+    .attr('transform', `translate(${width / 2 + margin}, ${height / 2 + margin})`);
+
+  g.selectAll("path")
+    .data(pie)
+    .join("path")
+    .attr("d", arc)
+    .attr("fill", (_, i) => color(i));
+
+
+  let isGreaterThanThreshold = data.some(d => (d.value/sum_tot) > 0.75);
+  const text = g.selectAll("text")
+    .data(pie)
+    .enter()
+    .append("text")
+    .attr("dy", ".35em")
+    .text(function(d) {
+        // If any value is greater than 0.75, only show those labels.
+        if (isGreaterThanThreshold) {
+            return (d.data.value/sum_tot) > 0.75 ? d.data.key : '';
+        }
+        // Otherwise, show all labels.
+        else {
+            return d.data.key;
+        }
     });
-  }, []);
+  
+  function midAngle(d){
+    return d.startAngle + (d.endAngle - d.startAngle) / 2;
+  }
+  
+  text.transition().duration(1000)
+    .attr("transform", function(d) {
+      var pos = outerArc.centroid(d);
+      pos[0] = radius * (midAngle(d) < Math.PI ? 1.07 : -1.07);
+      return "translate(" + pos + ")";
+    })
+    .style("text-anchor", function(d){
+      return midAngle(d) < Math.PI ? "start":"end";
+    });
+  
+  const polyline = g.selectAll("polyline")
+    .data(pie)
+    .enter()
+    .append("polyline")
+    .attr("stroke", "black")    
+    .attr("fill", "none");      
 
-  useEffect(() => {
-    function handleWindowResize() {
+polyline.transition().duration(1000)
+    .attr("points", function(d){
+      var pos = outerArc.centroid(d);
+      pos[0] = radius * 1.03 * (midAngle(d) < Math.PI ? 1 : -1);
+      return isGreaterThanThreshold && (d.data.value/sum_tot) <= 0.75 ? '' : [arc.centroid(d), outerArc.centroid(d), pos];
+    });
+    
+  };
+
+ const destroyed = (svg) => {
+  svg.selectAll("g").remove();
+};
+
+  const ref = useD3(createPieChart, [chats, dimensions], destroyed);
+
+useEffect(() => {
+    if (refContainer.current) {
       setDimensions({
         width: refContainer.current.clientWidth,
         height: refContainer.current.clientHeight,
       });
+    }
+  }, [refContainer]);
+
+  useEffect(() => {
+    function handleWindowResize() {
+      if (refContainer.current) {
+        setDimensions({
+          width: refContainer.current.clientWidth,
+          height: refContainer.current.clientHeight,
+        });
+      }
     }
     window.addEventListener("resize", handleWindowResize);
     return () => {
@@ -81,106 +172,27 @@ useLayoutEffect(()=>{
     };
   }, []);
 
-  const d3Ref = useD3(
-    (svg) => {
-      function draw(chats) {
-        svg
-          .append("g")
-          .attr(
-            "transform",
-            "translate(" +
-              layout.size()[0] / 2 +
-              "," +
-              layout.size()[1] / 2 +
-              ")"
-          )
-          .selectAll("text")
-          .data(chats)
-          .enter()
-          .append("text")
-          .style("font-size", function (d) {
-            return d.size + "px";
-          })
-          .style("font-family", "Impact")
-          .style("fill", function (d, id) {
-            return d.color;
-          })
-          .attr("text-anchor", "middle")
-          .attr("transform", function (d) {
-            return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
-          })
-          .text(function (d) {
-            return d.text;
-          });
-
-  var radius = Math.min(layout.size()[0], layout.size()[1]) / 2
-  // shape helper to build arcs:
-  var arcGenerator = d3.arc().innerRadius(0).outerRadius(radius);
- 
-
-  var color = d3.scaleOrdinal().domain(chats).range(d3.schemeSet2);
-
-  // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
-  svg
-    .selectAll("mySlices")
-    .data(chats)
-    .enter()
-    .append("path")
-    .attr("d", arcGenerator)
-    .attr("fill", function (d) {
-      return color(d.data.key);
-    })
-    .attr("stroke", "black")
-    .style("stroke-width", "2px")
-    .style("opacity", 0.7)
-    .append("text")
-    .text(function (d) {
-      return "grp " + d.data.key;
-    })
-    .attr("transform", function (d) {
-      return "translate(" + arcGenerator.centroid(d) + ")";
-    })
-    .style("text-anchor", "middle")
-    .style("font-size", 17);
-      }
-
-      layout.stop();
-      svg.selectAll("g").remove();
-   
-      layout
-        .size([dimensions.width - 50, dimensions.height])
-        .padding(1)
-        .rotate(function () {
-          return (~~(Math.random() * 8) * 45) / 4;
-        })
-        .font("Impact")
-        .on("end", draw);
-      layout.start();
-    },
-    [chats],
-    () => {
-      // cleanup
-      layout.stop();
-    }
-  );
-
   return (
     <Container fluid className="h-100">
       <Row
-        className={"p-0 m-0 h-100"}
+        className="p-0 m-0 h-100"
         style={{
-          height: "100%",
+          height: "150%",
         }}
         ref={refContainer}
       >
-        <div style={{ height: "100%", display:  "block" }}>
-          <svg
-            ref={d3Ref}
-            width={dimensions.width}
-            height={dimensions.height}
-          />
-        </div>
+        <svg
+          ref={ref}
+          width={dimensions.width}
+          height={dimensions.height}
+          style={{
+            marginRight: "0px",
+            marginLeft: "0px",
+          }}
+        >
+          <g className="plot-area" />
+        </svg>
       </Row>
     </Container>
   );
-}
+      }

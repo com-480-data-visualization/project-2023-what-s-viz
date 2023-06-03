@@ -274,22 +274,9 @@ function Home() {
                     doMsg={doMsg} doContacts={doContacts} doGroups={doGroups}/>
                 </Row>
               } 
-              { /*Object.keys(idToMessage).length > 0 &&
-              <Row className="p-2 mb-2 rounded border border-secondary greenish" >
-                  <Col style={{ display: 'flex', alignItems: 'center' }}>
-                    Histogram of messages 
-                  </Col>
-                <Row>
-                  <HistogramContacts title="Histogram of messages" messageStatsPerChat={messageStatsPerChat} selectedId={selectedId}/>
-                </Row>
-              </Row>*/
+              {<Row className="p-2 mb-2 rounded border border-secondary greenish" ><SearchField selected={selectedId} setSelected={setSelectedId} idToGroup={idToGroup} idToContact={idToContact} /> </Row>
               }
-              {/* { Object.keys(idToMessage).length > 0 &&
-                <Row className="p-2 mb-2 rounded border border-secondary greenish" >
-                  <Legend />
-                </Row>
-              } */}
-              {Object.keys(idToMessage).length > 0 &&
+{Object.keys(idToMessage).length > 0 &&
               <>
                 <Row className="p-2 mb-2 rounded border border-secondary greenish" >
                     <Col style={{ display: 'flex', alignItems: 'center' }}>
@@ -297,13 +284,25 @@ function Home() {
                     </Col>
                 </Row>
                 <Row className="p-2 mb-2 rounded border border-secondary greenish" >
-                  <Row className="p-2" ><SearchField selected={selectedId} setSelected={setSelectedId} idToGroup={idToGroup} idToContact={idToContact} /> </Row>
                   <Row><LanguageStats title={"Language distribution of selected chat"} idToMessage={idToMessage} selectedId={selectedId} setUsedLanguages={setUsedLanguages} /></Row>
                   <Row className="p-2" ><WordCloud bagOfWord={bagOfWord} selectedId={selectedId} /></Row>
                   <Row ><Legend usedLanguages={usedLanguages} /></Row>
                 </Row>
               </>
               }
+              {
+                Object.keys(idToMessage).length > 0 &&
+              <Row className="p-2 mb-2 rounded border border-secondary greenish" >
+                  <Col style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' , color : 'green'}}>
+                    Repartition of the messages in the selected chat:
+                  </Col>
+                <Row>
+                  <HistogramContacts title="Repartition of the messages in the selected chat" messageStatsPerChat={messageStatsPerChat} selectedId={selectedId} idToContact ={idToContact} idToGroup = {idToGroup}/>
+                </Row>
+              </Row>
+              }
+
+              
 
               </Container>
           </Row>
