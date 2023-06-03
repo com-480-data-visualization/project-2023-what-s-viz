@@ -39,7 +39,7 @@ To set up the project for development and start the development server, follow t
 
 #### Prerequisites for Compiling
 
-- Make sure that Go is installed on your development machine (tested with Go 1.19.1).
+- Make sure that Go is installed on your development machine (tested with Go 1.19.1) and node version v18.15.0.
 - Configure WebAssembly in your IDE. Refer to the following guides for instructions on configuring WebAssembly in popular IDEs:
   - VS Code guide: [https://egghead.io/lessons/go-configure-go-build-constraints-in-vs-code-to-work-with-webassembly](https://egghead.io/lessons/go-configure-go-build-constraints-in-vs-code-to-work-with-webassembly)
   - IntelliJ guide: [https://www.jetbrains.com/help/go/webassembly-project.html](https://www.jetbrains.com/help/go/webassembly-project.html)
