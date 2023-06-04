@@ -10,17 +10,15 @@ export default function HistogramTime({ title, messageStatsPerChat, selectedId }
   const refContainer = useRef();
   const [dimensions, setDimensions] = useState({ width: 500, height: 500 });
   const [times, setTimes] = useState([]);
-
-  // Build the words with size depending on the frequency in this conversation
+  const [count_tot, setCount] = useState([]);
   useEffect(() => {
-    // If we have an ID selected run for that ID, otherwise sum over all chats & users
     var timeCounts = {};
+    var count = 0;
     var time_indexes = Array.from({ length: 24 }, (_, index) => index + 1);
     for (var t of time_indexes){
         timeCounts[t] = 0.2
     }
     if (selectedId !== undefined) {
-      // Iterate over every chat and person participating in a chat
       for (let [chat_id, chatsStats] of Object.entries(messageStatsPerChat)) {
         if (chat_id === selectedId){
           for (var time of chatsStats.timestamp){
@@ -30,6 +28,7 @@ export default function HistogramTime({ title, messageStatsPerChat, selectedId }
             if (digits in timeCounts){
               timeCounts[digits] += 1
             }
+            count += 1
           }
         }
       }
@@ -42,18 +41,18 @@ export default function HistogramTime({ title, messageStatsPerChat, selectedId }
               if (digits in timeCounts){
                   timeCounts[digits] += 1
               }
+              count += 1
           }
         }
     }
-      console.log("new update")
-      console.log(timeCounts)
+      setCount(count);
       setTimes(timeCounts);
 }, [messageStatsPerChat, selectedId]);
 
 function drawGrid(svg, radialScale, angleScale, data, maxValue, times) {
   const gridLevels = 5; 
 
-  // Circular grid
+  // circular grid
   for (let level = 0; level <= gridLevels; ++level) {
     svg.append("circle")
       .attr("cx", 0)
@@ -66,7 +65,7 @@ function drawGrid(svg, radialScale, angleScale, data, maxValue, times) {
 
   
 
-  // Radial grid
+  // radial grid
   svg.selectAll(".line")
     .data(Object.keys(times))
     .enter()
@@ -119,31 +118,30 @@ const createPieChart = (svg) => {
   maxValue = maxValue/sum_tot
   
 
-  // Configuration
   const margin = 40;
   const width = dimensions.width - margin * 2;
   const height = dimensions.height - margin * 2;
   const radius = Math.min(width, height) / 2 - margin;
 
-  // Create the radar chart SVG
+  // radar chart 
   const g = svg.attr("width", width)
     .attr("height", height)
     .append("g")
     .attr('transform', `translate(${width / 2 + margin}, ${height / 2 + margin/3})`);
 
   
-  // Create a radial scale for the plot
+  //radial scaling
   const radialScale = d3.scaleLinear()
     .domain([0, maxValue])
     .range([0, radius]);
 
-  // Create a scale for the angles
+  //angle scaling
   const angleScale = d3.scaleLinear()
     .domain([0, data.length])
     .range([0, 2 * Math.PI]);
 
 
-  // Function to convert data to line
+  // data to line
   const lineGenerator = d3.lineRadial()
     .curve(d3.curveLinear)
     .radius(d => radialScale(d.value))
@@ -162,26 +160,23 @@ g.selectAll("text")
     const x = (radius + 10) * Math.cos(angle); 
     const textLength = d && d.time ? d.time.length : 0;
     if (angle > 0 && angle < Math.PI/2) {
-      return x + 2;  // Rough estimate of text height
+      return x + 2;  
     }
-    //if (angle > -Math.PI && angle < 0) {
-    //  return x - (textLength * 6);  // Rough estimate of text width
-    //}
 
     if (angle > Math.PI/2 && angle < Math.PI) {
-      return x - 7;  // Rough estimate of text height
+      return x - 7;  
     }
 
     if (angle == Math.PI) {
-      return x - 7;  // Rough estimate of text height
+      return x - 7; 
     }
 
     if (angle > Math.PI && angle < 3 * Math.PI / 2) {
-      return x - 4;  // Rough estimate of text height
+      return x - 4;  
     }
 
     if (angle > (3 * Math.PI / 2.0) && angle < 2 * Math.PI ) {
-      return x + 20;  // Rough estimate of text height
+      return x + 20;  
     }
 
     return x;
@@ -191,38 +186,38 @@ g.selectAll("text")
     const y = (radius + 10) * Math.sin(angle);  
 
     if (angle > 0 && angle < Math.PI/2) {
-      return y + 7;  // Rough estimate of text height
+      return y + 7; 
     }
 
     if (angle == Math.PI/2) {
-      return y + 7;  // Rough estimate of text height
+      return y + 7;  
     }
 
     if (angle > Math.PI/2 && angle < Math.PI) {
-      return y + 7;  // Rough estimate of text height
+      return y + 7;  
     }
 
     if (angle > Math.PI && angle < 3 * Math.PI / 2) {
-      return y - 1;  // Rough estimate of text height
+      return y - 1;  
     }
 
     if (angle == 0) {
-      return y + 4;  // Rough estimate of text height
+      return y + 4;  
     }
 
     return y;
   })
-  .text(d => d.time) // <-- Add the label text
-  .attr("font-size", "10px")  // Set the size of the text
-  .attr("text-anchor", "middle") // To center the text
+  .text(d => d.time) 
+  .attr("font-size", "10px")  
+  .attr("text-anchor", "middle") 
   .style("fill", "green");
 
   drawGrid(g, radialScale, angleScale, data, maxValue, times);
 
-  //draw outline
+  //draw the body of the plot a bit transparent
  g.append("path")
     .datum(data)
-    .attr("fill", "rgba(157, 0, 255, 0.7)") // Increase transparency
+    .attr("fill", "rgba(157, 0, 255, 0.7)")
     .attr("stroke", "#9d00ff")
     .attr("d", lineGenerator);
 
@@ -272,6 +267,18 @@ useEffect(() => {
         }}
         ref={refContainer}
       >
+        {count_tot === 0 ? (
+        <div>No data to display
+          <svg
+          width={dimensions.width}
+          height={dimensions.height}
+          style={{
+            marginRight: "0px",
+            marginLeft: "0px",
+          }}
+        ></svg>
+        </div>
+      ) : (
         <svg
           ref={ref}
           width={dimensions.width}
@@ -283,7 +290,7 @@ useEffect(() => {
           }}
         >
           <g className="plot-area" />
-        </svg>
+        </svg>)}
       </Row>
     </Container>
   );

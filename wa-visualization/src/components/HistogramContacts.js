@@ -18,7 +18,7 @@ export default function HistogramContacts({ title, messageStatsPerChat, selected
       // Iterate over every chat and person participating in a chat
       for (let [chat_id, chatsStats] of Object.entries(messageStatsPerChat)) {
         for (let [contact_id, count] of Object.entries(chatsStats.idSendCount)) {
-              if (chat_id !== contact_id && chat_id === selectedId){
+              if ( chat_id === selectedId){
                   if (contact_id in idCounts) {
                     idCounts[contact_id] += count;
                 } else {
@@ -64,30 +64,30 @@ const createBarChart = (svg) => {
       }
     }
 
-  // Define margin
+  
   const margin = {top: 20, right: 20, bottom: 70, left: 40},
         width = dimensions.width - margin.left - margin.right,
         height = dimensions.height - margin.top - margin.bottom;
 
-  // X scale and axis
+
   var x = d3.scaleBand().rangeRound([0, width]).padding(0.1);
   var xAxis = d3.axisBottom().scale(x);
 
-  // Y scale and axis
+
   var y = d3.scaleLinear().range([height, 0]);
   var yAxis = d3.axisLeft().scale(y);
 
   var g = svg.append('g')
               .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
-  // Transform data into array of objects
+  // entries of the data
   const data = Object.entries(chat_mapped_capped).map(([key, value]) => ({key, value}));
 
-  // Set domain for x and y scale
+  // transformations
   x.domain(data.map(d => d.key));
   y.domain([0, d3.max(data, d => d.value)]);
 
-  // Add x-axis to SVG
+  
 g.append("g")
     .attr("class", "x axis")
     .attr("transform", `translate(0, ${height})`)
@@ -98,7 +98,7 @@ g.append("g")
     .attr("dy", ".55em")
     .attr("transform", "rotate(-25)");
 
-  // Add y-axis to SVG
+ 
   g.append("g")
       .attr("class", "y axis")
       .call(yAxis)
@@ -110,7 +110,7 @@ g.append("g")
       .text("Value");
 
 
-  // Add bars
+  
   const bars = g.selectAll(".bar")
       .data(data)
       .enter()
@@ -121,7 +121,7 @@ g.append("g")
       .attr("y", d => y(d.value))
       .attr("height", d => height - y(d.value));
 
-  // Create a tooltip
+  // for hovering
   const tooltip = svg.append("text")
       .attr("x", 0)
       .attr("y", 0)
@@ -129,17 +129,17 @@ g.append("g")
       .style("fill", "black")
       .style("visibility", "hidden");
 
-  // Show/hide the tooltip on hover
+  
   bars.on("mouseover", function(event, d) {
   const percentage = (d.value / sum_tot * 100).toFixed(2) + "%";
   let textPosition = y(d.value) + 15;
-  if(height - y(d.value) < 20) { // if bar height is less than 20
-    textPosition = y(d.value) - 5; // place text above the bar
+  if(height - y(d.value) < 20) {
+    textPosition = y(d.value) - 5; 
   }
   tooltip.text(percentage)
       .attr("x", x(d.key) + x.bandwidth() / 2 + 37)
       .attr("y", textPosition)  
-      .style("text-anchor", "middle")  // Center align
+      .style("text-anchor", "middle") 
       .style("visibility", "visible");
 }).on("mouseout", function() {
   tooltip.style("visibility", "hidden");
@@ -179,25 +179,39 @@ useEffect(() => {
     };
   }, []);
 
-  return (
-    <Container fluid className="h-100">
-      <Row
-        className="p-0 m-0 h-100"
-        style={{
-          height: "150%",
-        }}
-        ref={refContainer}
-      >
-        <svg
-      ref={ref}
-      width={dimensions.width}
-      height={dimensions.height}
+ return (
+  <Container fluid className="h-100">
+    <Row
+      className="p-0 m-0 h-100"
       style={{
-        marginRight: "0px",
-        marginLeft: "0px",
+        height: "150%",
       }}
-    >    </svg>
-      </Row>
-    </Container>
-  );
+      ref={refContainer}
+    >
+      {Object.keys(chats).length === 0 ? (
+        <div style={{ margin: "auto" }}>No data to display
+        <svg
+          width={dimensions.width}
+          height={dimensions.height}
+          style={{
+            marginRight: "0px",
+            marginLeft: "0px",
+          }}
+        ></svg>
+        </div>
+      
+      ) : (
+        <svg
+          ref={ref}
+          width={dimensions.width}
+          height={dimensions.height}
+          style={{
+            marginRight: "0px",
+            marginLeft: "0px",
+          }}
+        ></svg>
+      )}
+    </Row>
+  </Container>
+);
       }
