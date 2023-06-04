@@ -10,6 +10,7 @@ import DebugSaveLoad from '../components/DebugSaveLoad';
 import Container from 'react-bootstrap/Container';
 import LanguageStats from '../components/LanguageStats.js';
 import HistogramContacts from '../components/HistogramContacts.js';
+import HistogramTime from '../components/HistogramTime.js';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Legend from '../components/Legend.js';
@@ -25,6 +26,12 @@ declare global {
       WAdb: any;
       bootstrap: any;
   }
+}
+
+enum ChartType {
+  HistogramContacts,
+  HistogramTime,
+  LanguageChart
 }
 
 function Home() {
@@ -57,6 +64,11 @@ function Home() {
   const [selectedId, setSelectedId] = useState<string>()
   const [usedLanguages, setUsedLanguages] = useState<Set<string>>(new Set([]))
  
+
+  // Current chart type
+  const [chartType, setChartType] = useState<ChartType>(ChartType.HistogramContacts);
+
+
   // =============================================================== //
  
   function resetData() {
@@ -92,13 +104,15 @@ function Home() {
 
       // If the chat is not in the dict, add it
       if (!updated_stats[chat_id]) {
-        updated_stats[chat_id] = { idSendCount: {} }
+        updated_stats[chat_id] = { idSendCount: {}, timestamp: [] }
       }
       // If the sender is not in the chat, add it
       if (!updated_stats[chat_id].idSendCount[sender]) {
         updated_stats[chat_id].idSendCount[sender] = 0
       }
+
       updated_stats[chat_id].idSendCount[sender] += 1;
+      updated_stats[chat_id].timestamp.push(messages[key].timestamp)
     })
 
     //console.log("updated_stats: ", updated_stats)
@@ -127,11 +141,11 @@ function Home() {
       let sender = messages[key]["sent-by"]
 
       if (!updated_stats[sender]) {
-        updated_stats[sender] = { numMessages: 0, numWords: 0 }
+        updated_stats[sender] = { numMessages: 0, numWords: 0, timestamp: [] }
       }
-
-      updated_stats[sender].numMessages += 1
-      updated_stats[sender].numWords += messages[key].message.split(" ").length
+      updated_stats[sender].numMessages += 1;
+      updated_stats[sender].numWords += messages[key].message.split(" ").length;
+      updated_stats[sender].timestamp.push(messages[key].timestamp)
     })
 
     function reduceContactStats(prev: contactStatsDict, updated_stats: contactStatsDict) {
@@ -242,6 +256,64 @@ function Home() {
 
   useEffect(doSetup, []); //only run once
 
+    const renderChart = () => {
+    switch (chartType) {
+      case ChartType.HistogramContacts:
+        return (
+          <HistogramContacts
+            title="Repartition of the messages in the selected chat"
+            messageStatsPerChat={messageStatsPerChat}
+            selectedId={selectedId}
+            idToContact={idToContact}
+            idToGroup={idToGroup}
+          />
+        );
+      case ChartType.HistogramTime:
+        return (
+          <HistogramTime
+            title="Repartition of the messages in the selected chat"
+            messageStatsPerChat={messageStatsPerChat}
+            selectedId={selectedId}
+          />
+        );
+      case ChartType.LanguageChart:
+        return (
+          <>
+            <Row>
+                    <Col style={{ display: 'flex', alignItems: 'center' }}>
+                      Loaded {stats.messages} messages in {Object.keys(idToContact).length} contacts and {Object.keys(idToGroup).length} groups.
+                    </Col>
+                </Row>
+           <Row><LanguageStats title={"Language distribution of selected chat"} idToMessage={idToMessage} selectedId={selectedId} setUsedLanguages={setUsedLanguages} /></Row>
+
+                  <Row className="p-2" ><WordCloud bagOfWord={bagOfWord} selectedId={selectedId} /></Row>
+
+                  <Row ><Legend usedLanguages={usedLanguages} /></Row>
+                  </>
+        );
+      default:
+          return (
+          <> 
+            <Row>
+                    <Col style={{ display: 'flex', alignItems: 'center' }}>
+                      Loaded {stats.messages} messages in {Object.keys(idToContact).length} contacts and {Object.keys(idToGroup).length} groups.
+                    </Col>
+                </Row>
+
+          <Row><LanguageStats title={"Language distribution of selected chat"} idToMessage={idToMessage} selectedId={selectedId} setUsedLanguages={setUsedLanguages} /></Row>
+
+                  <Row className="p-2" ><WordCloud bagOfWord={bagOfWord} selectedId={selectedId} /></Row>
+
+                  <Row ><Legend usedLanguages={usedLanguages} /></Row>
+                  </>
+        );
+    }
+  };
+
+   const handleChartTypeChange = (type: ChartType) => {
+    setChartType(type);
+  };
+
   // =============================================================== //
   
   return (
@@ -276,32 +348,35 @@ function Home() {
               } 
               {<Row className="p-2 mb-2 rounded border border-secondary greenish" ><SearchField selected={selectedId} setSelected={setSelectedId} idToGroup={idToGroup} idToContact={idToContact} /> </Row>
               }
-{Object.keys(idToMessage).length > 0 &&
-              <>
-                <Row className="p-2 mb-2 rounded border border-secondary greenish" >
-                    <Col style={{ display: 'flex', alignItems: 'center' }}>
-                      Loaded {stats.messages} messages in {Object.keys(idToContact).length} contacts and {Object.keys(idToGroup).length} groups.
-                    </Col>
-                </Row>
-                <Row className="p-2 mb-2 rounded border border-secondary greenish" >
-                  <Row><LanguageStats title={"Language distribution of selected chat"} idToMessage={idToMessage} selectedId={selectedId} setUsedLanguages={setUsedLanguages} /></Row>
-                  <Row className="p-2" ><WordCloud bagOfWord={bagOfWord} selectedId={selectedId} /></Row>
-                  <Row ><Legend usedLanguages={usedLanguages} /></Row>
-                </Row>
-              </>
-              }
+             
               {
                 Object.keys(idToMessage).length > 0 &&
-              <Row className="p-2 mb-2 rounded border border-secondary greenish" >
-                  <Col style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' , color : 'green'}}>
-                    Repartition of the messages in the selected chat:
-                  </Col>
-                <Row>
-                  <HistogramContacts title="Repartition of the messages in the selected chat" messageStatsPerChat={messageStatsPerChat} selectedId={selectedId} idToContact ={idToContact} idToGroup = {idToGroup}/>
-                </Row>
+                              <Row className="p-2 mb-2 rounded border border-secondary greenish" style={{ justifyContent: 'space-between' }}>
+                
+                <div>
+                  <button className="btn btn-primary ml-2 float-end"
+                    onClick={() => handleChartTypeChange(ChartType.LanguageChart)}
+                    style={{ marginRight: '10px' }}
+                  >
+                    Language Distribution
+                  </button>
+                  <button className="btn btn-primary float-end"
+                    onClick={() => handleChartTypeChange(ChartType.HistogramContacts)}
+                    style={{ marginRight: '10px' }}
+                  >
+                    Most Active Contacts
+                  </button>
+                  <button className="btn btn-primary ml-2 float-end"
+                    onClick={() => handleChartTypeChange(ChartType.HistogramTime)}
+                    style={{ marginRight: '10px' }}
+                  >
+                    Active Hours
+                  </button>
+                </div>
+
+                {renderChart()}
               </Row>
               }
-
               
 
               </Container>

@@ -10,7 +10,6 @@ export default function HistogramContacts({ title, messageStatsPerChat, selected
   const refContainer = useRef();
   const [dimensions, setDimensions] = useState({ width: 500, height: 500 });
   const [chats, setChats] = useState([]);
-  var key = function(d){ return d.data.label; };
   // Build the words with size depending on the frequency in this conversation
   useEffect(() => {
     // If we have an ID selected run for that ID, otherwise sum over all chats & users
@@ -46,8 +45,8 @@ export default function HistogramContacts({ title, messageStatsPerChat, selected
       setChats(idCounts);
 }, [messageStatsPerChat, selectedId]);
 
-    const createPieChart = (svg) => {
-    var chat_capped = Object.fromEntries(Object
+const createBarChart = (svg) => {
+  var chat_capped = Object.fromEntries(Object
         .entries(chats)
         .sort(([, a], [, b]) => b - a)                
         .filter((s => ([, v]) => s.add(v).size <= 5)(new Set)));
@@ -65,88 +64,96 @@ export default function HistogramContacts({ title, messageStatsPerChat, selected
       }
     }
 
-   
-    const data = Object.entries(chat_mapped_capped).map(([key, value]) => ({key, value}));
-    const color = d3.scaleOrdinal(d3.schemeCategory10);
+  // Define margin
+  const margin = {top: 20, right: 20, bottom: 70, left: 40},
+        width = dimensions.width - margin.left - margin.right,
+        height = dimensions.height - margin.top - margin.bottom;
 
-    const margin = 40;
-    const width = dimensions.width - margin * 2;
-    const height = dimensions.height - margin * 2;
+  // X scale and axis
+  var x = d3.scaleBand().rangeRound([0, width]).padding(0.1);
+  var xAxis = d3.axisBottom().scale(x);
 
-    const radius = Math.min(width, height) / 2;    
+  // Y scale and axis
+  var y = d3.scaleLinear().range([height, 0]);
+  var yAxis = d3.axisLeft().scale(y);
 
-    const pie = d3.pie().value(d => d.value)(data);
+  var g = svg.append('g')
+              .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
-  const arc = d3.arc()
-    .innerRadius(0)
-    .outerRadius(radius);
-  
-  const outerArc = d3.arc()
-    .innerRadius(radius * 0.9)
-    .outerRadius(radius * 0.9);
-  
-  const g = svg.append('g')
-    .attr('transform', `translate(${width / 2 + margin}, ${height / 2 + margin})`);
+  // Transform data into array of objects
+  const data = Object.entries(chat_mapped_capped).map(([key, value]) => ({key, value}));
 
-  g.selectAll("path")
-    .data(pie)
-    .join("path")
-    .attr("d", arc)
-    .attr("fill", (_, i) => color(i));
+  // Set domain for x and y scale
+  x.domain(data.map(d => d.key));
+  y.domain([0, d3.max(data, d => d.value)]);
+
+  // Add x-axis to SVG
+g.append("g")
+    .attr("class", "x axis")
+    .attr("transform", `translate(0, ${height})`)
+    .call(xAxis)
+    .selectAll("text")
+    .style("text-anchor", "end")
+    .attr("dx", "-.8em")
+    .attr("dy", ".55em")
+    .attr("transform", "rotate(-25)");
+
+  // Add y-axis to SVG
+  g.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Value");
 
 
-  let isGreaterThanThreshold = data.some(d => (d.value/sum_tot) > 0.75);
-  const text = g.selectAll("text")
-    .data(pie)
-    .enter()
-    .append("text")
-    .attr("dy", ".35em")
-    .text(function(d) {
-        // If any value is greater than 0.75, only show those labels.
-        if (isGreaterThanThreshold) {
-            return (d.data.value/sum_tot) > 0.75 ? d.data.key : '';
-        }
-        // Otherwise, show all labels.
-        else {
-            return d.data.key;
-        }
-    });
-  
-  function midAngle(d){
-    return d.startAngle + (d.endAngle - d.startAngle) / 2;
+  // Add bars
+  const bars = g.selectAll(".bar")
+      .data(data)
+      .enter()
+      .append("rect")
+      .style("fill", "rgba(7, 121, 81, 0.851)")
+      .attr("x", d => x(d.key))
+      .attr("width", x.bandwidth())
+      .attr("y", d => y(d.value))
+      .attr("height", d => height - y(d.value));
+
+  // Create a tooltip
+  const tooltip = svg.append("text")
+      .attr("x", 0)
+      .attr("y", 0)
+      .style("font-size", "16px")
+      .style("fill", "black")
+      .style("visibility", "hidden");
+
+  // Show/hide the tooltip on hover
+  bars.on("mouseover", function(event, d) {
+  const percentage = (d.value / sum_tot * 100).toFixed(2) + "%";
+  let textPosition = y(d.value) + 15;
+  if(height - y(d.value) < 20) { // if bar height is less than 20
+    textPosition = y(d.value) - 5; // place text above the bar
   }
-  
-  text.transition().duration(1000)
-    .attr("transform", function(d) {
-      var pos = outerArc.centroid(d);
-      pos[0] = radius * (midAngle(d) < Math.PI ? 1.07 : -1.07);
-      return "translate(" + pos + ")";
-    })
-    .style("text-anchor", function(d){
-      return midAngle(d) < Math.PI ? "start":"end";
-    });
-  
-  const polyline = g.selectAll("polyline")
-    .data(pie)
-    .enter()
-    .append("polyline")
-    .attr("stroke", "black")    
-    .attr("fill", "none");      
+  tooltip.text(percentage)
+      .attr("x", x(d.key) + x.bandwidth() / 2 + 37)
+      .attr("y", textPosition)  
+      .style("text-anchor", "middle")  // Center align
+      .style("visibility", "visible");
+}).on("mouseout", function() {
+  tooltip.style("visibility", "hidden");
+});
 
-polyline.transition().duration(1000)
-    .attr("points", function(d){
-      var pos = outerArc.centroid(d);
-      pos[0] = radius * 1.03 * (midAngle(d) < Math.PI ? 1 : -1);
-      return isGreaterThanThreshold && (d.data.value/sum_tot) <= 0.75 ? '' : [arc.centroid(d), outerArc.centroid(d), pos];
-    });
-    
-  };
+};
+
+
 
  const destroyed = (svg) => {
   svg.selectAll("g").remove();
 };
 
-  const ref = useD3(createPieChart, [chats, dimensions], destroyed);
+  const ref = useD3(createBarChart, [chats, dimensions], destroyed);
 
 useEffect(() => {
     if (refContainer.current) {
@@ -182,16 +189,14 @@ useEffect(() => {
         ref={refContainer}
       >
         <svg
-          ref={ref}
-          width={dimensions.width}
-          height={dimensions.height}
-          style={{
-            marginRight: "0px",
-            marginLeft: "0px",
-          }}
-        >
-          <g className="plot-area" />
-        </svg>
+      ref={ref}
+      width={dimensions.width}
+      height={dimensions.height}
+      style={{
+        marginRight: "0px",
+        marginLeft: "0px",
+      }}
+    >    </svg>
       </Row>
     </Container>
   );
