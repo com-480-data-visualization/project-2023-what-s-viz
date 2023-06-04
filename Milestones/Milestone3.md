@@ -26,6 +26,9 @@ The grading is the following:
 * Screencast (25%)
 * Process book (25%)
 
+Hugo Lanfranchi added his contributions later on (last day of hand-in), after the process book and presentation video were made.
+Those visualizations can be found on the [late-additions](https://github.com/com-480-data-visualization/project-2023-what-s-viz/tree/late-additions) branch of this repository.
+
 Grades may vary across the team members, based on the process book and the
 peer assessment process. Please provide clear explanations.
 
