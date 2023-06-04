@@ -66,7 +66,7 @@ function Home() {
  
 
   // Current chart type
-  const [chartType, setChartType] = useState<ChartType>(ChartType.HistogramContacts);
+  const [chartType, setChartType] = useState<ChartType>(ChartType.LanguageChart);
 
 
   // =============================================================== //
@@ -258,6 +258,21 @@ function Home() {
 
     const renderChart = () => {
     switch (chartType) {
+        case ChartType.LanguageChart:
+        return (
+          <>
+            <Row>
+                    <Col style={{ display: 'flex', alignItems: 'center' }}>
+                      Loaded {stats.messages} messages in {Object.keys(idToContact).length} contacts and {Object.keys(idToGroup).length} groups.
+                    </Col>
+                </Row>
+           <Row><LanguageStats title={"Language distribution of selected chat"} idToMessage={idToMessage} selectedId={selectedId} setUsedLanguages={setUsedLanguages} /></Row>
+
+                  <Row className="p-2" ><WordCloud bagOfWord={bagOfWord} selectedId={selectedId} /></Row>
+
+                  <Row ><Legend usedLanguages={usedLanguages} /></Row>
+                  </>
+        );
       case ChartType.HistogramContacts:
         return (
           <HistogramContacts
@@ -275,21 +290,6 @@ function Home() {
             messageStatsPerChat={messageStatsPerChat}
             selectedId={selectedId}
           />
-        );
-      case ChartType.LanguageChart:
-        return (
-          <>
-            <Row>
-                    <Col style={{ display: 'flex', alignItems: 'center' }}>
-                      Loaded {stats.messages} messages in {Object.keys(idToContact).length} contacts and {Object.keys(idToGroup).length} groups.
-                    </Col>
-                </Row>
-           <Row><LanguageStats title={"Language distribution of selected chat"} idToMessage={idToMessage} selectedId={selectedId} setUsedLanguages={setUsedLanguages} /></Row>
-
-                  <Row className="p-2" ><WordCloud bagOfWord={bagOfWord} selectedId={selectedId} /></Row>
-
-                  <Row ><Legend usedLanguages={usedLanguages} /></Row>
-                  </>
         );
       default:
           return (
