@@ -64,3 +64,5 @@ The following scripts are available for running various tasks within the project
 - **`npm run deploy`**: Builds the application and deploys it to the gh-pages branch of the repository using your Git account. After a few minutes, the deployed application will be accessible at [https://com-480-data-visualization.github.io/project-2023-what-s-viz/](https://com-480-data-visualization.github.io/project-2023-what-s-viz/).
 
 By following these steps and utilizing the available scripts, you can effectively set up the project for development, preview it in the browser, and build it for production or deployment purposes.
+
+Please note that currently, the project do not work on vanilla windows, if you use that OS you can install WSL and act as a linux user (Also note that for development you should put the project in the [// root of WSL otherwise continuous development will not be possible](https://stackoverflow.com/questions/60354594/wsl-2-vs-code%C2%B4s-npm-scritps-doen%C2%B4t-refresh-when-creating-a-new-script-in-packag))
