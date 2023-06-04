@@ -13,6 +13,7 @@
 
   interface chatStats { 
     idSendCount: counter,
+    timestamp: Array<String>,
   }
   interface messageStats {
     [index: string]: chatStats
@@ -37,6 +38,7 @@
   interface contactStats { 
     numMessages: number,
     numWords: number,
+    timestamp: Array<String>,
   }
 interface contactStatsDict{ [index: string]: contactStats }
   
